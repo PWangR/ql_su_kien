@@ -22,10 +22,14 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('dashboard');
+            $user = Auth::user();
+            if ($user->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            }
+            return redirect()->route('home');
         }
 
-        return back()->with('error', 'Email hoặc mật khẩu không đúng');
+        return back()->with('error', 'Email hoặc mật khẩu không đúng hoặc tài khoản bị khóa');
     }
 
     public function logout(Request $request)

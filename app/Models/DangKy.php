@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class DangKy extends Model
+{
+    use SoftDeletes;
+
+    protected $table = 'dang_ky';
+    protected $primaryKey = 'ma_dang_ky';
+
+    protected $fillable = [
+        'ma_nguoi_dung', 'ma_su_kien', 'trang_thai_tham_gia'
+    ];
+
+    public function nguoiDung()
+    {
+        return $this->belongsTo(User::class, 'ma_nguoi_dung', 'ma_nguoi_dung');
+    }
+
+    public function suKien()
+    {
+        return $this->belongsTo(SuKien::class, 'ma_su_kien', 'ma_su_kien');
+    }
+
+    public function getTrangThaiLabelAttribute()
+    {
+        return match($this->trang_thai_tham_gia) {
+            'da_dang_ky'  => 'Đã đăng ký',
+            'da_tham_gia' => 'Đã tham gia',
+            'vang_mat'    => 'Vắng mặt',
+            'huy'         => 'Đã hủy',
+            default       => 'Không xác định',
+        };
+    }
+}

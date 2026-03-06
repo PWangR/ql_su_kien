@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\VaiTro;
 
 class User extends Authenticatable
 {
@@ -32,6 +33,15 @@ class User extends Authenticatable
 
     public function vaiTro()
     {
-        return $this->belongsTo(VaiTro::class, 'ma_vai_tro');
+        return $this->belongsTo(VaiTro::class, 'ma_vai_tro', 'ma_vai_tro');
+    }
+    public function isAdmin()
+    {
+        return $this->vaiTro->ten_vai_tro === 'admin';
+    }
+
+    public function isSinhVien()
+    {
+        return $this->vaiTro->ten_vai_tro === 'sinh_vien';
     }
 }
