@@ -16,12 +16,13 @@ class SuKien extends Model
         'ten_su_kien', 'mo_ta_chi_tiet', 'ma_loai_su_kien',
         'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem',
         'so_luong_toi_da', 'so_luong_hien_tai', 'diem_cong',
-        'ma_nguoi_tao', 'ma_nguoi_to_chuc', 'trang_thai', 'anh_su_kien'
+        'ma_nguoi_tao', 'ma_nguoi_to_chuc', 'trang_thai', 'anh_su_kien', 'bo_cuc'
     ];
 
     protected $casts = [
         'thoi_gian_bat_dau'  => 'datetime',
         'thoi_gian_ket_thuc' => 'datetime',
+        'bo_cuc'             => 'array',
     ];
 
     public function loaiSuKien()
@@ -50,9 +51,20 @@ class SuKien extends Model
                      ->where('thoi_gian_bat_dau', '>', now());
     }
 
+    public function getTrangThaiThucTeAttribute()
+    {
+        if ($this->trang_thai === 'huy') return 'huy';
+        
+        $now = now();
+        if ($now < $this->thoi_gian_bat_dau) return 'sap_to_chuc';
+        if ($now <= $this->thoi_gian_ket_thuc) return 'dang_dien_ra';
+        return 'da_ket_thuc';
+    }
+
     public function getTrangThaiLabelAttribute()
     {
-        return match($this->trang_thai) {
+        $status = $this->trang_thai_thuc_te;
+        return match($status) {
             'sap_to_chuc'   => 'Sắp tổ chức',
             'dang_dien_ra'  => 'Đang diễn ra',
             'da_ket_thuc'   => 'Đã kết thúc',
@@ -63,7 +75,8 @@ class SuKien extends Model
 
     public function getTrangThaiColorAttribute()
     {
-        return match($this->trang_thai) {
+        $status = $this->trang_thai_thuc_te;
+        return match($status) {
             'sap_to_chuc'   => 'primary',
             'dang_dien_ra'  => 'success',
             'da_ket_thuc'   => 'secondary',

@@ -19,73 +19,99 @@
 <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;">
 
 <div>
-    <!-- Thông tin chính -->
-    <div class="card mb-3">
-        <div class="card-header">
-            <div class="card-title"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Thông tin sự kiện</div>
-        </div>
-        <div class="card-body">
+@php
+    $layout = $suKien->bo_cuc ?? ['banner', 'header', 'info', 'description', 'gallery'];
+@endphp
+
+@foreach($layout as $component)
+    @switch($component)
+        @case('banner')
             @if($suKien->anh_su_kien)
             <img src="{{ asset('storage/'.$suKien->anh_su_kien) }}" alt="Ảnh sự kiện"
-                style="width:100%;max-height:280px;object-fit:cover;border-radius:12px;margin-bottom:20px;">
+                style="width:100%;max-height:350px;object-fit:cover;border-radius:16px;margin-bottom:25px;box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
             @endif
+            @break
 
-            <h2 style="font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;color:var(--secondary);margin-bottom:12px;">
-                {{ $suKien->ten_su_kien }}
-            </h2>
+        @case('header')
+            <div class="mb-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-soft-primary text-primary px-3 py-2" style="font-size: 12px; border-radius: 8px; background-color: #eef2ff; border: 1px solid #e0e7ff;">
+                        {{ $suKien->loaiSuKien->ten_loai ?? 'Sự kiện' }}
+                    </span>
+                    <span class="badge bg-{{ $suKien->trang_thai_color }} px-3 py-2" style="font-size: 12px; border-radius: 8px;">
+                        {{ $suKien->trang_thai_label }}
+                    </span>
+                </div>
+                <h2 style="font-family:'Montserrat',sans-serif;font-size:28px;font-weight:800;color:var(--secondary);margin-bottom:12px; line-height: 1.3;">
+                    {{ $suKien->ten_su_kien }}
+                </h2>
+            </div>
+            @break
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-                <div>
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);">Loại sự kiện</div>
-                    <div style="font-size:14px;font-weight:600;">{{ $suKien->loaiSuKien->ten_loai ?? '—' }}</div>
-                </div>
-                <div>
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);">Địa điểm</div>
-                    <div style="font-size:14px;font-weight:600;">{{ $suKien->dia_diem ?: '—' }}</div>
-                </div>
-                <div>
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);">Thời gian bắt đầu</div>
-                    <div style="font-size:14px;font-weight:600;">{{ $suKien->thoi_gian_bat_dau?->format('H:i d/m/Y') }}</div>
-                </div>
-                <div>
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);">Thời gian kết thúc</div>
-                    <div style="font-size:14px;font-weight:600;">{{ $suKien->thoi_gian_ket_thuc?->format('H:i d/m/Y') }}</div>
-                </div>
-                <div>
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);">Số lượng</div>
-                    <div style="font-size:14px;font-weight:600;">{{ $suKien->so_luong_hien_tai }}/{{ $suKien->so_luong_toi_da ?: '∞' }}</div>
-                </div>
-                <div>
-                    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);">Điểm cộng</div>
-                    <div style="font-size:14px;font-weight:600;">{{ $suKien->diem_cong ?: 'Không có' }}</div>
+        @case('info')
+            <div class="card border-0 shadow-sm mb-4" style="background-color: #f8fafc; border-radius: 12px;">
+                <div class="card-body p-4">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:20px;">
+                        <div>
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light); margin-bottom: 4px;">Địa điểm</div>
+                            <div style="font-size:14px;font-weight:600;"><i class="bi bi-geo-alt text-danger me-1"></i> {{ $suKien->dia_diem ?: '—' }}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light); margin-bottom: 4px;">Thời gian bắt đầu</div>
+                            <div style="font-size:14px;font-weight:600;"><i class="bi bi-calendar-event text-primary me-1"></i> {{ $suKien->thoi_gian_bat_dau?->format('H:i d/m/Y') }}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light); margin-bottom: 4px;">Thời gian kết thúc</div>
+                            <div style="font-size:14px;font-weight:600;"><i class="bi bi-calendar-check text-success me-1"></i> {{ $suKien->thoi_gian_ket_thuc?->format('H:i d/m/Y') }}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light); margin-bottom: 4px;">Quy mô & Điểm</div>
+                            <div style="font-size:14px;font-weight:600;">
+                                <i class="bi bi-people text-info me-1"></i> {{ $suKien->so_luong_hien_tai }}/{{ $suKien->so_luong_toi_da ?: '∞' }} 
+                                <span class="mx-2 text-muted">|</span>
+                                <i class="bi bi-plus-circle text-warning me-1"></i> +{{ $suKien->diem_cong ?: '0' }} điểm
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            @break
 
+        @case('description')
             @if($suKien->mo_ta_chi_tiet)
-            <div class="mt-4">
-                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);margin-bottom:8px;">Mô tả</div>
+            <div class="mb-5">
+                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-bottom:15px; display: flex; align-items: center;">
+                    <span style="height: 1px; width: 30px; background: #e2e8f0; margin-right: 10px;"></span>
+                    Nội dung chi tiết
+                </div>
                 <div class="ql-snow">
-                    <div class="ql-editor" style="padding:0;font-size:14px;color:var(--text);">{!! $suKien->mo_ta_chi_tiet !!}</div>
+                    <div class="ql-editor" style="padding:0;font-size:15px;color:var(--text); line-height: 1.8;">{!! $suKien->mo_ta_chi_tiet !!}</div>
                 </div>
             </div>
             @endif
+            @break
 
+        @case('gallery')
             @if($suKien->media->where('loai_tep', 'hinh_anh')->count() > 0)
-            <div class="mt-5 pt-3 border-top">
-                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);margin-bottom:15px;">Hình ảnh liên quan</div>
-                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:15px;">
+            <div class="mb-5">
+                <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-bottom:15px; display: flex; align-items: center;">
+                    <span style="height: 1px; width: 30px; background: #e2e8f0; margin-right: 10px;"></span>
+                    Hình ảnh liên quan
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:15px;">
                     @foreach($suKien->media->where('loai_tep', 'hinh_anh') as $img)
                     <div class="gallery-item" style="border-radius:12px; overflow:hidden; box-shadow:0 4px 6px -1px rgba(0,0,0,0.1); border:1px solid #f1f5f9; cursor:zoom-in;">
                         <a href="{{ asset('storage/'.$img->duong_dan_tep) }}" target="_blank">
-                            <img src="{{ asset('storage/'.$img->duong_dan_tep) }}" style="width:100%; height:100px; object-fit:cover; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                            <img src="{{ asset('storage/'.$img->duong_dan_tep) }}" style="width:100%; height:140px; object-fit:cover; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                         </a>
                     </div>
                     @endforeach
                 </div>
             </div>
             @endif
-        </div>
-    </div>
+            @break
+    @endswitch
+@endforeach
 </div>
 
 <!-- Sidebar info -->

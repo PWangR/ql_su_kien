@@ -23,7 +23,7 @@ class TemplateController extends Controller
             'noi_dung' => 'required',
         ]);
 
-        $data = $request->only(['ten_mau', 'noi_dung', 'ma_loai_su_kien', 'dia_diem', 'so_luong_toi_da', 'diem_cong']);
+        $data = $request->only(['ten_mau', 'noi_dung', 'ma_loai_su_kien', 'dia_diem', 'so_luong_toi_da', 'diem_cong', 'bo_cuc']);
         $data['ma_nguoi_tao'] = auth()->id();
 
         if ($request->hasFile('anh_su_kien')) {
@@ -45,7 +45,7 @@ class TemplateController extends Controller
             'noi_dung' => 'required',
         ]);
 
-        $data = $request->only(['ten_mau', 'noi_dung', 'ma_loai_su_kien', 'dia_diem', 'so_luong_toi_da', 'diem_cong']);
+        $data = $request->only(['ten_mau', 'noi_dung', 'ma_loai_su_kien', 'dia_diem', 'so_luong_toi_da', 'diem_cong', 'bo_cuc']);
 
         if ($request->hasFile('anh_su_kien')) {
             if ($template->anh_su_kien && !str_starts_with($template->anh_su_kien, 'media/')) {

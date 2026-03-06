@@ -134,15 +134,6 @@
             </thead>
             <tbody>
                 @forelse($suKien as $sk)
-                @php
-                    $statusConfig = [
-                        'sap_to_chuc'  => ['bg'=>'#eff6ff','text'=>'#1e40af','label'=>'Sắp tổ chức'],
-                        'dang_dien_ra' => ['bg'=>'#f0fdf4','text'=>'#166534','label'=>'Đang diễn ra'],
-                        'da_ket_thuc'  => ['bg'=>'#f8fafc','text'=>'#475569','label'=>'Đã kết thúc'],
-                        'huy'          => ['bg'=>'#fef2f2','text'=>'#991b1b','label'=>'Đã hủy'],
-                    ];
-                    $st = $statusConfig[$sk->trang_thai] ?? $statusConfig['da_ket_thuc'];
-                @endphp
                 <tr>
                     <td class="text-muted small">#{{ $sk->ma_su_kien }}</td>
                     <td>
@@ -175,7 +166,7 @@
                         </div>
                     </td>
                     <td>
-                        <span class="badge-status" style="background:{{ $st['bg'] }}; color:{{ $st['text'] }};">{{ $st['label'] }}</span>
+                        <span class="badge badge-status bg-{{ $sk->trang_thai_color }} text-white">{{ $sk->trang_thai_label }}</span>
                     </td>
                     <td class="text-end">
                         <div class="d-flex justify-content-end gap-2">

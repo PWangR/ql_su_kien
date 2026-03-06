@@ -14,7 +14,11 @@ class MauBaiDang extends Model
 
     protected $fillable = [
         'ten_mau', 'noi_dung', 'ma_nguoi_tao', 'ma_loai_su_kien',
-        'dia_diem', 'so_luong_toi_da', 'diem_cong', 'anh_su_kien'
+        'dia_diem', 'so_luong_toi_da', 'diem_cong', 'anh_su_kien', 'bo_cuc'
+    ];
+
+    protected $casts = [
+        'bo_cuc' => 'array',
     ];
 
     public function nguoiTao()

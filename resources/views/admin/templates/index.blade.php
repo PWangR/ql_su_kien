@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-                    <button class="btn btn-warning btn-sm" onclick="editTemplate({{ $t->ma_mau }}, `{{ addslashes($t->ten_mau) }}`, `{{ addslashes($t->noi_dung) }}`, '{{ $t->ma_loai_su_kien }}', `{{ addslashes($t->dia_diem) }}`, '{{ $t->so_luong_toi_da }}', '{{ $t->diem_cong }}')">
+                    <button class="btn btn-warning btn-sm" onclick="editTemplate({{ $t->ma_mau }}, `{{ addslashes($t->ten_mau) }}`, `{{ addslashes($t->noi_dung) }}`, '{{ $t->ma_loai_su_kien }}', `{{ addslashes($t->dia_diem) }}`, '{{ $t->so_luong_toi_da }}', '{{ $t->diem_cong }}', `{{ json_encode($t->bo_cuc ?? ['banner','header','info','description','gallery']) }}`)">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <form method="POST" action="{{ route('admin.templates.destroy', $t->ma_mau) }}" onsubmit="return confirm('Xóa template?')">
@@ -87,29 +87,54 @@
             </div>
             
             <div class="mb-3" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid var(--border);">
-                <p style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--primary);">Cấu hình tự động điền (tùy chọn)</p>
-                
-                <div class="mb-2">
-                    <label class="form-label" style="font-size:13px;">Địa điểm mặc định</label>
-                    <input type="text" name="dia_diem" id="inputDiaDiem" class="form-control form-control-sm" placeholder="VD: Hội trường A">
-                </div>
-                
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
-                        <label class="form-label" style="font-size:13px;">Điểm cộng mặc định</label>
-                        <input type="number" name="diem_cong" id="inputDiem" class="form-control form-control-sm" placeholder="0" min="0">
+                <!-- Phần chọn thành phần hiển thị mặc định cho Template -->
+            <div class="mb-3">
+                <label class="form-label fw-bold small">Cấu trúc hiển thị mặc định cho Template</label>
+                <div class="p-3 bg-light rounded-3 border">
+                    <div id="layout-components" class="d-flex flex-wrap gap-2">
+                        @php
+                            $components = [
+                                'banner' => 'Ảnh bìa',
+                                'header' => 'Tiêu đề',
+                                'info' => 'Thông tin',
+                                'description' => 'Mô tả',
+                                'gallery' => 'Thư viện'
+                            ];
+                        @endphp
+                        @foreach($components as $key => $label)
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input component-checkbox" type="checkbox" name="bo_cuc[]" value="{{ $key }}" id="chk-{{ $key }}" checked>
+                            <label class="form-check-label small" for="chk-{{ $key }}">{{ $label }}</label>
+                        </div>
+                        @endforeach
                     </div>
-                    <div class="col-6">
-                        <label class="form-label" style="font-size:13px;">Giới hạn người (0 = ∞)</label>
+                </div>
+            </div>
+
+            <div class="mb-3" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid var(--border);">
+                <div class="row g-2 mb-2">
+                    <div class="col-8">
+                        <label class="form-label" style="font-size:13px;">Địa điểm mặc định</label>
+                        <input type="text" name="dia_diem" id="inputDiaDiem" class="form-control form-control-sm" placeholder="Địa điểm...">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" style="font-size:13px;">Điểm cộng</label>
+                        <input type="number" name="diem_cong" id="inputDiemCong" class="form-control form-control-sm" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-12">
+                        <label class="form-label" style="font-size:13px;">Số lượng tối đa</label>
                         <input type="number" name="so_luong_toi_da" id="inputSoLuong" class="form-control form-control-sm" placeholder="0" min="0">
                     </div>
                 </div>
                 
-                <div class="mb-0">
+                <div class="mt-2 mb-0">
                     <label class="form-label" style="font-size:13px;">Ảnh nền mặc định (tải lên file)</label>
                     <input type="file" name="anh_su_kien" class="form-control form-control-sm" accept="image/*">
                     <small style="font-size:11px;color:var(--text-light);">Bỏ trống nếu không muốn đổi ảnh bìa khi chọn mẫu này.</small>
                 </div>
+            </div>
             </div>
             
             <div class="mb-3">
@@ -153,7 +178,7 @@ quill.on('text-change', function() {
     document.getElementById('inputNoiDung').value = html;
 });
 
-function editTemplate(id, ten, nd, loai, diadiem, soluong, diem) {
+function editTemplate(id, ten, nd, loai, diadiem, soluong, diem, layoutJson) {
     document.getElementById('formTitle').innerHTML = '<i class="bi bi-pencil" style="color:var(--warning)"></i> Chỉnh sửa template';
     document.getElementById('templateForm').action = '/admin/templates/' + id;
     document.getElementById('methodField').innerHTML = '<input type="hidden" name="_method" value="PUT">';
@@ -166,6 +191,12 @@ function editTemplate(id, ten, nd, loai, diadiem, soluong, diem) {
     document.getElementById('inputDiaDiem').value = diadiem || '';
     document.getElementById('inputSoLuong').value = soluong || 0;
     document.getElementById('inputDiem').value = diem || 0;
+
+    // Cập nhật các checkbox bố cục
+    const layout = JSON.parse(layoutJson || '[]');
+    document.querySelectorAll('.component-checkbox').forEach(chk => {
+        chk.checked = layout.includes(chk.value);
+    });
     
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -177,6 +208,9 @@ function resetForm() {
     document.getElementById('templateForm').reset();
     quill.root.innerHTML = '';
     document.getElementById('inputNoiDung').value = '';
+    
+    // Reset checkboxes về mặc định
+    document.querySelectorAll('.component-checkbox').forEach(chk => chk.checked = true);
 }
 </script>
 @endsection

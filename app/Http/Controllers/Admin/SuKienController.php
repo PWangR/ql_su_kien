@@ -46,6 +46,7 @@ class SuKienController extends Controller
             'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
             'so_luong_toi_da'    => 'nullable|integer|min:1',
             'diem_cong'          => 'nullable|integer|min:0',
+            'bo_cuc'             => 'nullable|array',
         ], [
             'ten_su_kien.required'        => 'Vui lòng nhập tên sự kiện',
             'ma_loai_su_kien.required'    => 'Vui lòng chọn loại sự kiện',
@@ -57,7 +58,7 @@ class SuKienController extends Controller
         $data = $request->only([
             'ten_su_kien', 'mo_ta_chi_tiet', 'ma_loai_su_kien',
             'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem',
-            'so_luong_toi_da', 'diem_cong'
+            'so_luong_toi_da', 'diem_cong', 'bo_cuc'
         ]);
         $data['ma_nguoi_tao'] = auth()->id();
         $data['trang_thai'] = 'sap_to_chuc';
@@ -118,12 +119,13 @@ class SuKienController extends Controller
             'ma_loai_su_kien'    => 'required|exists:loai_su_kien,ma_loai_su_kien',
             'thoi_gian_bat_dau'  => 'required|date',
             'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
+            'bo_cuc'             => 'nullable|array',
         ]);
 
         $data = $request->only([
             'ten_su_kien', 'mo_ta_chi_tiet', 'ma_loai_su_kien',
             'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem',
-            'so_luong_toi_da', 'diem_cong', 'trang_thai'
+            'so_luong_toi_da', 'diem_cong', 'trang_thai', 'bo_cuc'
         ]);
 
         if ($request->hasFile('anh_su_kien')) {
