@@ -15,12 +15,7 @@ class CheckRole
 
         $user = auth()->user();
 
-        // Nếu không có vai trò, deny
-        if (!$user->vaiTro) {
-            abort(403, 'Không có quyền truy cập');
-        }
-
-        $tenVaiTro = $user->vaiTro->ten_vai_tro;
+        $tenVaiTro = $user->vai_tro;
 
         if (!in_array($tenVaiTro, $roles)) {
             abort(403, 'Bạn không có quyền truy cập trang này');

@@ -12,7 +12,7 @@ class LichSuDiem extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'ma_nguoi_dung', 'ma_su_kien', 'ma_dang_ky',
+        'ma_nguoi_dung', 'ma_dang_ky',
         'diem', 'nguon'
     ];
 
@@ -23,10 +23,5 @@ class LichSuDiem extends Model
     public function nguoiDung()
     {
         return $this->belongsTo(User::class, 'ma_nguoi_dung', 'ma_nguoi_dung');
-    }
-
-    public function suKien()
-    {
-        return $this->belongsTo(SuKien::class, 'ma_su_kien', 'ma_su_kien');
     }
 }

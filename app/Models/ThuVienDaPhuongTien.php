@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class ThuVienDaPhuongTien extends Model
 {
@@ -11,6 +12,19 @@ class ThuVienDaPhuongTien extends Model
 
     protected $table = 'thu_vien_da_phuong_tien';
     protected $primaryKey = 'ma_phuong_tien';
+
+    protected static function booted()
+    {
+        static::deleting(function ($media) {
+            // Khi thực hiện hard delete (hoặc nếu bạn muốn xóa file ngay cả khi soft delete)
+            // Ở đây ta check nếu là force deleting hoặc không dùng soft delete
+            if (!$media->useSoftDeletes || $media->isForceDeleting()) {
+                if ($media->duong_dan_tep && Storage::disk('public')->exists($media->duong_dan_tep)) {
+                    Storage::disk('public')->delete($media->duong_dan_tep);
+                }
+            }
+        });
+    }
 
     protected $fillable = [
         'ma_su_kien', 'ma_nguoi_tai_len', 'ten_tep',

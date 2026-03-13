@@ -13,7 +13,7 @@ class RoleMiddleware
             return redirect('/login');
         }
 
-        if (Auth::user()->vaiTro->ten_vai_tro !== $role) {
+        if (Auth::user()->vai_tro !== $role) {
             abort(403, 'Không có quyền truy cập');
         }
 

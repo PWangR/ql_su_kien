@@ -10,17 +10,9 @@ class NguoiDungSeeder extends Seeder
 {
     public function run(): void
     {
-        $adminRole = DB::table('vai_tro')
-                        ->where('ten_vai_tro', 'admin')
-                        ->first();
-
-        $sinhVienRole = DB::table('vai_tro')
-                        ->where('ten_vai_tro', 'sinh_vien')
-                        ->first();
-
         DB::table('nguoi_dung')->insert([
             [
-                'ma_vai_tro' => $adminRole->ma_vai_tro,
+                'vai_tro' => 'admin',
                 'ma_sinh_vien' => 'ADMIN001',
                 'ho_ten' => 'Quản trị viên',
                 'email' => 'admin@local.test',
@@ -30,7 +22,7 @@ class NguoiDungSeeder extends Seeder
                 'updated_at' => now()
             ],
             [
-                'ma_vai_tro' => $sinhVienRole->ma_vai_tro,
+                'vai_tro' => 'sinh_vien',
                 'ma_sinh_vien' => 'SV001',
                 'ho_ten' => 'Sinh viên mẫu',
                 'email' => 'sv@local.test',

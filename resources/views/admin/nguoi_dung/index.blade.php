@@ -18,9 +18,8 @@
             <input type="text" name="search" class="form-control" placeholder="Tìm kiếm tên, email, MSSV..." value="{{ request('search') }}" style="max-width:280px;">
             <select name="vai_tro" class="form-control" style="max-width:180px;">
                 <option value="">-- Vai trò --</option>
-                @foreach($vaiTro as $vt)
-                <option value="{{ $vt->ma_vai_tro }}" {{ request('vai_tro') == $vt->ma_vai_tro ? 'selected' : '' }}>{{ $vt->ten_vai_tro }}</option>
-                @endforeach
+                <option value="admin" {{ request('vai_tro') == 'admin' ? 'selected' : '' }}>Admin</option>
+                <option value="sinh_vien" {{ request('vai_tro') == 'sinh_vien' ? 'selected' : '' }}>Sinh viên</option>
             </select>
             <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> Tìm</button>
             <a href="{{ route('admin.nguoi-dung.index') }}" class="btn btn-secondary">Đặt lại</a>
@@ -53,8 +52,8 @@
                     <td>{{ $nd->ma_sinh_vien }}</td>
                     <td style="font-size:13px;">{{ $nd->email }}</td>
                     <td>
-                        <span class="badge {{ $nd->vaiTro->ten_vai_tro === 'admin' ? 'badge-primary' : 'badge-secondary' }}">
-                            {{ $nd->vaiTro->ten_vai_tro ?? '—' }}
+                        <span class="badge {{ $nd->vai_tro === 'admin' ? 'badge-primary' : 'badge-secondary' }}">
+                            {{ $nd->vai_tro === 'admin' ? 'Admin' : 'Sinh viên' }}
                         </span>
                     </td>
                     <td>
@@ -117,11 +116,9 @@
                 <input type="email" name="email" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Vai trò *</label>
-                <select name="ma_vai_tro" class="form-control" required>
-                    @foreach($vaiTro as $vt)
-                    <option value="{{ $vt->ma_vai_tro }}">{{ $vt->ten_vai_tro }}</option>
-                    @endforeach
+                <select name="vai_tro" class="form-control" required>
+                    <option value="sinh_vien">Sinh viên</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
             <div class="mb-3">

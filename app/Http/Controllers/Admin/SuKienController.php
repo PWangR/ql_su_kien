@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreSuKienRequest;
+use App\Http\Requests\Admin\UpdateSuKienRequest;
 use App\Models\SuKien;
 use App\Models\LoaiSuKien;
 use App\Models\LichSuDiem;
@@ -10,9 +12,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\HasImageUpload;
 
 class SuKienController extends Controller
 {
+    use HasImageUpload;
     public function index(Request $request)
     {
         $query = SuKien::with('loaiSuKien');
@@ -37,59 +41,18 @@ class SuKienController extends Controller
         return view('admin.su_kien.create', compact('loai', 'templates', 'mediaKho'));
     }
 
-    public function store(Request $request)
+    public function store(StoreSuKienRequest $request)
     {
-        $request->validate([
-            'ten_su_kien'        => 'required|max:200',
-            'ma_loai_su_kien'    => 'required|exists:loai_su_kien,ma_loai_su_kien',
-            'thoi_gian_bat_dau'  => 'required|date',
-            'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
-            'so_luong_toi_da'    => 'nullable|integer|min:1',
-            'diem_cong'          => 'nullable|integer|min:0',
-            'bo_cuc'             => 'nullable|array',
-        ], [
-            'ten_su_kien.required'        => 'Vui lòng nhập tên sự kiện',
-            'ma_loai_su_kien.required'    => 'Vui lòng chọn loại sự kiện',
-            'thoi_gian_bat_dau.required'  => 'Vui lòng chọn thời gian bắt đầu',
-            'thoi_gian_ket_thuc.required' => 'Vui lòng chọn thời gian kết thúc',
-            'thoi_gian_ket_thuc.after'    => 'Thời gian kết thúc phải sau thời gian bắt đầu',
-        ]);
-
-        $data = $request->only([
-            'ten_su_kien', 'mo_ta_chi_tiet', 'ma_loai_su_kien',
-            'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem',
-            'so_luong_toi_da', 'diem_cong', 'bo_cuc'
-        ]);
+        $data = $request->validated();
         $data['ma_nguoi_tao'] = auth()->id();
         $data['trang_thai'] = 'sap_to_chuc';
 
-        // Xử lý upload ảnh
-        if ($request->hasFile('anh_su_kien')) {
-            $path = $request->file('anh_su_kien')->store('su_kien', 'public');
-            $data['anh_su_kien'] = $path;
-        } elseif ($request->filled('media_duong_dan')) {
-            $data['anh_su_kien'] = $request->media_duong_dan;
-        }
+        $data['anh_su_kien'] = $this->handleImageUpload($request, null);
 
         $suKien = SuKien::create($data);
 
         // Xử lý upload danh sách ảnh phụ (Gallery)
-        if ($request->has('gallery_files')) {
-            foreach ($request->gallery_files as $file) {
-                if ($file->isValid()) {
-                    $path = $file->store('su_kien/gallery', 'public');
-                    \App\Models\ThuVienDaPhuongTien::create([
-                        'ma_su_kien'       => $suKien->ma_su_kien,
-                        'ma_nguoi_tai_len' => auth()->id(),
-                        'ten_tep'          => $file->getClientOriginalName(),
-                        'duong_dan_tep'    => $path,
-                        'loai_tep'         => 'hinh_anh',
-                        'kich_thuoc'       => $file->getSize(),
-                        'la_cong_khai'     => true
-                    ]);
-                }
-            }
-        }
+        $this->_uploadGallery($suKien, $request->file('gallery_files'));
 
         return redirect()->route('admin.su-kien.index')
                          ->with('success', 'Tạo sự kiện thành công!');
@@ -110,42 +73,29 @@ class SuKienController extends Controller
         return view('admin.su_kien.edit', compact('suKien', 'loai', 'templates', 'mediaKho'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateSuKienRequest $request, $id)
     {
         $suKien = SuKien::findOrFail($id);
+        $data = $request->validated();
+        $data['trang_thai'] = $request->trang_thai;
+        $data['mo_ta_chi_tiet'] = $request->mo_ta_chi_tiet;
+        $data['dia_diem'] = $request->dia_diem;
 
-        $request->validate([
-            'ten_su_kien'        => 'required|max:200',
-            'ma_loai_su_kien'    => 'required|exists:loai_su_kien,ma_loai_su_kien',
-            'thoi_gian_bat_dau'  => 'required|date',
-            'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
-            'bo_cuc'             => 'nullable|array',
-        ]);
-
-        $data = $request->only([
-            'ten_su_kien', 'mo_ta_chi_tiet', 'ma_loai_su_kien',
-            'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem',
-            'so_luong_toi_da', 'diem_cong', 'trang_thai', 'bo_cuc'
-        ]);
-
-        if ($request->hasFile('anh_su_kien')) {
-            // Xóa ảnh cũ
-            if ($suKien->anh_su_kien && !str_starts_with($suKien->anh_su_kien, 'media/')) {
-                Storage::disk('public')->delete($suKien->anh_su_kien);
-            }
-            $data['anh_su_kien'] = $request->file('anh_su_kien')->store('su_kien', 'public');
-        } elseif ($request->filled('media_duong_dan') && $request->media_duong_dan != $suKien->anh_su_kien) {
-            if ($suKien->anh_su_kien && !str_starts_with($suKien->anh_su_kien, 'media/')) {
-                Storage::disk('public')->delete($suKien->anh_su_kien);
-            }
-            $data['anh_su_kien'] = $request->media_duong_dan;
-        }
+        $data['anh_su_kien'] = $this->handleImageUpload($request, $suKien);
 
         $suKien->update($data);
 
-        // Xử lý upload thêm ảnh vào Gallery (nếu có)
-        if ($request->has('gallery_files')) {
-            foreach ($request->gallery_files as $file) {
+        // Xử lý upload thêm ảnh vào Gallery
+        $this->_uploadGallery($suKien, $request->file('gallery_files'));
+
+        return redirect()->route('admin.su-kien.index')
+                         ->with('success', 'Cập nhật sự kiện thành công!');
+    }
+
+    private function _uploadGallery(SuKien $suKien, $files)
+    {
+        if ($files) {
+            foreach ($files as $file) {
                 if ($file->isValid()) {
                     $path = $file->store('su_kien/gallery', 'public');
                     \App\Models\ThuVienDaPhuongTien::create([
@@ -160,9 +110,6 @@ class SuKienController extends Controller
                 }
             }
         }
-
-        return redirect()->route('admin.su-kien.index')
-                         ->with('success', 'Cập nhật sự kiện thành công!');
     }
 
     public function destroy($id)
@@ -244,12 +191,9 @@ class SuKienController extends Controller
         $media = \App\Models\ThuVienDaPhuongTien::find($id);
         if (!$media) return response()->json(['success' => false, 'message' => 'Không tìm thấy ảnh.'], 404);
         
-        // Xóa file vật lý
-        if ($media->duong_dan_tep && \Storage::disk('public')->exists($media->duong_dan_tep)) {
-            \Storage::disk('public')->delete($media->duong_dan_tep);
-        }
+        // Logic xóa file đã được xử lý tự động trong model event
+        $media->forceDelete(); 
         
-        $media->delete();
         return response()->json(['success' => true]);
     }
 }

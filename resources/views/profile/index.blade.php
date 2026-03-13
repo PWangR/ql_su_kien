@@ -18,7 +18,7 @@
         <h2 style="font-family:'Montserrat',sans-serif;font-size:20px;font-weight:800;color:#fff;">{{ $user->ho_ten }}</h2>
         <p style="color:#93c5fd;font-size:13px;margin-top:4px;">{{ $user->email }}</p>
         <span style="background:rgba(37,99,235,.3);color:#93c5fd;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-top:8px;display:inline-block;">
-            {{ $user->vaiTro->ten_vai_tro ?? '' }}
+            {{ $user->vai_tro === 'admin' ? 'Quản trị viên' : 'Sinh viên' }}
         </span>
     </div>
 

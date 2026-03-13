@@ -15,7 +15,7 @@ return new class extends Migration
         $table->id('ma_su_kien');
 
         $table->string('ten_su_kien', 200);
-        $table->text('mo_ta_chi_tiet')->nullable();
+        $table->longText('mo_ta_chi_tiet')->nullable();
 
         $table->foreignId('ma_loai_su_kien')
               ->constrained('loai_su_kien', 'ma_loai_su_kien')
@@ -24,6 +24,8 @@ return new class extends Migration
         $table->dateTime('thoi_gian_bat_dau');
         $table->dateTime('thoi_gian_ket_thuc');
         $table->string('dia_diem', 200)->nullable();
+        $table->string('anh_su_kien', 500)->nullable();
+        $table->text('bo_cuc')->nullable();
 
         $table->integer('so_luong_toi_da')->default(0);
         $table->integer('so_luong_hien_tai')->default(0);

@@ -14,8 +14,12 @@ return new class extends Migration
     Schema::create('mau_bai_dang', function (Blueprint $table) {
         $table->id('ma_mau');
 
-        $table->string('ten_mau',100);
-        $table->text('noi_dung');
+        $table->longText('noi_dung');
+        $table->text('bo_cuc')->nullable();
+        $table->string('dia_diem', 200)->nullable();
+        $table->integer('so_luong_toi_da')->default(0);
+        $table->integer('diem_cong')->default(0);
+        $table->string('anh_su_kien', 500)->nullable();
 
         $table->foreignId('ma_nguoi_tao')
               ->nullable()

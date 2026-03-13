@@ -14,7 +14,7 @@ class User extends Authenticatable
     protected $primaryKey = 'ma_nguoi_dung';
 
     protected $fillable = [
-        'ma_vai_tro',
+        'vai_tro',
         'ma_sinh_vien',
         'ho_ten',
         'email',
@@ -31,17 +31,13 @@ class User extends Authenticatable
         return $this->mat_khau;
     }
 
-    public function vaiTro()
-    {
-        return $this->belongsTo(VaiTro::class, 'ma_vai_tro', 'ma_vai_tro');
-    }
     public function isAdmin()
     {
-        return $this->vaiTro->ten_vai_tro === 'admin';
+        return $this->vai_tro === 'admin';
     }
 
     public function isSinhVien()
     {
-        return $this->vaiTro->ten_vai_tro === 'sinh_vien';
+        return $this->vai_tro === 'sinh_vien';
     }
 }

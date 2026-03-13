@@ -9,30 +9,27 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-{
-    Schema::create('nguoi_dung', function (Blueprint $table) {
-        $table->id('ma_nguoi_dung');
+        public function up()
+    {
+        Schema::create('nguoi_dung', function (Blueprint $table) {
+            $table->id('ma_nguoi_dung');
 
-        $table->foreignId('ma_vai_tro')
-              ->constrained('vai_tro', 'ma_vai_tro')
-              ->restrictOnDelete();
+            $table->enum('vai_tro', ['admin', 'sinh_vien'])->default('sinh_vien');
+            $table->string('ma_sinh_vien', 20)->unique();
+            $table->string('ho_ten', 100);
+            $table->string('email', 100)->unique();
+            $table->string('mat_khau');
+            $table->string('so_dien_thoai', 15)->nullable();
 
-        $table->string('ma_sinh_vien', 20)->unique();
-        $table->string('ho_ten', 100);
-        $table->string('email', 100)->unique();
-        $table->string('mat_khau');
-        $table->string('so_dien_thoai', 15)->nullable();
+            $table->enum('trang_thai', ['hoat_dong','khong_hoat_dong','bi_khoa'])
+                ->default('hoat_dong');
 
-        $table->enum('trang_thai', ['hoat_dong','khong_hoat_dong','bi_khoa'])
-              ->default('hoat_dong');
+            $table->string('duong_dan_anh', 255)->nullable();
 
-        $table->string('duong_dan_anh')->nullable();
-
-        $table->timestamps();
-        $table->softDeletes();
-    });
-}
+            $table->timestamps();
+            $table->softDeletes();
+        });
+    }
 
     /**
      * Reverse the migrations.

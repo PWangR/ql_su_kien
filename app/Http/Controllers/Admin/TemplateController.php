@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\MauBaiDang;
 use App\Models\LoaiSuKien;
 use Illuminate\Http\Request;
+use App\Traits\HasImageUpload;
 
 class TemplateController extends Controller
 {
+    use HasImageUpload;
     public function index()
     {
         $templates  = MauBaiDang::with(['nguoiTao', 'loaiSuKien'])->whereNull('deleted_at')->latest()->paginate(10);
@@ -25,12 +27,7 @@ class TemplateController extends Controller
 
         $data = $request->only(['ten_mau', 'noi_dung', 'ma_loai_su_kien', 'dia_diem', 'so_luong_toi_da', 'diem_cong', 'bo_cuc']);
         $data['ma_nguoi_tao'] = auth()->id();
-
-        if ($request->hasFile('anh_su_kien')) {
-            $data['anh_su_kien'] = $request->file('anh_su_kien')->store('su_kien', 'public');
-        } elseif ($request->filled('media_duong_dan')) {
-            $data['anh_su_kien'] = $request->media_duong_dan;
-        }
+        $data['anh_su_kien'] = $this->handleImageUpload($request, null);
 
         MauBaiDang::create($data);
 
@@ -46,18 +43,7 @@ class TemplateController extends Controller
         ]);
 
         $data = $request->only(['ten_mau', 'noi_dung', 'ma_loai_su_kien', 'dia_diem', 'so_luong_toi_da', 'diem_cong', 'bo_cuc']);
-
-        if ($request->hasFile('anh_su_kien')) {
-            if ($template->anh_su_kien && !str_starts_with($template->anh_su_kien, 'media/')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($template->anh_su_kien);
-            }
-            $data['anh_su_kien'] = $request->file('anh_su_kien')->store('su_kien', 'public');
-        } elseif ($request->filled('media_duong_dan') && $request->media_duong_dan != $template->anh_su_kien) {
-            if ($template->anh_su_kien && !str_starts_with($template->anh_su_kien, 'media/')) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($template->anh_su_kien);
-            }
-            $data['anh_su_kien'] = $request->media_duong_dan;
-        }
+        $data['anh_su_kien'] = $this->handleImageUpload($request, $template);
 
         $template->update($data);
         return back()->with('success', 'Đã cập nhật template!');

@@ -18,10 +18,7 @@ return new class extends Migration
               ->constrained('nguoi_dung', 'ma_nguoi_dung')
               ->cascadeOnDelete();
 
-        $table->foreignId('ma_su_kien')
-              ->nullable()
-              ->constrained('su_kien', 'ma_su_kien')
-              ->nullOnDelete();
+
 
         $table->foreignId('ma_dang_ky')
               ->nullable()
