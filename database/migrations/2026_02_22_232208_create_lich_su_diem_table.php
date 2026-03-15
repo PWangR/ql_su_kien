@@ -9,33 +9,39 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-{
-    Schema::create('lich_su_diem', function (Blueprint $table) {
-        $table->id('ma_lich_su_diem');
+    public function up(): void
+    {
+        Schema::create('lich_su_diem', function (Blueprint $table) {
+            $table->id('ma_lich_su_diem');
 
-        $table->foreignId('ma_nguoi_dung')
-              ->constrained('nguoi_dung', 'ma_nguoi_dung')
-              ->cascadeOnDelete();
+            $table->foreignId('ma_nguoi_dung')
+                ->constrained('nguoi_dung', 'ma_nguoi_dung')
+                ->cascadeOnDelete();
 
+            $table->foreignId('ma_dang_ky')
+                ->nullable()
+                ->constrained('dang_ky', 'ma_dang_ky')
+                ->nullOnDelete();
 
+            $table->integer('diem')->default(0);
 
-        $table->foreignId('ma_dang_ky')
-              ->nullable()
-              ->constrained('dang_ky', 'ma_dang_ky')
-              ->nullOnDelete();
+            $table->enum('nguon', [
+                'tham_gia_su_kien',
+                'thuong_them',
+                'phat_tru',
+                'he_thong',
+            ])->default('tham_gia_su_kien');
 
-        $table->integer('diem');
+            $table->enum('loai_log', ['diem', 'system', 'chatbot'])->default('diem');
+            $table->text('mo_ta')->nullable();
+            $table->json('context')->nullable();
 
-        $table->enum('nguon',
-            ['tham_gia_su_kien','thuong_them','phat_tru']
-        )->default('tham_gia_su_kien');
+            $table->timestamp('thoi_gian_ghi_nhan')->useCurrent();
 
-        $table->timestamp('thoi_gian_ghi_nhan')->useCurrent();
-
-        $table->index('ma_nguoi_dung');
-    });
-}
+            $table->index('ma_nguoi_dung');
+            $table->index(['ma_nguoi_dung', 'loai_log']);
+        });
+    }
 
     /**
      * Reverse the migrations.

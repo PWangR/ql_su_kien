@@ -21,6 +21,9 @@ return new class extends Migration
               ->constrained('loai_su_kien', 'ma_loai_su_kien')
               ->restrictOnDelete();
 
+        $table->boolean('la_mau_bai_dang')->default(false);
+
+
         $table->dateTime('thoi_gian_bat_dau');
         $table->dateTime('thoi_gian_ket_thuc');
         $table->string('dia_diem', 200)->nullable();

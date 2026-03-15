@@ -5,12 +5,18 @@ use App\Http\Controllers\Admin\NguoiDungController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Admin\ThongKeController;
+use App\Http\Controllers\Admin\BauCuController;
+use App\Http\Controllers\Admin\UngCuVienController;
+use App\Http\Controllers\Admin\CuTriController;
+use App\Http\Controllers\Admin\KetQuaBauCuController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\BauCuFrontController;
+use App\Http\Controllers\BoPhieuController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -54,6 +60,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications',                   [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read',        [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all',         [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+
+    // Bầu cử (user)
+    Route::get('/bau-cu',                    [BauCuFrontController::class, 'index'])->name('bau-cu.index');
+    Route::get('/bau-cu/{id}',               [BauCuFrontController::class, 'show'])->name('bau-cu.show');
+    Route::get('/bau-cu/{id}/ket-qua',       [BauCuFrontController::class, 'ketQua'])->name('bau-cu.ket-qua');
+
+    // Bỏ phiếu
+    Route::get('/bo-phieu/{id}/ballot',      [BoPhieuController::class, 'ballot'])->name('bo-phieu.ballot');
+    Route::post('/bo-phieu/{id}/review',     [BoPhieuController::class, 'review'])->name('bo-phieu.review');
+    Route::post('/bo-phieu/{id}/submit',     [BoPhieuController::class, 'submit'])->name('bo-phieu.submit');
+    Route::get('/bo-phieu/{id}/success',     [BoPhieuController::class, 'success'])->name('bo-phieu.success');
+
+    // API kết quả bầu cử (cho polling realtime)
+    Route::get('/api/bau-cu/{id}/ket-qua',   [KetQuaBauCuController::class, 'apiResults'])->name('api.bau-cu.ket-qua');
 });
 
 // -------------------------------------------------------
@@ -91,6 +111,29 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Thống kê
     Route::get('thong-ke',      [ThongKeController::class, 'index'])->name('thong-ke.index');
     Route::get('thong-ke/diem', [ThongKeController::class, 'diem'])->name('thong-ke.diem');
+
+    // Quản lý bầu cử
+    Route::resource('bau-cu', BauCuController::class);
+    Route::post('bau-cu/{id}/toggle-visibility', [BauCuController::class, 'toggleVisibility'])->name('bau-cu.toggle-visibility');
+    Route::post('bau-cu/{id}/toggle-result',     [BauCuController::class, 'toggleResult'])->name('bau-cu.toggle-result');
+
+    // Ứng cử viên
+    Route::post('bau-cu/{id}/ung-cu-vien',            [UngCuVienController::class, 'store'])->name('ung-cu-vien.store');
+    Route::post('bau-cu/{id}/ung-cu-vien/import',     [UngCuVienController::class, 'importExcel'])->name('ung-cu-vien.import');
+    Route::put('ung-cu-vien/{id}',                     [UngCuVienController::class, 'update'])->name('ung-cu-vien.update');
+    Route::delete('ung-cu-vien/{id}',                  [UngCuVienController::class, 'destroy'])->name('ung-cu-vien.destroy');
+    Route::delete('bau-cu/{id}/ung-cu-vien',           [UngCuVienController::class, 'destroyAll'])->name('ung-cu-vien.destroy-all');
+
+    // Cử tri
+    Route::post('bau-cu/{id}/cu-tri',                  [CuTriController::class, 'store'])->name('cu-tri.store');
+    Route::post('bau-cu/{id}/cu-tri/add-all',          [CuTriController::class, 'addAll'])->name('cu-tri.add-all');
+    Route::post('bau-cu/{id}/cu-tri/import',           [CuTriController::class, 'importExcel'])->name('cu-tri.import');
+    Route::delete('cu-tri/{id}',                        [CuTriController::class, 'destroy'])->name('cu-tri.destroy');
+    Route::delete('bau-cu/{id}/cu-tri',                [CuTriController::class, 'destroyAll'])->name('cu-tri.destroy-all');
+
+    // Kết quả bầu cử (admin)
+    Route::get('bau-cu/{id}/ket-qua',                  [KetQuaBauCuController::class, 'index'])->name('bau-cu.ket-qua');
+    Route::get('bau-cu/{id}/ket-qua/api',              [KetQuaBauCuController::class, 'apiResults'])->name('bau-cu.ket-qua.api');
 });
 
 // Redirect cũ

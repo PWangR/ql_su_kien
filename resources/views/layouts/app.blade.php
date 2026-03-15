@@ -446,6 +446,9 @@
             <a href="{{ route('events.index') }}" class="{{ request()->routeIs('events.*') ? 'active' : '' }}">
                 <i class="bi bi-calendar3"></i> Sự kiện
             </a>
+            <a href="{{ route('bau-cu.index') }}" class="{{ request()->routeIs('bau-cu.*') || request()->routeIs('bo-phieu.*') ? 'active' : '' }}">
+                <i class="bi bi-clipboard2-check-fill"></i> Bầu cử
+            </a>
             @auth
             <a href="{{ route('history.index') }}" class="{{ request()->routeIs('history.*') ? 'active' : '' }}">
                 <i class="bi bi-clock-history"></i> Lịch sử

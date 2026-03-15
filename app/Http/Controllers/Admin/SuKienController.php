@@ -36,7 +36,7 @@ class SuKienController extends Controller
     public function create()
     {
         $loai = LoaiSuKien::all();
-        $templates = \App\Models\MauBaiDang::all();
+        $templates = \App\Models\SuKien::where('la_mau_bai_dang', true)->get();
         $mediaKho = \App\Models\ThuVienDaPhuongTien::where('loai_tep', 'hinh_anh')->latest('created_at')->get();
         return view('admin.su_kien.create', compact('loai', 'templates', 'mediaKho'));
     }
@@ -68,7 +68,7 @@ class SuKienController extends Controller
     {
         $suKien = SuKien::findOrFail($id);
         $loai   = LoaiSuKien::all();
-        $templates = \App\Models\MauBaiDang::all();
+        $templates = \App\Models\SuKien::where('la_mau_bai_dang', true)->get();
         $mediaKho = \App\Models\ThuVienDaPhuongTien::where('loai_tep', 'hinh_anh')->latest('created_at')->get();
         return view('admin.su_kien.edit', compact('suKien', 'loai', 'templates', 'mediaKho'));
     }

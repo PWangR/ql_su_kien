@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\MauBaiDang;
+use App\Models\SuKien;
 use App\Models\LoaiSuKien;
 use Illuminate\Http\Request;
 use App\Traits\HasImageUpload;
@@ -13,7 +13,7 @@ class TemplateController extends Controller
     use HasImageUpload;
     public function index()
     {
-        $templates  = MauBaiDang::with(['nguoiTao', 'loaiSuKien'])->whereNull('deleted_at')->latest()->paginate(10);
+        $templates  = SuKien::with(['nguoiTao', 'loaiSuKien'])->where('la_mau_bai_dang', true)->whereNull('deleted_at')->latest()->paginate(10);
         $loaiSuKien = LoaiSuKien::all();
         return view('admin.templates.index', compact('templates', 'loaiSuKien'));
     }
@@ -29,14 +29,15 @@ class TemplateController extends Controller
         $data['ma_nguoi_tao'] = auth()->id();
         $data['anh_su_kien'] = $this->handleImageUpload($request, null);
 
-        MauBaiDang::create($data);
+        $data['la_mau_bai_dang'] = true;
+        SuKien::create($data);
 
         return back()->with('success', 'Đã tạo template mới!');
     }
 
     public function update(Request $request, $id)
     {
-        $template = MauBaiDang::findOrFail($id);
+        $template = SuKien::where('la_mau_bai_dang', true)->findOrFail($id);
         $request->validate([
             'ten_mau'  => 'required|max:100',
             'noi_dung' => 'required',
@@ -51,7 +52,7 @@ class TemplateController extends Controller
 
     public function destroy($id)
     {
-        MauBaiDang::findOrFail($id)->delete();
+        SuKien::where('la_mau_bai_dang', true)->findOrFail($id)->delete();
         return back()->with('success', 'Đã xóa template!');
     }
 }

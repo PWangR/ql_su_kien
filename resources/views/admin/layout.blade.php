@@ -417,6 +417,9 @@
         <a href="{{ route('admin.templates.index') }}" class="{{ request()->routeIs('admin.templates*') ? 'active' : '' }}">
             <i class="bi bi-file-earmark-text-fill"></i> Template bài đăng
         </a>
+        <a href="{{ route('admin.bau-cu.index') }}" class="{{ request()->routeIs('admin.bau-cu*') ? 'active' : '' }}">
+            <i class="bi bi-clipboard2-check-fill"></i> Bầu cử
+        </a>
 
         <div class="sidebar-label">Báo cáo</div>
         <a href="{{ route('admin.thong-ke.index') }}" class="{{ request()->routeIs('admin.thong-ke*') ? 'active' : '' }}">
