@@ -3,17 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class DangKy extends Model
 {
-    use SoftDeletes;
+    use HasFactory;
 
     protected $table = 'dang_ky';
     protected $primaryKey = 'ma_dang_ky';
+    public $timestamps = false;
 
     protected $fillable = [
-        'ma_nguoi_dung', 'ma_su_kien', 'trang_thai_tham_gia'
+        'ma_nguoi_dung',
+        'ma_su_kien',
+        'trang_thai_tham_gia'
     ];
 
     public function nguoiDung()
@@ -28,7 +31,7 @@ class DangKy extends Model
 
     public function getTrangThaiLabelAttribute()
     {
-        return match($this->trang_thai_tham_gia) {
+        return match ($this->trang_thai_tham_gia) {
             'da_dang_ky'  => 'Đã đăng ký',
             'da_tham_gia' => 'Đã tham gia',
             'vang_mat'    => 'Vắng mặt',

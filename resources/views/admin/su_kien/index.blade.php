@@ -5,6 +5,21 @@
 
 @section('styles')
 <style>
+    .hero-bar{
+        background: radial-gradient(circle at 10% 20%, rgba(37,99,235,.12), transparent 30%), radial-gradient(circle at 80% 0%, rgba(14,165,233,.12), transparent 25%), #0f172a;
+        border-radius: 16px;
+        padding: 20px 24px;
+        color:#e2e8f0;
+        box-shadow:0 15px 40px rgba(15,23,42,0.25);
+    }
+    .hero-bar h4{color:#fff;margin-bottom:6px;font-weight:800;}
+    .hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,0.1);color:#cbd5e1;font-size:12px;}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;}
+    .btn-ghost{
+        background:rgba(255,255,255,0.08);
+        border:1px solid rgba(255,255,255,0.18);
+        color:#fff;
+    }
     .event-thumbnail {
         width: 80px;
         height: 50px;
@@ -14,15 +29,8 @@
         border: 1px solid #f1f5f9;
         transition: transform 0.2s;
     }
-    .event-thumbnail:hover {
-        transform: scale(1.1);
-    }
-    .table-container {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
+    .event-thumbnail:hover { transform: scale(1.08); }
+    .table-container { background: #fff; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.06); overflow: hidden; }
     .table thead th {
         background: #f8fafc;
         text-transform: uppercase;
@@ -33,20 +41,9 @@
         border-bottom: 2px solid #f1f5f9;
         padding: 15px 20px;
     }
-    .table tbody td {
-        padding: 15px 20px;
-        vertical-align: middle;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    .table tbody tr:hover {
-        background-color: #f8fafc;
-    }
-    .badge-status {
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 700;
-    }
+    .table tbody td { padding: 15px 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+    .table tbody tr:hover { background-color: #f8fafc; }
+    .badge-status { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
     .filter-card {
         background: #fff;
         border-radius: 12px;
@@ -54,39 +51,41 @@
         margin-bottom: 20px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .event-title {
-        font-weight: 700;
-        color: #1e293b;
-        text-decoration: none;
-        font-size: 14px;
-        transition: color 0.2s;
+    .event-title { font-weight: 700; color: #1e293b; text-decoration: none; font-size: 14px; transition: color 0.2s; }
+    .event-title:hover { color: var(--primary); }
+    .text-date { font-size: 12px; color: #64748b; display: block; }
+    .badge-type { background: #eff6ff; color: #2563eb; font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
+    .modal-layer{
+        position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+        background:rgba(15,23,42,0.5);z-index:999;
+        padding:18px;
     }
-    .event-title:hover {
-        color: var(--primary);
+    .modal-layer.show{display:flex;}
+    .modal-card{
+        background:#fff;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,0.15);
+        width:100%;max-width:520px;overflow:hidden;
     }
-    .text-date {
-        font-size: 12px;
-        color: #64748b;
-        display: block;
-    }
-    .badge-type {
-        background: #eff6ff;
-        color: #2563eb;
-        font-size: 11px;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-weight: 600;
-    }
+    .modal-card header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .modal-card .body{padding:20px;}
+    .modal-card footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
 </style>
 @endsection
 
 @section('content')
-<!-- Header Actions -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-calendar3 me-2 text-primary"></i>Danh sách sự kiện</h4>
-    <a href="{{ route('admin.su-kien.create') }}" class="btn btn-primary px-4 shadow-sm">
-        <i class="bi bi-plus-lg me-2"></i>Thêm sự kiện mới
-    </a>
+<div class="hero-bar mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <div class="hero-pill mb-2"><i class="bi bi-magic"></i> Admin workspace</div>
+        <h4 class="mb-1">Danh sách sự kiện</h4>
+        <div class="text-sm text-muted">Quản lý, tra cứu và khai thác dữ liệu nhanh.</div>
+    </div>
+    <div class="hero-actions">
+        <button type="button" class="btn btn-ghost" onclick="openImportModal()">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Nhập Excel
+        </button>
+        <a href="{{ route('admin.su-kien.create') }}" class="btn btn-primary px-4 shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Thêm sự kiện mới
+        </a>
+    </div>
 </div>
 
 <!-- Filter Section -->
@@ -96,7 +95,7 @@
             <label class="form-label small fw-bold text-uppercase">Tìm kiếm</label>
             <div class="input-group">
                 <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" name="search" class="form-control border-start-0 bg-light" 
+                <input type="text" name="search" class="form-control border-start-0 bg-light"
                     placeholder="Tên sự kiện..." value="{{ request('search') }}">
             </div>
         </div>
@@ -145,10 +144,13 @@
                     </td>
                     <td>
                         <a href="{{ route('admin.su-kien.show', $sk->ma_su_kien) }}" class="event-title">{{ $sk->ten_su_kien }}</a>
-                        <div class="mt-1">
+                        <div class="mt-1 d-flex align-items-center gap-2">
                             <span class="badge-type">{{ $sk->loaiSuKien->ten_loai ?? 'Chưa phân loại' }}</span>
+                            @if($sk->qr_code_path)
+                                <span class="badge badge-secondary"><i class="bi bi-qr-code"></i> QR</span>
+                            @endif
                             @if($sk->diem_cong > 0)
-                            <span class="ms-1 text-warning small fw-bold"><i class="bi bi-star-fill me-1"></i>+{{ $sk->diem_cong }} Đ</span>
+                            <span class="text-warning small fw-bold"><i class="bi bi-star-fill me-1"></i>+{{ $sk->diem_cong }} Đ</span>
                             @endif
                         </div>
                     </td>
@@ -197,4 +199,33 @@
     </div>
     @endif
 </div>
+
+<!-- Import modal -->
+<div class="modal-layer" id="importModal">
+    <div class="modal-card">
+        <header>
+            <div class="fw-bold"><i class="bi bi-file-earmark-spreadsheet"></i> Nhập sự kiện từ Excel</div>
+            <button class="btn btn-secondary btn-sm" onclick="closeImportModal()">Đóng</button>
+        </header>
+        <form method="POST" action="{{ route('admin.su-kien.import') }}" enctype="multipart/form-data">
+            @csrf
+            <div class="body">
+                <p class="text-muted small mb-3">Định dạng cột tối thiểu: <code>ten_su_kien</code>, <code>ma_loai_su_kien</code>, <code>thoi_gian_bat_dau</code>, <code>thoi_gian_ket_thuc</code>. Các cột khác (địa điểm, điểm cộng, số lượng) tùy chọn.</p>
+                <input type="file" name="file" accept=".xls,.xlsx,.csv" class="form-control" required>
+            </div>
+            <footer>
+                <button type="button" class="btn btn-secondary" onclick="closeImportModal()">Hủy</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Tải lên</button>
+            </footer>
+        </form>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    const importModal = document.getElementById('importModal');
+    function openImportModal(){ importModal.classList.add('show'); }
+    function closeImportModal(){ importModal.classList.remove('show'); }
+</script>
 @endsection

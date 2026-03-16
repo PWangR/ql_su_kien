@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\NguoiDungImport;
 
 class NguoiDungController extends Controller
 {
@@ -36,7 +38,7 @@ class NguoiDungController extends Controller
             'ho_ten'      => 'required|max:100',
             'email'       => 'required|email|unique:nguoi_dung,email',
             'ma_sinh_vien'=> 'required|unique:nguoi_dung,ma_sinh_vien',
-            'ma_vai_tro'  => 'required',
+            'vai_tro'  => 'required',
             'mat_khau'    => 'required|min:8',
         ]);
 
@@ -50,7 +52,7 @@ class NguoiDungController extends Controller
             'trang_thai'   => 'hoat_dong',
         ]);
 
-        return back()->with('success', 'Đã thêm người dùng!');
+        return back()->with('success', 'ÄÃ£ thÃªm ngÆ°á»i dÃ¹ng!');
     }
 
     public function update(Request $request, $id)
@@ -67,13 +69,24 @@ class NguoiDungController extends Controller
         }
 
         $user->update($data);
-        return back()->with('success', 'Cập nhật thành công!');
+        return back()->with('success', 'Cáº­p nháº­t thÃ nh cÃ´ng!');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xls,xlsx,csv|max:4096',
+        ]);
+
+        Excel::import(new NguoiDungImport(), $request->file('file'));
+
+        return back()->with('success', 'Nháº­p danh sÃ¡ch ngÆ°á»i dÃ¹ng thÃ nh cÃ´ng!');
     }
 
     public function destroy($id)
     {
         User::findOrFail($id)->delete();
-        return back()->with('success', 'Đã xóa người dùng!');
+        return back()->with('success', 'ÄÃ£ xÃ³a ngÆ°á»i dÃ¹ng!');
     }
 
     public function toggleStatus($id)
@@ -81,6 +94,7 @@ class NguoiDungController extends Controller
         $user = User::findOrFail($id);
         $user->trang_thai = $user->trang_thai === 'hoat_dong' ? 'bi_khoa' : 'hoat_dong';
         $user->save();
-        return back()->with('success', 'Đã cập nhật trạng thái!');
+        return back()->with('success', 'ÄÃ£ cáº­p nháº­t tráº¡ng thÃ¡i!');
     }
 }
+

@@ -15,11 +15,14 @@ class StoreSuKienRequest extends FormRequest
     {
         return [
             'ten_su_kien'        => 'required|max:200',
+            'mo_ta_chi_tiet'     => 'nullable|string|max:5000',
+            'dia_diem'           => 'nullable|string|max:255',
             'ma_loai_su_kien'    => 'required|exists:loai_su_kien,ma_loai_su_kien',
             'thoi_gian_bat_dau'  => 'required|date',
             'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
             'so_luong_toi_da'    => 'nullable|integer|min:1',
             'diem_cong'          => 'nullable|integer|min:0',
+            'anh_su_kien'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'bo_cuc'             => 'nullable|array',
         ];
     }

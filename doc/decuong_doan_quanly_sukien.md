@@ -87,40 +87,185 @@ cập nhật liên quan đến sự kiện.
 
 ------------------------------------------------------------------------
 
-## 2. Về cài đặt và thực nghiệm
+# 2. Cài đặt và thực nghiệm hệ thống
 
-### a. Quản trị viên / Ban tổ chức (Admin)
+## 2.1 Quản trị viên / Ban tổ chức (Admin)
 
--   Quản lý tài khoản người dùng và phân quyền theo vai trò.
--   Tạo, chỉnh sửa, cập nhật và xóa sự kiện.
--   Quản lý thông tin chi tiết: thời gian, địa điểm, số lượng tham gia,
-    hình ảnh.
--   Quản lý danh sách đăng ký và danh sách tham gia thực tế.
--   Thiết lập tiêu chí chấm điểm và ghi nhận điểm tham gia.
--   Quản lý và tra cứu lịch sử điểm.
--   Quản lý thư viện nội dung đa phương tiện (hình ảnh, video, tài
-    liệu).
--   Tạo và quản lý template bài đăng sự kiện.
--   Gửi thông báo khi có thay đổi sự kiện.
--   Thống kê và xuất báo cáo hoạt động sự kiện.
+Quản trị viên là người quản lý toàn bộ hoạt động của hệ thống, bao gồm quản lý sự kiện, người dùng, điểm danh, bầu cử và các nội dung liên quan.
 
-### b. Người dùng (Sinh viên, Giảng viên)
+### 2.1.1 Quản lý người dùng
+- Tạo, chỉnh sửa và xóa tài khoản người dùng.
+- Phân quyền người dùng theo vai trò:
+  - Quản trị viên
+  - Sinh viên
+  - Giảng viên
+- Khóa hoặc mở khóa tài khoản khi cần thiết.
 
--   Đăng ký và đăng nhập hệ thống.
--   Xem danh sách và tìm kiếm sự kiện.
--   Đăng ký và hủy đăng ký tham gia.
--   Nhận thông báo thời gian thực.
--   Theo dõi lịch sử tham gia và điểm đánh giá.
--   Quản lý thông tin cá nhân.
--   Tùy chỉnh giao diện hiển thị.
+### 2.1.2 Quản lý sự kiện
+- Tạo mới sự kiện.
+- Chỉnh sửa thông tin sự kiện.
+- Xóa sự kiện khi không còn sử dụng.
+- Cập nhật các thông tin chi tiết:
+  - Thời gian tổ chức
+  - Địa điểm
+  - Số lượng người tham gia
+  - Hình ảnh minh họa
+  - Nội dung chương trình.
 
-### c. Chatbot tư vấn sự kiện
+### 2.1.3 Quản lý đăng ký tham gia
+- Xem danh sách người đăng ký tham gia sự kiện.
+- Quản lý danh sách người tham gia thực tế.
+- Cho phép hoặc từ chối đăng ký khi cần thiết.
 
--   Trả lời tự động các câu hỏi thường gặp:
-    -   Thời gian sự kiện
-    -   Địa điểm
-    -   Nội dung
-    -   Cách thức đăng ký
+### 2.1.4 Quản lý điểm tham gia
+- Thiết lập tiêu chí chấm điểm cho từng sự kiện.
+- Tự động ghi nhận điểm cho người tham gia.
+- Tra cứu lịch sử điểm của từng người dùng.
+
+### 2.1.5 Quản lý thư viện đa phương tiện
+- Upload hình ảnh, video hoặc tài liệu liên quan đến sự kiện.
+- Quản lý và phân loại nội dung trong thư viện media.
+- Sử dụng lại nội dung media cho các bài đăng sự kiện.
+
+### 2.1.6 Quản lý template bài đăng
+- Tạo template mẫu cho bài đăng sự kiện.
+- Chỉnh sửa và tái sử dụng template.
+- Áp dụng template khi tạo sự kiện mới.
+
+### 2.1.7 Gửi thông báo hệ thống
+- Gửi thông báo khi:
+  - Có sự kiện mới
+  - Có thay đổi về thời gian hoặc địa điểm
+  - Có thông tin quan trọng liên quan đến sự kiện
+- Hệ thống gửi thông báo đến người dùng theo thời gian thực.
+
+### 2.1.8 Thống kê và báo cáo
+- Thống kê số lượng người tham gia sự kiện.
+- Thống kê điểm tham gia.
+- Xuất báo cáo dữ liệu sự kiện dưới dạng file.
+
+---
+
+## 2.2 Quản lý điểm danh bằng QR Code
+
+Hệ thống hỗ trợ điểm danh sinh viên bằng mã QR để đảm bảo nhanh chóng và chính xác.
+
+### 2.2.1 Tạo mã QR điểm danh
+- Khi tạo sự kiện, hệ thống có thể sinh ra nhiều mã QR phục vụ điểm danh.
+- Admin có thể:
+  - Quy định số lượng mã QR.
+  - Thiết lập thời gian hiệu lực của mã QR.
+  - Tải xuống hoặc hiển thị mã QR tại địa điểm sự kiện.
+
+### 2.2.2 Quét mã QR điểm danh
+- Sinh viên sử dụng camera điện thoại để quét mã QR.
+- Sau khi quét thành công:
+  - Hệ thống xác nhận điểm danh.
+  - Ghi nhận thời gian điểm danh.
+  - Cập nhật trạng thái tham gia sự kiện.
+
+### 2.2.3 Quản lý dữ liệu điểm danh
+- Admin có thể:
+  - Xem danh sách người đã điểm danh.
+  - Theo dõi số lượng điểm danh theo thời gian thực.
+  - Xuất danh sách điểm danh khi cần thiết.
+
+---
+
+## 2.3 Quản lý bầu cử / bình chọn
+
+Hệ thống cho phép tổ chức các cuộc bầu cử hoặc bình chọn liên quan đến sự kiện.
+
+### 2.3.1 Tạo cuộc bầu cử
+- Admin có thể tạo một cuộc bầu cử mới.
+- Thiết lập các thông tin:
+  - Tiêu đề cuộc bầu cử
+  - Mô tả
+  - Thời gian bắt đầu
+  - Thời gian kết thúc.
+
+### 2.3.2 Quản lý lựa chọn bầu cử
+- Thêm các lựa chọn hoặc ứng viên.
+- Chỉnh sửa hoặc xóa lựa chọn.
+- Hiển thị danh sách lựa chọn cho người dùng.
+
+### 2.3.3 Quản lý kết quả bầu cử
+- Theo dõi số lượng phiếu bầu.
+- Hiển thị kết quả theo thời gian thực.
+- Xuất báo cáo kết quả bầu cử.
+
+---
+
+## 2.4 Người dùng (Sinh viên, Giảng viên)
+
+Người dùng là những người tham gia các sự kiện được tổ chức trên hệ thống.
+
+### 2.4.1 Quản lý tài khoản
+- Đăng ký tài khoản mới.
+- Đăng nhập hệ thống.
+- Cập nhật thông tin cá nhân.
+
+### 2.4.2 Xem và tìm kiếm sự kiện
+- Xem danh sách các sự kiện đang diễn ra.
+- Tìm kiếm sự kiện theo:
+  - Tên sự kiện
+  - Thời gian
+  - Địa điểm
+  - Chủ đề.
+
+### 2.4.3 Đăng ký tham gia sự kiện
+- Đăng ký tham gia sự kiện.
+- Hủy đăng ký khi không thể tham gia.
+
+### 2.4.4 Nhận thông báo
+- Nhận thông báo về:
+  - Sự kiện mới
+  - Thay đổi lịch trình
+  - Các thông báo quan trọng.
+
+### 2.4.5 Theo dõi lịch sử tham gia
+- Xem các sự kiện đã tham gia.
+- Xem điểm tích lũy từ các sự kiện.
+
+### 2.4.6 Tùy chỉnh giao diện
+- Thay đổi giao diện hiển thị theo sở thích cá nhân.
+
+### 2.4.7 Điểm danh bằng QR
+- Quét mã QR tại sự kiện để xác nhận tham gia.
+- Xem trạng thái điểm danh sau khi quét.
+
+### 2.4.8 Tham gia bầu cử
+- Xem các cuộc bầu cử đang diễn ra.
+- Xem danh sách ứng viên hoặc lựa chọn.
+- Thực hiện bỏ phiếu trực tuyến.
+- Mỗi người dùng chỉ được bỏ phiếu một lần cho mỗi cuộc bầu cử.
+
+---
+
+## 2.5 Chatbot tư vấn sự kiện
+
+Chatbot hỗ trợ người dùng trong việc tìm kiếm và tra cứu thông tin sự kiện.
+
+### 2.5.1 Trả lời câu hỏi tự động
+Chatbot có thể trả lời các câu hỏi thường gặp như:
+
+- Thời gian tổ chức sự kiện
+- Địa điểm tổ chức
+- Nội dung chương trình
+- Cách thức đăng ký tham gia
+
+### 2.5.2 Hướng dẫn sử dụng hệ thống
+Chatbot có thể hỗ trợ:
+
+- Hướng dẫn cách đăng ký sự kiện
+- Hướng dẫn cách quét QR để điểm danh
+- Hướng dẫn cách tham gia bầu cử
+
+### 2.5.3 Tra cứu thông tin nhanh
+Người dùng có thể hỏi chatbot để:
+- Kiểm tra sự kiện đang diễn ra
+- Kiểm tra lịch sự kiện
+- Kiểm tra trạng thái đăng ký.
 
 ------------------------------------------------------------------------
 

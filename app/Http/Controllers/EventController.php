@@ -73,6 +73,49 @@ class EventController extends Controller
         return view('events.show', compact('suKien', 'daDangKy', 'suKienLienQuan'));
     }
 
+    public function qrCheckin($token)
+    {
+        $suKien = SuKien::where('qr_checkin_token', $token)->firstOrFail();
+
+        if ($suKien->trang_thai === 'huy') {
+            return back()->with('error', 'Sự kiện đã bị hủy.');
+        }
+
+        $dangKy = DangKy::withTrashed()
+            ->where('ma_nguoi_dung', auth()->id())
+            ->where('ma_su_kien', $suKien->ma_su_kien)
+            ->first();
+
+        $wasCreated = false;
+
+        if (!$dangKy) {
+            if ($suKien->so_luong_toi_da > 0 && $suKien->so_luong_hien_tai >= $suKien->so_luong_toi_da) {
+                return back()->with('error', 'Sự kiện đã đủ số lượng, không thể điểm danh thêm.');
+            }
+
+            $dangKy = DangKy::create([
+                'ma_nguoi_dung'       => auth()->id(),
+                'ma_su_kien'          => $suKien->ma_su_kien,
+                'trang_thai_tham_gia' => 'da_tham_gia',
+            ]);
+            $wasCreated = true;
+        } else {
+            if ($dangKy->trashed()) {
+                $dangKy->restore();
+            }
+            $dangKy->update(['trang_thai_tham_gia' => 'da_tham_gia']);
+        }
+
+        if ($wasCreated) {
+            $suKien->increment('so_luong_hien_tai');
+        }
+
+        return view('events.qr-checkin', [
+            'suKien' => $suKien,
+            'dangKy' => $dangKy
+        ])->with('success', 'Điểm danh thành công!');
+    }
+
     public function dangKy($id)
     {
         $suKien = SuKien::findOrFail($id);

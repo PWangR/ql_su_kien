@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: ql-su-kien:latest
+        container_name: ql-su-kien-app
+        restart: unless-stopped
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - ql-su-kien-net
+        depends_on:
+            - db
+            - redis
+
+    db:
+        image: mysql:8.0
+        container_name: ql-su-kien-db
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE:-ql_su_kien}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+            MYSQL_PASSWORD: ${DB_PASSWORD:-root}
+            MYSQL_USER: ${DB_USERNAME:-ql_user}
+        ports:
+            - "${DB_PORT:-3306}:3306"
+        volumes:
+            - dbdata:/var/lib/mysql
+        networks:
+            - ql-su-kien-net
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            timeout: 20s
+            retries: 10
+
+    nginx:
+        image: nginx:alpine
+        container_name: ql-su-kien-nginx
+        restart: unless-stopped
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./:/var/www/html
+            - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - ql-su-kien-net
+        depends_on:
+            - app
+
+    redis:
+        image: redis:7-alpine
+        container_name: ql-su-kien-redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        networks:
+            - ql-su-kien-net
+
+volumes:
+    dbdata:
+
+networks:
+    ql-su-kien-net:
+        driver: bridge

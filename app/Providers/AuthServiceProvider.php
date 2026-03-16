@@ -2,18 +2,20 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\SuKien;
+use App\Models\User;
+use App\Policies\EventPolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
     /**
      * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        SuKien::class => EventPolicy::class,
+        User::class => UserPolicy::class,
     ];
 
     /**
@@ -21,6 +23,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
     }
 }

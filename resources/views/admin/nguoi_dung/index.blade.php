@@ -3,13 +3,46 @@
 @section('title', 'Quản lý người dùng')
 @section('page-title', 'Quản lý người dùng')
 
+@section('styles')
+<style>
+    .hero-bar{
+        background: linear-gradient(120deg,#111827,#0f172a 40%,#1d4ed8 100%);
+        border-radius: 16px;
+        padding: 20px 24px;
+        color:#e2e8f0;
+        box-shadow:0 16px 40px rgba(0,0,0,0.25);
+    }
+    .hero-bar h4{color:#fff;margin-bottom:6px;font-weight:800;}
+    .hero-actions{display:flex;gap:10px;flex-wrap:wrap;}
+    .modal-layer{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.5);z-index:999;padding:18px;}
+    .modal-layer.show{display:flex;}
+    .modal-card{background:#fff;border-radius:16px;width:100%;max-width:540px;box-shadow:0 18px 46px rgba(0,0,0,0.18);overflow:hidden;}
+    .modal-card header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .modal-card .body{padding:20px;}
+    .modal-card footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+</style>
+@endsection
+
 @section('content')
+<div class="hero-bar mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <div class="text-uppercase small text-muted">Access Control</div>
+        <h4 class="mb-1">Danh sách người dùng</h4>
+        <div class="text-sm text-muted">Quản lý vai trò, trạng thái và tài khoản đăng nhập.</div>
+    </div>
+    <div class="hero-actions">
+        <button class="btn btn-secondary" type="button" onclick="openImportModal()">
+            <i class="bi bi-upload"></i> Nhập Excel
+        </button>
+        <button class="btn btn-primary" type="button" onclick="openAddModal()">
+            <i class="bi bi-person-plus-fill"></i> Thêm mới
+        </button>
+    </div>
+</div>
+
 <div class="card mb-3">
     <div class="card-header">
         <div class="card-title"><i class="bi bi-people-fill" style="color:var(--primary)"></i> Danh sách người dùng</div>
-        <button class="btn btn-primary" onclick="document.getElementById('addModal').style.display='flex'">
-            <i class="bi bi-person-plus-fill"></i> Thêm mới
-        </button>
     </div>
 
     <!-- Filter -->
@@ -65,6 +98,9 @@
                     </td>
                     <td>
                         <div style="display:flex;gap:4px;">
+                            <button class="btn btn-secondary btn-sm" title="Sửa" onclick="openEditModal({{ $nd->ma_nguoi_dung }}, '{{ $nd->ho_ten }}', '{{ $nd->ma_sinh_vien }}', '{{ $nd->email }}', '{{ $nd->vai_tro }}', '{{ $nd->so_dien_thoai }}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
                             <form method="POST" action="{{ route('admin.nguoi-dung.toggle-status', $nd->ma_nguoi_dung) }}">
                                 @csrf
                                 <button class="btn btn-secondary btn-sm" title="{{ $nd->trang_thai==='bi_khoa' ? 'Mở khóa' : 'Khóa' }}">
@@ -95,13 +131,13 @@
 </div>
 
 <!-- Add Modal -->
-<div id="addModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;padding:20px;">
-    <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;">
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+<div id="addModal" class="modal-layer">
+    <div class="modal-card">
+        <header>
             <h3 style="font-size:16px;font-weight:700;">Thêm người dùng mới</h3>
-            <button onclick="document.getElementById('addModal').style.display='none'" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&times;</button>
-        </div>
-        <form method="POST" action="{{ route('admin.nguoi-dung.store') }}" style="padding:24px;">
+            <button onclick="closeAddModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&times;</button>
+        </header>
+        <form method="POST" action="{{ route('admin.nguoi-dung.store') }}" class="body">
             @csrf
             <div class="mb-3">
                 <label class="form-label">Họ tên *</label>
@@ -116,6 +152,7 @@
                 <input type="email" name="email" class="form-control" required>
             </div>
             <div class="mb-3">
+                <label class="form-label">Vai trò *</label>
                 <select name="vai_tro" class="form-control" required>
                     <option value="sinh_vien">Sinh viên</option>
                     <option value="admin">Admin</option>
@@ -129,11 +166,99 @@
                 <label class="form-label">Số điện thoại</label>
                 <input type="text" name="so_dien_thoai" class="form-control">
             </div>
-            <div style="display:flex;gap:10px;">
+            <footer style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;">
+                <button type="button" onclick="closeAddModal()" class="btn btn-secondary">Hủy</button>
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check"></i> Thêm</button>
-                <button type="button" onclick="document.getElementById('addModal').style.display='none'" class="btn btn-secondary">Hủy</button>
-            </div>
+            </footer>
         </form>
     </div>
 </div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal-layer">
+    <div class="modal-card">
+        <header>
+            <h3 style="font-size:16px;font-weight:700;">Cập nhật người dùng</h3>
+            <button onclick="closeEditModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&times;</button>
+        </header>
+        <form method="POST" id="editForm" class="body">
+            @csrf
+            @method('PUT')
+            <div class="mb-3">
+                <label class="form-label">Họ tên *</label>
+                <input type="text" name="ho_ten" id="edit_ho_ten" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mã sinh viên *</label>
+                <input type="text" name="ma_sinh_vien" id="edit_ma_sinh_vien" class="form-control" readonly>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email *</label>
+                <input type="email" name="email" id="edit_email" class="form-control" readonly>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Vai trò *</label>
+                <select name="vai_tro" id="edit_vai_tro" class="form-control" required>
+                    <option value="sinh_vien">Sinh viên</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mật khẩu mới (bỏ trống nếu giữ nguyên)</label>
+                <input type="password" name="mat_khau" class="form-control" minlength="8">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" name="so_dien_thoai" id="edit_so_dien_thoai" class="form-control">
+            </div>
+            <footer style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;">
+                <button type="button" onclick="closeEditModal()" class="btn btn-secondary">Hủy</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i> Lưu</button>
+            </footer>
+        </form>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div id="importModal" class="modal-layer">
+    <div class="modal-card">
+        <header>
+            <h3 style="font-size:16px;font-weight:700;">Nhập người dùng từ Excel</h3>
+            <button onclick="closeImportModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text-light);">&times;</button>
+        </header>
+        <form method="POST" action="{{ route('admin.nguoi-dung.import') }}" enctype="multipart/form-data" class="body">
+            @csrf
+            <p class="text-muted small">Cột tối thiểu: <code>ho_ten</code>, <code>ma_sinh_vien</code>, <code>email</code>. Tùy chọn: <code>vai_tro</code>, <code>mat_khau</code>, <code>so_dien_thoai</code>.</p>
+            <input type="file" name="file" accept=".xls,.xlsx,.csv" class="form-control" required>
+            <footer style="display:flex;gap:10px;justify-content:flex-end;padding-top:12px;">
+                <button type="button" onclick="closeImportModal()" class="btn btn-secondary">Hủy</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Tải lên</button>
+            </footer>
+        </form>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    const addModal = document.getElementById('addModal');
+    const editModal = document.getElementById('editModal');
+    const importModal = document.getElementById('importModal');
+
+    function openAddModal(){ addModal.classList.add('show'); }
+    function closeAddModal(){ addModal.classList.remove('show'); }
+    function openEditModal(id, hoTen, mssv, email, vaiTro, sdt){
+        const form = document.getElementById('editForm');
+        form.action = `/admin/nguoi-dung/${id}`;
+        document.getElementById('edit_ho_ten').value = hoTen;
+        document.getElementById('edit_ma_sinh_vien').value = mssv;
+        document.getElementById('edit_email').value = email;
+        document.getElementById('edit_vai_tro').value = vaiTro;
+        document.getElementById('edit_so_dien_thoai').value = sdt || '';
+        editModal.classList.add('show');
+    }
+    function closeEditModal(){ editModal.classList.remove('show'); }
+    function openImportModal(){ importModal.classList.add('show'); }
+    function closeImportModal(){ importModal.classList.remove('show'); }
+</script>
 @endsection

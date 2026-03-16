@@ -9,14 +9,18 @@ use App\Models\SuKien;
 use App\Models\LoaiSuKien;
 use App\Models\LichSuDiem;
 use App\Models\User;
+use App\Services\QrCheckinService;
+use App\Imports\SuKienImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Traits\HasImageUpload;
 
 class SuKienController extends Controller
 {
     use HasImageUpload;
+    public function __construct(private QrCheckinService $qrService) {}
     public function index(Request $request)
     {
         $query = SuKien::with('loaiSuKien');
@@ -45,25 +49,25 @@ class SuKienController extends Controller
     {
         $data = $request->validated();
         $data['ma_nguoi_tao'] = auth()->id();
-        $data['trang_thai'] = 'sap_to_chuc';
+        $data['trang_thai']   = 'sap_to_chuc';
 
         $data['anh_su_kien'] = $this->handleImageUpload($request, null);
 
         $suKien = SuKien::create($data);
+        $this->qrService->ensure($suKien);
 
-        // Xử lý upload danh sách ảnh phụ (Gallery)
+        // Upload gallery images if any
         $this->_uploadGallery($suKien, $request->file('gallery_files'));
 
         return redirect()->route('admin.su-kien.index')
-                         ->with('success', 'Tạo sự kiện thành công!');
+            ->with('success', 'Tạo sự kiện thành công!');
     }
-
     public function show($id)
     {
         $suKien = SuKien::with(['loaiSuKien', 'dangKy.nguoiDung'])->findOrFail($id);
+        $this->qrService->ensure($suKien);
         return view('admin.su_kien.show', compact('suKien'));
     }
-
     public function edit($id)
     {
         $suKien = SuKien::findOrFail($id);
@@ -84,12 +88,13 @@ class SuKienController extends Controller
         $data['anh_su_kien'] = $this->handleImageUpload($request, $suKien);
 
         $suKien->update($data);
+        $this->qrService->ensure($suKien);
 
-        // Xử lý upload thêm ảnh vào Gallery
+        // Xá»­ lÃ½ upload thÃªm áº£nh vÃ o Gallery
         $this->_uploadGallery($suKien, $request->file('gallery_files'));
 
         return redirect()->route('admin.su-kien.index')
-                         ->with('success', 'Cập nhật sự kiện thành công!');
+            ->with('success', 'Cáº­p nháº­t sá»± kiá»‡n thÃ nh cÃ´ng!');
     }
 
     private function _uploadGallery(SuKien $suKien, $files)
@@ -112,10 +117,24 @@ class SuKienController extends Controller
         }
     }
 
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xls,xlsx,csv|max:5120',
+        ]);
+
+        try {
+            Excel::import(new SuKienImport(auth()->id()), $request->file('file'));
+            SuKien::whereNull('qr_checkin_token')->get()->each(fn($sk) => $this->qrService->ensure($sk));
+            return back()->with('success', 'Nhập danh sách sự kiện thành công!');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Có lỗi khi nhập file: ' . $e->getMessage());
+        }
+    }
     public function destroy($id)
     {
         SuKien::findOrFail($id)->delete();
-        return back()->with('success', 'Đã xóa sự kiện!');
+        return back()->with('success', 'ÄÃ£ xÃ³a sá»± kiá»‡n!');
     }
 
     public function thongKeDiem()
@@ -152,7 +171,7 @@ class SuKienController extends Controller
         $dia_diem = $request->input('dia_diem');
         $bat_dau  = $request->input('thoi_gian_bat_dau');
         $ket_thuc = $request->input('thoi_gian_ket_thuc');
-        $bo_qua_id = $request->input('bo_qua_id'); // Để dùng khi edit, bỏ qua sự kiện hiện tại
+        $bo_qua_id = $request->input('bo_qua_id'); // Äá»ƒ dÃ¹ng khi edit, bá» qua sá»± kiá»‡n hiá»‡n táº¡i
 
         if (empty($dia_diem) || empty($bat_dau) || empty($ket_thuc)) {
             return response()->json(['trung' => false]);
@@ -160,16 +179,16 @@ class SuKienController extends Controller
 
         $query = SuKien::where('dia_diem', $dia_diem)
             ->where(function ($q) use ($bat_dau, $ket_thuc) {
-                // Điều kiện trùng: Bắt đầu sự kiện mới nằm trong khoảng sự kiện cũ, hoặc kết thúc nằm trong khoảng, hoặc bao trùm khoảng của sự kiện cũ
+                // Äiá»u kiá»‡n trÃ¹ng: Báº¯t Ä‘áº§u sá»± kiá»‡n má»›i náº±m trong khoáº£ng sá»± kiá»‡n cÅ©, hoáº·c káº¿t thÃºc náº±m trong khoáº£ng, hoáº·c bao trÃ¹m khoáº£ng cá»§a sá»± kiá»‡n cÅ©
                 $q->whereBetween('thoi_gian_bat_dau', [$bat_dau, $ket_thuc])
-                  ->orWhereBetween('thoi_gian_ket_thuc', [$bat_dau, $ket_thuc])
-                  ->orWhere(function ($q2) use ($bat_dau, $ket_thuc) {
-                      $q2->where('thoi_gian_bat_dau', '<=', $bat_dau)
-                         ->where('thoi_gian_ket_thuc', '>=', $ket_thuc);
-                  });
+                    ->orWhereBetween('thoi_gian_ket_thuc', [$bat_dau, $ket_thuc])
+                    ->orWhere(function ($q2) use ($bat_dau, $ket_thuc) {
+                        $q2->where('thoi_gian_bat_dau', '<=', $bat_dau)
+                            ->where('thoi_gian_ket_thuc', '>=', $ket_thuc);
+                    });
             })
             ->whereIn('trang_thai', ['sap_to_chuc', 'dang_dien_ra']);
-            
+
         if ($bo_qua_id) {
             $query->where('ma_su_kien', '!=', $bo_qua_id);
         }
@@ -179,7 +198,7 @@ class SuKienController extends Controller
         if ($suKienTrung) {
             return response()->json([
                 'trung' => true,
-                'thong_bao' => 'Đã có sự kiện "' . $suKienTrung->ten_su_kien . '" diễn ra từ ' . date('H:i d/m', strtotime($suKienTrung->thoi_gian_bat_dau)) . ' đến ' . date('H:i d/m', strtotime($suKienTrung->thoi_gian_ket_thuc)) . ' tại địa điểm này!'
+                'thong_bao' => 'ÄÃ£ cÃ³ sá»± kiá»‡n "' . $suKienTrung->ten_su_kien . '" diá»…n ra tá»« ' . date('H:i d/m', strtotime($suKienTrung->thoi_gian_bat_dau)) . ' Ä‘áº¿n ' . date('H:i d/m', strtotime($suKienTrung->thoi_gian_ket_thuc)) . ' táº¡i Ä‘á»‹a Ä‘iá»ƒm nÃ y!'
             ]);
         }
 
@@ -189,11 +208,50 @@ class SuKienController extends Controller
     public function xoaHinhAnh($id)
     {
         $media = \App\Models\ThuVienDaPhuongTien::find($id);
-        if (!$media) return response()->json(['success' => false, 'message' => 'Không tìm thấy ảnh.'], 404);
-        
-        // Logic xóa file đã được xử lý tự động trong model event
-        $media->forceDelete(); 
-        
+        if (!$media) return response()->json(['success' => false, 'message' => 'KhÃ´ng tÃ¬m tháº¥y áº£nh.'], 404);
+
+        // Logic xÃ³a file Ä‘Ã£ Ä‘Æ°á»£c xá»­ lÃ½ tá»± Ä‘á»™ng trong model event
+        $media->forceDelete();
+
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Kiểm tra xung đột sự kiện (cùng thời gian và địa điểm)
+     */
+    public function checkCollision(Request $request)
+    {
+        $request->validate([
+            'thoi_gian_bat_dau' => 'required|date',
+            'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
+            'dia_diem' => 'required|string'
+        ]);
+
+        $batDau = $request->input('thoi_gian_bat_dau');
+        $ketThuc = $request->input('thoi_gian_ket_thuc');
+        $diaDiem = $request->input('dia_diem');
+
+        // Tìm các sự kiện trùng lịch và địa điểm
+        $conflicts = SuKien::where('dia_diem', 'like', '%' . $diaDiem . '%')
+            ->where(function ($query) use ($batDau, $ketThuc) {
+                // Kiểm tra xung đột thời gian
+                $query->whereBetween('thoi_gian_bat_dau', [$batDau, $ketThuc])
+                    ->orWhereBetween('thoi_gian_ket_thuc', [$batDau, $ketThuc])
+                    ->orWhere(function ($q) use ($batDau, $ketThuc) {
+                        $q->where('thoi_gian_bat_dau', '<=', $batDau)
+                            ->where('thoi_gian_ket_thuc', '>=', $ketThuc);
+                    });
+            })
+            ->where('trang_thai', '!=', 'da_huy')
+            ->select('ma_su_kien', 'ten_su_kien', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem')
+            ->get();
+
+        return response()->json([
+            'has_collision' => count($conflicts) > 0,
+            'conflicts' => $conflicts,
+            'message' => count($conflicts) > 0
+                ? 'Có ' . count($conflicts) . ' sự kiện khác cùng thời gian và địa điểm'
+                : 'Không có sự kiện nào trùng lịch'
+        ]);
     }
 }

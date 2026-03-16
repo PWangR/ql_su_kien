@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
 use App\Models\VaiTro;
 
 class User extends Authenticatable
 {
-    use SoftDeletes;
+    use HasFactory, HasApiTokens, SoftDeletes;
 
     protected $table = 'nguoi_dung';
     protected $primaryKey = 'ma_nguoi_dung';
@@ -33,11 +35,16 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return $this->vai_tro === 'admin';
+        return in_array($this->vai_tro, ['admin', 'super_admin']);
     }
 
     public function isSinhVien()
     {
         return $this->vai_tro === 'sinh_vien';
+    }
+
+    public function hasRole($role)
+    {
+        return $this->vai_tro === $role;
     }
 }
