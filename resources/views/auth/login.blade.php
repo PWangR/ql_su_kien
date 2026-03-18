@@ -128,6 +128,28 @@
             text-decoration: underline;
         }
 
+        .btn-register {
+            width: 100%;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 12px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .btn-register:hover {
+            background: #e0e0e0;
+            border-color: #ccc;
+        }
+
         .demo-accounts {
             background: #f5f7ff;
             border-radius: 8px;
@@ -196,20 +218,21 @@
             </div>
 
             <button type="submit" class="btn-login">Đăng nhập</button>
+            <a href="{{ route('register') }}" class="btn-register">Tạo tài khoản mới</a>
         </form>
 
         <div class="login-footer">
-            <a href="#">Quên mật khẩu?</a> |
+            Chưa có tài khoản? <a href="{{ route('register') }}">Đăng ký ngay</a> |
             <a href="#">Liên hệ quản trị viên</a>
         </div>
 
         <div class="demo-accounts">
             <h3>📋 Tài khoản thử nghiệm</h3>
             <div class="demo-account">
-                <strong>Admin:</strong> admin@local.test / 12345678
+                <strong>Admin:</strong> admin@example.com / password
             </div>
             <div class="demo-account">
-                <strong>Sinh viên:</strong> sv@local.test / 12345678
+                <strong>Sinh viên:</strong> student@example.com / password
             </div>
         </div>
     </div>

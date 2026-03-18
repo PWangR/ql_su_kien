@@ -90,11 +90,11 @@ class SuKienController extends Controller
         $suKien->update($data);
         $this->qrService->ensure($suKien);
 
-        // Xá»­ lÃ½ upload thÃªm áº£nh vÃ o Gallery
-        $this->_uploadGallery($suKien, $request->file('gallery_files'));
+        // Xử lý upload thêm ảnh vào Gallery
+        $this->_uploadGallery($suKien, $request->file('gallery'));
 
         return redirect()->route('admin.su-kien.index')
-            ->with('success', 'Cáº­p nháº­t sá»± kiá»‡n thÃ nh cÃ´ng!');
+            ->with('success', 'Cập nhật sự kiện thành công!');
     }
 
     private function _uploadGallery(SuKien $suKien, $files)

@@ -19,18 +19,26 @@ class ProfileController extends Controller
 
         $request->validate([
             'ho_ten'        => 'required|max:100',
-            'so_dien_thoai' => 'nullable|max:15',
+            'so_dien_thoai' => 'nullable|regex:/^[0-9]{10,11}$/',
+            'avatar'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'mat_khau_moi'  => 'nullable|min:8|confirmed',
         ], [
             'ho_ten.required'       => 'Vui lòng nhập họ tên',
+            'so_dien_thoai.regex'   => 'Số điện thoại phải là 10-11 chữ số',
+            'avatar.image'          => 'File phải là hình ảnh',
+            'avatar.max'            => 'Kích thước ảnh tối đa 5MB',
             'mat_khau_moi.min'      => 'Mật khẩu mới ít nhất 8 ký tự',
             'mat_khau_moi.confirmed' => 'Xác nhận mật khẩu không khớp',
         ]);
 
         $data = [
-            'ho_ten'        => $request->ho_ten,
-            'so_dien_thoai' => $request->so_dien_thoai,
+            'ho_ten' => $request->ho_ten,
         ];
+
+        // Chỉ cập nhật số điện thoại nếu được cung cấp
+        if ($request->filled('so_dien_thoai')) {
+            $data['so_dien_thoai'] = $request->so_dien_thoai;
+        }
 
         // Đổi mật khẩu
         if ($request->filled('mat_khau_moi')) {

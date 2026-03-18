@@ -22,9 +22,9 @@ class EventController extends Controller
 
         // Tìm kiếm
         if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('ten_su_kien', 'like', '%'.$request->search.'%')
-                  ->orWhere('dia_diem', 'like', '%'.$request->search.'%');
+            $query->where(function ($q) use ($request) {
+                $q->where('ten_su_kien', 'like', '%' . $request->search . '%')
+                    ->orWhere('dia_diem', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -33,7 +33,7 @@ class EventController extends Controller
             $query->where('trang_thai', $request->trang_thai);
         }
 
-        $suKien     = $query->orderBy('thoi_gian_bat_dau')->paginate(9)->withQueryString();
+        $suKien     = $query->orderBy('thoi_gian_bat_dau')->paginate(8)->withQueryString();
         $loaiSuKien = LoaiSuKien::all();
 
         // IDs sự kiện đã đăng ký

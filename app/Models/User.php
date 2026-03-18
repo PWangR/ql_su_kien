@@ -21,6 +21,8 @@ class User extends Authenticatable
         'ho_ten',
         'email',
         'mat_khau',
+        'so_dien_thoai',
+        'duong_dan_anh',
         'trang_thai'
     ];
 
