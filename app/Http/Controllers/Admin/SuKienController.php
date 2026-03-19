@@ -57,7 +57,7 @@ class SuKienController extends Controller
         $this->qrService->ensure($suKien);
 
         // Upload gallery images if any
-        $this->_uploadGallery($suKien, $request->file('gallery_files'));
+        $this->_uploadGallery($suKien, $request->file('gallery'));
 
         return redirect()->route('admin.su-kien.index')
             ->with('success', 'Tạo sự kiện thành công!');

@@ -20,6 +20,7 @@ class CreateDemoUsers extends Seeder
                 'mat_khau' => Hash::make('password'),
                 'trang_thai' => 'hoat_dong',
                 'so_dien_thoai' => '0123456789',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -33,6 +34,7 @@ class CreateDemoUsers extends Seeder
                 'mat_khau' => Hash::make('password'),
                 'trang_thai' => 'hoat_dong',
                 'so_dien_thoai' => '0987654321',
+                'email_verified_at' => now(),
             ]
         );
 

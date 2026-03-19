@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\URL;
 
 class AuthController extends Controller
 {
@@ -23,8 +26,15 @@ class AuthController extends Controller
         ];
 
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
             $user = Auth::user();
+
+            // Check email verification
+            if (!$user->hasVerifiedEmail()) {
+                Auth::logout();
+                return back()->with('warning', 'Vui lòng xác thực email trước khi đăng nhập. Kiểm tra email của bạn.');
+            }
+
+            $request->session()->regenerate();
             $fallback = $user->isAdmin() ? route('admin.dashboard') : route('home');
             return redirect()->intended($fallback);
         }
@@ -55,9 +65,62 @@ class AuthController extends Controller
             'trang_thai'   => 'hoat_dong',
         ]);
 
-        Auth::login($user);
+        // Send verification email
+        $this->sendVerificationEmail($user);
 
-        return redirect()->route('home')->with('success', 'Đăng ký thành công!');
+        return redirect()->route('verification.notice')->with('success', 'Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
+    }
+
+    public function sendVerificationEmail(User $user)
+    {
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addHours(1),
+            ['id' => $user->ma_nguoi_dung, 'hash' => sha1($user->email)]
+        );
+
+        $user->notify(new VerifyEmailNotification($verificationUrl));
+    }
+
+    public function verificationNotice()
+    {
+        return view('auth.verify-email');
+    }
+
+    public function verify($id, $hash, Request $request)
+    {
+        $user = User::findOrFail($id);
+
+        if (sha1($user->email) !== $hash) {
+            return redirect()->route('login')->with('error', 'Email xác thực không hợp lệ');
+        }
+
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('login')->with('info', 'Email của bạn đã được xác thực rồi');
+        }
+
+        if ($user->markEmailAsVerified()) {
+            event(new Registered($user));
+        }
+
+        return redirect()->route('login')->with('success', 'Email của bạn đã được xác thực thành công. Vui lòng đăng nhập!');
+    }
+
+    public function resendVerificationEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:nguoi_dung,email'
+        ]);
+
+        $user = User::where('email', $request->email)->firstOrFail();
+
+        if ($user->hasVerifiedEmail()) {
+            return back()->with('info', 'Email của bạn đã được xác thực rồi');
+        }
+
+        $this->sendVerificationEmail($user);
+
+        return back()->with('success', 'Email xác thực đã được gửi lại. Vui lòng kiểm tra email');
     }
 
     public function logout(Request $request)

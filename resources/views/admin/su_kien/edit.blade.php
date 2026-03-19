@@ -280,7 +280,7 @@
                     </div>
 
                     <input type="file"
-                        name="gallery_files[]"
+                        name="gallery[]"
                         multiple
                         id="galleryInput"
                         class="form-control"

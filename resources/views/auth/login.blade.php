@@ -221,11 +221,6 @@
             <a href="{{ route('register') }}" class="btn-register">Tạo tài khoản mới</a>
         </form>
 
-        <div class="login-footer">
-            Chưa có tài khoản? <a href="{{ route('register') }}">Đăng ký ngay</a> |
-            <a href="#">Liên hệ quản trị viên</a>
-        </div>
-
         <div class="demo-accounts">
             <h3>📋 Tài khoản thử nghiệm</h3>
             <div class="demo-account">

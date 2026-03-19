@@ -144,9 +144,17 @@
             </div>
             @php
             $colorMap = ['sap_to_chuc'=>['bg'=>'#dbeafe','t'=>'#1d4ed8','l'=>'Sắp tổ chức'],'dang_dien_ra'=>['bg'=>'#dcfce7','t'=>'#15803d','l'=>'Đang diễn ra'],'da_ket_thuc'=>['bg'=>'#f1f5f9','t'=>'#475569','l'=>'Đã kết thúc'],'huy'=>['bg'=>'#fee2e2','t'=>'#b91c1c','l'=>'Đã hủy']];
-            $c = $colorMap[$suKien->trang_thai] ?? $colorMap['da_ket_thuc'];
+            $status = $suKien->trang_thai_thuc_te;
+            $c = $colorMap[$status] ?? $colorMap['da_ket_thuc'];
             @endphp
-            <span class="badge-trang-thai" style="background:{{ $c['bg'] }};color:{{ $c['t'] }};">{{ $c['l'] }}</span>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                <span class="badge-trang-thai" style="background:{{ $c['bg'] }};color:{{ $c['t'] }};">{{ $c['l'] }}</span>
+                @if($status === 'sap_to_chuc')
+                <div id="countdown-timer" style="font-size:11px;color:#64748b;font-weight:600;">
+                    <i class="bi bi-hourglass-split"></i> Sắp bắt đầu...
+                </div>
+                @endif
+            </div>
         </div>
 
         @if($suKien->mo_ta_chi_tiet)
@@ -270,7 +278,7 @@
                 <div style="text-align:center;margin-top:10px;font-size:13px;color:#16a34a;font-weight:600;">
                     <i class="bi bi-check-circle-fill"></i> Bạn đã đăng ký sự kiện này
                 </div>
-                @elseif($suKien->trang_thai === 'da_ket_thuc' || $suKien->trang_thai === 'huy')
+                @elseif($suKien->trang_thai_thuc_te === 'da_ket_thuc' || $suKien->trang_thai_thuc_te === 'huy')
                 <button disabled style="background:#f1f5f9;color:#94a3b8;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:700;width:100%;cursor:not-allowed;">
                     Sự kiện đã kết thúc
                 </button>
@@ -298,4 +306,34 @@
     </div>
 
 </div>
+
+<script>
+    // Countdown timer for upcoming events
+    function updateCountdown() {
+        const eventStart = new Date('{{ $suKien->thoi_gian_bat_dau->toIso8601String() }}').getTime();
+        const now = new Date().getTime();
+        const distance = eventStart - now;
+
+        if (distance > 0) {
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            let timeStr = '';
+            if (days > 0) timeStr = `${days} ngày ${hours}h`;
+            else if (hours > 0) timeStr = `${hours}h ${minutes}p`;
+            else timeStr = `${minutes}p ${seconds}s`;
+
+            const timer = document.getElementById('countdown-timer');
+            if (timer) {
+                timer.innerHTML = `<i class="bi bi-hourglass-split"></i> Bắt đầu trong ${timeStr}`;
+            }
+        }
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000); // Update every second
+</script>
+
 @endsection

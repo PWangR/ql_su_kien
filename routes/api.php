@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\EventApiController;
 use App\Http\Controllers\Api\RegistrationApiController;
 use App\Http\Controllers\Api\NotificationApiController;
@@ -17,6 +18,10 @@ use App\Http\Controllers\Api\MediaApiController;
 | Public routes
 |
 */
+
+// Auth endpoints (public)
+Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:sanctum');
 
 // Event endpoints (public)
 Route::get('/events', [EventApiController::class, 'index']);

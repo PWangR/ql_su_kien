@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\VaiTro;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasApiTokens, SoftDeletes;
+    use HasFactory, HasApiTokens, SoftDeletes, Notifiable;
 
     protected $table = 'nguoi_dung';
     protected $primaryKey = 'ma_nguoi_dung';
@@ -23,7 +24,12 @@ class User extends Authenticatable
         'mat_khau',
         'so_dien_thoai',
         'duong_dan_anh',
-        'trang_thai'
+        'trang_thai',
+        'email_verified_at'
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
     ];
 
     protected $hidden = [
@@ -43,6 +49,18 @@ class User extends Authenticatable
     public function isSinhVien()
     {
         return $this->vai_tro === 'sinh_vien';
+    }
+
+    public function hasVerifiedEmail()
+    {
+        return !is_null($this->email_verified_at);
+    }
+
+    public function markEmailAsVerified()
+    {
+        return $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp(),
+        ])->save();
     }
 
     public function hasRole($role)

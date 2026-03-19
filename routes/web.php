@@ -37,6 +37,11 @@ Route::get('/register',  [AuthController::class, 'showRegister'])->name('registe
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Email Verification
+Route::get('/email/verify', [AuthController::class, 'verificationNotice'])->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verify'])->name('verification.verify');
+Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])->name('verification.resend');
+
 // -------------------------------------------------------
 // USER ROUTES (yÃªu cáº§u Ä‘Äƒng nháº­p)
 // -------------------------------------------------------
