@@ -45,7 +45,7 @@ $suKienDaKetThuc = $allEvents->filter(fn($e) => $e->trang_thai_thuc_te === 'da_k
 
 // Recent events and registrations
 $suKienGanDay = SuKien::with('loaiSuKien')->whereNull('deleted_at')->latest()->take(5)->get();
-$dangKyGanDay = DangKy::with(['user', 'suKien'])->whereNull('deleted_at')->latest()->take(6)->get();
+$dangKyGanDay = DangKy::with(['nguoiDung', 'suKien'])->whereNull('deleted_at')->orderBy('thoi_gian_dang_ky', 'desc')->take(6)->get();
 @endphp
 
 <!-- Stat cards -->
@@ -188,30 +188,29 @@ $dangKyGanDay = DangKy::with(['user', 'suKien'])->whereNull('deleted_at')->lates
                         <th>Sự kiện</th>
                         <th>Thời gian đăng ký</th>
                         <th>Trạng thái tham gia</th>
-                        <th>Ngày tham gia</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($dangKyGanDay as $dk)
                     <tr>
                         <td>
-                            <strong>{{ $dk->user->ho_ten ?? '—' }}</strong>
-                            <br><small style="color:var(--text-light);">{{ $dk->user->ma_sinh_vien ?? '—' }}</small>
+                            <strong>{{ $dk->nguoiDung->ho_ten ?? '—' }}</strong>
+                            <br><small style="color:var(--text-light);">{{ $dk->nguoiDung->ma_sinh_vien ?? '—' }}</small>
                         </td>
                         <td>{{ Str::limit($dk->suKien->ten_su_kien ?? '—', 40) }}</td>
-                        <td style="color:var(--text-light);font-size:13px;">{{ $dk->created_at->format('d/m/Y H:i') }}</td>
+                        <td style="color:var(--text-light);font-size:13px;">{{ \Carbon\Carbon::parse($dk->thoi_gian_dang_ky)->format('d/m/Y H:i') }}</td>
                         <td>
                             @php
                             $statusMap = [
                             'da_dang_ky' => ['bg' => '#fef3c7', 'text' => '#b45309', 'label' => 'Đã đăng ký'],
                             'da_tham_gia' => ['bg' => '#dcfce7', 'text' => '#15803d', 'label' => 'Đã tham gia'],
-                            'khong_tham_gia' => ['bg' => '#fee2e2', 'text' => '#b91c1c', 'label' => 'Không tham gia'],
+                            'vang_mat' => ['bg' => '#fee2e2', 'text' => '#b91c1c', 'label' => 'Vắng mặt'],
+                            'huy' => ['bg' => '#f3f4f6', 'text' => '#4b5563', 'label' => 'Đã hủy'],
                             ];
                             $s = $statusMap[$dk->trang_thai_tham_gia] ?? ['bg' => '#f1f5f9', 'text' => '#475569', 'label' => 'Không rõ'];
                             @endphp
                             <span class="badge" style="background:{{ $s['bg'] }};color:{{ $s['text'] }};">{{ $s['label'] }}</span>
                         </td>
-                        <td style="color:var(--text-light);font-size:13px;">{{ $dk->ngay_tham_gia ? $dk->ngay_tham_gia->format('d/m/Y') : '—' }}</td>
                     </tr>
                     @empty
                     <tr>

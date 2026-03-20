@@ -19,27 +19,43 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = [
-            'email'      => $request->email,
-            'password'   => $request->password,
-            'trang_thai' => 'hoat_dong',
-        ];
+        $input = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-
-            // Check email verification
-            if (!$user->hasVerifiedEmail()) {
-                Auth::logout();
-                return back()->with('warning', 'Vui lòng xác thực email trước khi đăng nhập. Kiểm tra email của bạn.');
-            }
-
-            $request->session()->regenerate();
-            $fallback = $user->isAdmin() ? route('admin.dashboard') : route('home');
-            return redirect()->intended($fallback);
+        // Bước 1: Kiểm tra email có tồn tại không
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return back()
+                ->withInput($request->only('email'))
+                ->with('error', 'Email này chưa được đăng ký trong hệ thống.');
         }
 
-        return back()->with('error', 'Email hoặc mật khẩu không đúng hoặc tài khoản bị khóa');
+        // Bước 2: Kiểm tra tài khoản có bị khóa không
+        if ($user->trang_thai === 'bi_khoa') {
+            return back()
+                ->withInput($request->only('email'))
+                ->with('error', 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.');
+        }
+
+        // Bước 3: Kiểm tra mật khẩu và đăng nhập
+        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password, 'trang_thai' => 'hoat_dong'])) {
+            return back()
+                ->withInput($request->only('email'))
+                ->with('error', 'Mật khẩu không chính xác.');
+        }
+
+        $user = Auth::user();
+
+        // Admin bỏ qua xác thực email, sinh viên phải xác thực
+        if (!$user->isAdmin() && !$user->hasVerifiedEmail()) {
+            Auth::logout();
+            return back()
+                ->withInput($request->only('email'))
+                ->with('warning', 'Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư (kể cả thư mục Spam). Bạn có thể <a href="' . route('verification.resend.form') . '" class="alert-link">gửi lại email xác thực tại đây</a>.');
+        }
+
+        $request->session()->regenerate();
+        $fallback = $user->isAdmin() ? route('admin.dashboard') : route('home');
+        return redirect()->intended($fallback);
     }
 
     public function showRegister()

@@ -18,6 +18,7 @@ class NguoiDungSeeder extends Seeder
                 'email' => 'admin@local.test',
                 'mat_khau' => Hash::make('12345678'),
                 'trang_thai' => 'hoat_dong',
+                'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now()
             ],
@@ -28,6 +29,7 @@ class NguoiDungSeeder extends Seeder
                 'email' => 'sv@local.test',
                 'mat_khau' => Hash::make('12345678'),
                 'trang_thai' => 'hoat_dong',
+                'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now()
             ]

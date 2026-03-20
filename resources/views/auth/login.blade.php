@@ -81,14 +81,35 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 12px 15px;
+        .alert {
+            padding: 12px 16px;
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
             border-left: 4px solid #c33;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .alert-warning .alert-link {
+            color: #b45309;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border-left: 4px solid #22c55e;
         }
 
         .btn-login {
@@ -187,9 +208,26 @@
             <p>Khoa Công Nghệ Thông Tin - ĐH Nha Trang</p>
         </div>
 
-        @if ($errors->any())
-        <div class="error-message">
-            Email hoặc mật khẩu không đúng hoặc tài khoản bị khóa
+        @if (session('error'))
+        <div class="alert alert-error">
+            <i class="bi bi-x-circle me-1"></i> {{ session('error') }}
+        </div>
+        @elseif ($errors->any())
+        <div class="alert alert-error">
+            <i class="bi bi-x-circle"></i> Email hoặc mật khẩu không đúng hoặc tài khoản bị khóa
+        </div>
+        @endif
+
+        @if (session('warning'))
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            {!! session('warning') !!}
+        </div>
+        @endif
+
+        @if (session('success'))
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> {{ session('success') }}
         </div>
         @endif
 
