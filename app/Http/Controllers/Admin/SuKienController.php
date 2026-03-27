@@ -134,7 +134,7 @@ class SuKienController extends Controller
     public function destroy($id)
     {
         SuKien::findOrFail($id)->delete();
-        return back()->with('success', 'ÄÃ£ xÃ³a sá»± kiá»‡n!');
+        return back()->with('success', 'Đã xóa sự kiện!');
     }
 
     public function thongKeDiem()
@@ -208,9 +208,9 @@ class SuKienController extends Controller
     public function xoaHinhAnh($id)
     {
         $media = \App\Models\ThuVienDaPhuongTien::find($id);
-        if (!$media) return response()->json(['success' => false, 'message' => 'KhÃ´ng tÃ¬m tháº¥y áº£nh.'], 404);
+        if (!$media) return response()->json(['success' => false, 'message' => 'Không tìm thấy ảnh.'], 404);
 
-        // Logic xÃ³a file Ä‘Ã£ Ä‘Æ°á»£c xá»­ lÃ½ tá»± Ä‘á»™ng trong model event
+        // Logic xóa file đã được xử lý tự động trong model event
         $media->forceDelete();
 
         return response()->json(['success' => true]);

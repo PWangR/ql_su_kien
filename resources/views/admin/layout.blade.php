@@ -381,9 +381,15 @@
         .sidebar-overlay.show { display: block; }
     </style>
 
+    {{-- Vite Scripts & Styles --}}
+    @vite(['resources/css/app.css', 'resources/css/loading.css', 'resources/js/app.js'])
+
     @yield('styles')
 </head>
 <body>
+
+{{-- ========================== GLOBAL LOADING OVERLAY ========================== --}}
+<x-loading-overlay />
 
 <!-- Sidebar Overlay (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>

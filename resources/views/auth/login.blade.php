@@ -199,9 +199,15 @@
             color: #333;
         }
     </style>
+
+    {{-- Vite Scripts & Styles --}}
+    @vite(['resources/css/app.css', 'resources/css/loading.css', 'resources/js/app.js'])
 </head>
 
 <body>
+    {{-- ========================== GLOBAL LOADING OVERLAY ========================== --}}
+    <x-loading-overlay />
+
     <div class="login-container">
         <div class="login-header">
             <h1>Quản Lý Sự Kiện</h1>

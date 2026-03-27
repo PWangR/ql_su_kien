@@ -62,8 +62,4 @@
   .text-pretty {
     text-wrap: pretty;
   }
-
-  .shadow-sm {
-    @apply shadow-xs;
-  }
 }
