@@ -4,96 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Đăng Ký - Quản Lý Sự Kiện NTU</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <title>Đăng Ký — Quản Lý Sự Kiện NTU</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
-        body{
-            font-family:'Inter',sans-serif;
-            min-height:100vh;
-            background: radial-gradient(circle at 20% 20%, rgba(37,99,235,0.2), transparent 35%), radial-gradient(circle at 80% 0%, rgba(236,72,153,0.15), transparent 30%), #0f172a;
-            display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden;
+        body {
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--space-lg);
         }
-        .card{
-            background:rgba(255,255,255,0.98);
-            border-radius:24px;
-            width:100%;max-width:520px;
-            padding:40px;
-            box-shadow:0 25px 60px rgba(0,0,0,0.35);
-            position:relative;z-index:1;
+
+        .register-page {
+            max-width: 480px;
+            width: 100%;
         }
-        h1{font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;color:#0f172a;margin:0;}
-        .subtitle{color:#64748b;font-size:13px;margin-top:4px;}
-        .form-group{margin-bottom:16px;}
-        .form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;}
-        .form-control{
-            width:100%;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:10px;
-            font-size:14px;font-family:'Inter',sans-serif;background:#f8fafc;transition:all 0.2s;
+
+        .register-seal {
+            width: 70px;
+            height: 70px;
+            border: 2.5px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-md);
+            color: var(--accent);
+            font-size: 28px;
         }
-        .form-control:focus{border-color:#2563eb;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,0.1);outline:none;}
-        .btn-primary{
-            width:100%;padding:13px;background:linear-gradient(135deg,#2563eb,#3b82f6);
-            color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;
-            box-shadow:0 4px 14px rgba(37,99,235,0.35);transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;
+
+        .register-title {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 4px;
         }
-        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,0.45);}
-        .switch-auth{text-align:center;margin-top:14px;font-size:13px;color:#64748b;}
-        .switch-auth a{color:#2563eb;text-decoration:none;font-weight:600;}
-        .error-box{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:12px 16px;border-radius:10px;font-size:13.5px;display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+
+        .register-subtitle {
+            text-align: center;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            margin-bottom: var(--space-xl);
+        }
+
+        .register-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius-md);
+            padding: var(--space-xl);
+        }
+
+        .register-footer {
+            text-align: center;
+            margin-top: var(--space-lg);
+            font-size: 0.8125rem;
+            color: var(--text-light);
+        }
+
+        .register-footer a {
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div style="text-align:center;margin-bottom:22px;">
-            <div style="width:72px;height:72px;background:linear-gradient(135deg,#2563EB,#60a5fa);border-radius:20px;display:inline-flex;align-items:center;justify-content:center;font-size:32px;color:#fff;box-shadow:0 8px 24px rgba(37,99,235,0.35);margin-bottom:12px;">
-                <i class="bi bi-stars"></i>
-            </div>
-            <h1>Đăng ký tài khoản</h1>
-            <div class="subtitle">Tham gia và quản lý sự kiện của Khoa CNTT</div>
+    <x-loading-overlay />
+
+    <div class="register-page">
+        <div class="register-seal">
+            <i class="bi bi-person-plus"></i>
         </div>
+
+        <h1 class="register-title">Tạo tài khoản</h1>
+        <p class="register-subtitle">Đăng ký để tham gia các sự kiện Khoa CNTT</p>
 
         @if ($errors->any())
-            <div class="error-box">
-                <i class="bi bi-exclamation-circle-fill"></i>
-                <div>
-                    @foreach ($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
+        <div class="alert alert-error">
+            <i class="bi bi-x-circle"></i>
+            <div>
+                @foreach ($errors->all() as $error)
+                    {{ $error }}<br>
+                @endforeach
             </div>
+        </div>
         @endif
 
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
-            <div class="form-group">
-                <label for="ho_ten">Họ tên</label>
-                <input type="text" id="ho_ten" name="ho_ten" class="form-control" value="{{ old('ho_ten') }}" required>
-            </div>
-            <div class="form-group">
-                <label for="ma_sinh_vien">Mã sinh viên</label>
-                <input type="text" id="ma_sinh_vien" name="ma_sinh_vien" class="form-control" value="{{ old('ma_sinh_vien') }}" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Mật khẩu</label>
-                <input type="password" id="password" name="password" class="form-control" required minlength="8">
-            </div>
-            <div class="form-group">
-                <label for="password_confirmation">Nhập lại mật khẩu</label>
-                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required minlength="8">
-            </div>
+        <div class="register-card">
+            <form action="{{ route('register') }}" method="POST">
+                @csrf
 
-            <button type="submit" class="btn-primary">
-                <i class="bi bi-person-check"></i> Tạo tài khoản
-            </button>
-        </form>
+                <div class="form-group">
+                    <label for="ho_ten" class="form-label">Họ và tên</label>
+                    <input type="text" id="ho_ten" name="ho_ten" class="form-control @error('ho_ten') is-invalid @enderror"
+                           value="{{ old('ho_ten') }}" placeholder="Nguyễn Văn A" required>
+                    @error('ho_ten')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
 
-        <div class="switch-auth">
-            Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập</a>
+                <div class="form-group">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                           value="{{ old('email') }}" placeholder="example@ntu.edu.vn" required>
+                    @error('email')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="password" class="form-label">Mật khẩu</label>
+                        <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror"
+                               placeholder="Tối thiểu 8 ký tự" required>
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-control"
+                               placeholder="Nhập lại mật khẩu" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ma_sinh_vien" class="form-label">Mã sinh viên (tùy chọn)</label>
+                    <input type="text" id="ma_sinh_vien" name="ma_sinh_vien" class="form-control"
+                           value="{{ old('ma_sinh_vien') }}" placeholder="VD: 62131234">
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full" style="padding:12px;">Đăng ký</button>
+            </form>
         </div>
+
+        <p class="register-footer">
+            Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập</a>
+        </p>
     </div>
 </body>
 </html>

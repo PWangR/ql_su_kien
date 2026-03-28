@@ -10,32 +10,31 @@
     <div class="card-body">
         <form method="POST" action="{{ route('admin.bau-cu.update', $bauCu->ma_bau_cu) }}">
             @csrf @method('PUT')
-            <div class="mb-3">
-                <label class="form-label">Tiêu đề <span style="color:var(--danger)">*</span></label>
-                <input type="text" name="tieu_de" class="form-control @error('tieu_de') is-invalid @enderror"
-                       value="{{ old('tieu_de', $bauCu->tieu_de) }}" required>
-                @error('tieu_de') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            <div class="form-group">
+                <label class="form-label">Tiêu đề *</label>
+                <input type="text" name="tieu_de" class="form-control" value="{{ old('tieu_de', $bauCu->tieu_de) }}" required>
+                @error('tieu_de') <div class="text-xs text-danger mt-1">{{ $message }}</div> @enderror
             </div>
 
-            <div class="mb-3">
+            <div class="form-group">
                 <label class="form-label">Mô tả</label>
                 <textarea name="mo_ta" class="form-control" rows="3">{{ old('mo_ta', $bauCu->mo_ta) }}</textarea>
             </div>
 
-            <div class="input-grid mb-3">
+            <div class="input-grid form-group">
                 <div>
-                    <label class="form-label">Thời gian bắt đầu <span style="color:var(--danger)">*</span></label>
+                    <label class="form-label">Thời gian bắt đầu *</label>
                     <input type="datetime-local" name="thoi_gian_bat_dau" class="form-control"
                            value="{{ old('thoi_gian_bat_dau', $bauCu->thoi_gian_bat_dau->format('Y-m-d\TH:i')) }}" required>
                 </div>
                 <div>
-                    <label class="form-label">Thời gian kết thúc <span style="color:var(--danger)">*</span></label>
+                    <label class="form-label">Thời gian kết thúc *</label>
                     <input type="datetime-local" name="thoi_gian_ket_thuc" class="form-control"
                            value="{{ old('thoi_gian_ket_thuc', $bauCu->thoi_gian_ket_thuc->format('Y-m-d\TH:i')) }}" required>
                 </div>
             </div>
 
-            <div class="input-grid mb-3">
+            <div class="input-grid form-group">
                 <div>
                     <label class="form-label">Số chọn tối thiểu</label>
                     <input type="number" name="so_chon_toi_thieu" class="form-control"
@@ -48,7 +47,7 @@
                 </div>
             </div>
 
-            <div class="mb-3">
+            <div class="form-group">
                 <label class="form-label">Trạng thái</label>
                 <select name="trang_thai" class="form-control">
                     <option value="nhap" {{ $bauCu->trang_thai === 'nhap' ? 'selected' : '' }}>Nháp</option>
@@ -58,7 +57,7 @@
                 </select>
             </div>
 
-            <div class="d-flex gap-2 mt-3">
+            <div class="btn-group mt-4">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Cập nhật</button>
                 <a href="{{ route('admin.bau-cu.show', $bauCu->ma_bau_cu) }}" class="btn btn-secondary">Hủy</a>
             </div>

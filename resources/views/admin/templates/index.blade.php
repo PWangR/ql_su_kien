@@ -6,43 +6,43 @@
 @section('styles')
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <style>
-    .ql-toolbar.ql-snow { border-radius: 8px 8px 0 0; background: #f8fafc; border-color: var(--border); }
-    .ql-container.ql-snow { border-radius: 0 0 8px 8px; border-color: var(--border); font-family: 'Inter', sans-serif; font-size: 14px; }
-    .ql-editor { min-height: 200px; }
+    .ql-toolbar.ql-snow { border: 1px solid var(--border); border-bottom: none; background: var(--bg-alt); font-family: var(--font-sans); }
+    .ql-container.ql-snow { border: 1px solid var(--border); font-family: var(--font-sans); font-size: 0.875rem; background: var(--card); }
+    .ql-editor { min-height: 250px; }
 </style>
 @endsection
 
 @section('content')
-<div style="display:grid;grid-template-columns:1fr 450px;gap:20px;align-items:start;">
+<div style="display:grid;grid-template-columns:1fr 450px;gap:var(--space-lg);align-items:start;">
 
 <!-- List -->
 <div class="card">
     <div class="card-header">
-        <div class="card-title"><i class="bi bi-file-earmark-text-fill" style="color:var(--primary)"></i> Danh sách template</div>
+        <div class="card-title"><i class="bi bi-file-earmark-text"></i> Danh sách template</div>
     </div>
     <div class="card-body" style="padding:0;">
         @forelse($templates as $t)
-        <div style="padding:16px 20px;border-bottom:1px solid var(--border);" id="template-{{ $t->ma_mau }}">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border-light);" id="template-{{ $t->ma_mau }}">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
                 <div style="flex:1;">
-                    <div style="font-weight:700;margin-bottom:4px;">{{ $t->ten_mau }}</div>
-                    <div style="font-size:12px;color:var(--text-light);margin-bottom:8px;display:flex;gap:10px;flex-wrap:wrap;">
+                    <div style="font-weight:600;font-size:1rem;margin-bottom:4px;">{{ $t->ten_mau }}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;display:flex;gap:12px;flex-wrap:wrap;">
                         <span><i class="bi bi-tag"></i> {{ $t->loaiSuKien->ten_loai ?? 'Tất cả loại' }}</span>
                         <span><i class="bi bi-person"></i> {{ $t->nguoiTao->ho_ten ?? '—' }}</span>
                         @if($t->dia_diem)<span><i class="bi bi-geo-alt"></i> {{ $t->dia_diem }}</span>@endif
                         @if($t->diem_cong > 0)<span><i class="bi bi-star"></i> +{{ $t->diem_cong }} điểm</span>@endif
                         @if($t->so_luong_toi_da > 0)<span><i class="bi bi-people"></i> Tối đa: {{ $t->so_luong_toi_da }}</span>@endif
-                        @if($t->anh_su_kien)<span><i class="bi bi-image" style="color:var(--success)"></i> Có ảnh bìa</span>@endif
+                        @if($t->anh_su_kien)<span><i class="bi bi-image" style="color:var(--success)"></i> Có thẻ ảnh</span>@endif
                     </div>
-                    <div style="font-size:13px;color:var(--text);background:var(--bg);border-radius:8px;padding:10px;max-height:80px;overflow:hidden;">
+                    <div style="font-size:0.875rem;color:var(--text-light);background:var(--bg-alt);border:1px solid var(--border-light);padding:10px;max-height:80px;overflow:hidden;line-height:1.5;">
                         {{ Str::limit(strip_tags($t->noi_dung), 120) }}
                     </div>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-                    <button class="btn btn-warning btn-sm" onclick="editTemplate({{ $t->ma_mau }}, `{{ addslashes($t->ten_mau) }}`, `{{ addslashes($t->noi_dung) }}`, '{{ $t->ma_loai_su_kien }}', `{{ addslashes($t->dia_diem) }}`, '{{ $t->so_luong_toi_da }}', '{{ $t->diem_cong }}', `{{ json_encode($t->bo_cuc ?? ['banner','header','info','description','gallery']) }}`)">
+                <div class="btn-group" style="flex-direction:column;flex-shrink:0;">
+                    <button class="btn btn-secondary btn-sm" onclick="editTemplate({{ $t->ma_mau }}, `{{ addslashes($t->ten_mau) }}`, `{{ addslashes($t->noi_dung) }}`, '{{ $t->ma_loai_su_kien }}', `{{ addslashes($t->dia_diem) }}`, '{{ $t->so_luong_toi_da }}', '{{ $t->diem_cong }}', `{{ json_encode($t->bo_cuc ?? ['banner','header','info','description','gallery']) }}`)">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    <form method="POST" action="{{ route('admin.templates.destroy', $t->ma_mau) }}" onsubmit="return confirm('Xóa template?')">
+                    <form method="POST" action="{{ route('admin.templates.destroy', $t->ma_mau) }}" onsubmit="return confirm('Xóa template này?')">
                         @csrf @method('DELETE')
                         <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
                     </form>
@@ -50,34 +50,34 @@
             </div>
         </div>
         @empty
-        <div style="text-align:center;padding:40px;color:var(--text-light);">
+        <div style="text-align:center;padding:var(--space-3xl);color:var(--text-muted);">
             <i class="bi bi-file-earmark-plus" style="font-size:36px;display:block;margin-bottom:8px;opacity:0.3;"></i>
             Chưa có template nào
         </div>
         @endforelse
     </div>
     @if($templates->hasPages())
-    <div style="padding:16px 20px;border-top:1px solid var(--border);">{{ $templates->links() }}</div>
+    <div style="padding:var(--space-md) 20px;border-top:1px solid var(--border-light);">{{ $templates->links() }}</div>
     @endif
 </div>
 
-<!-- Form thêm/sửa -->
-<div class="card">
+<!-- Form -->
+<div class="card" style="position:sticky;top:20px;">
     <div class="card-header">
-        <div class="card-title" id="formTitle"><i class="bi bi-plus-circle" style="color:var(--success)"></i> Tạo template mới</div>
+        <div class="card-title" id="formTitle"><i class="bi bi-plus-circle"></i> Tạo template mới</div>
     </div>
     <div class="card-body">
         <form method="POST" id="templateForm" action="{{ route('admin.templates.store') }}" enctype="multipart/form-data">
             @csrf
             <div id="methodField"></div>
             
-            <div class="mb-3">
-                <label class="form-label">Tên template <span style="color:var(--danger)">*</span></label>
-                <input type="text" name="ten_mau" id="inputTenMau" class="form-control" required placeholder="VD: Mẫu Workshop IT">
+            <div class="form-group">
+                <label class="form-label">Tên template *</label>
+                <input type="text" name="ten_mau" id="inputTenMau" class="form-control" required placeholder="VD: Mẫu sự kiện chuyên đề...">
             </div>
             
-            <div class="mb-3">
-                <label class="form-label">Loại sự kiện (Tự động điền nếu loại khớp)</label>
+            <div class="form-group">
+                <label class="form-label">Loại sự kiện</label>
                 <select name="ma_loai_su_kien" id="inputLoai" class="form-control">
                     <option value="">-- Áp dụng cho mọi loại --</option>
                     @foreach($loaiSuKien as $l)
@@ -85,13 +85,11 @@
                     @endforeach
                 </select>
             </div>
-            
-            <div class="mb-3" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid var(--border);">
-                <!-- Phần chọn thành phần hiển thị mặc định cho Template -->
-            <div class="mb-3">
-                <label class="form-label fw-bold small">Cấu trúc hiển thị mặc định cho Template</label>
-                <div class="p-3 bg-light rounded-3 border">
-                    <div id="layout-components" class="d-flex flex-wrap gap-2">
+
+            <div style="background:var(--bg-alt);border:1px solid var(--border);padding:var(--space-md);margin-bottom:var(--space-lg);">
+                <div class="form-group">
+                    <label class="form-label text-sm fw-bold">Cấu trúc hiển thị</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:12px;">
                         @php
                             $components = [
                                 'banner' => 'Ảnh bìa',
@@ -102,50 +100,35 @@
                             ];
                         @endphp
                         @foreach($components as $key => $label)
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input component-checkbox" type="checkbox" name="bo_cuc[]" value="{{ $key }}" id="chk-{{ $key }}" checked>
-                            <label class="form-check-label small" for="chk-{{ $key }}">{{ $label }}</label>
-                        </div>
+                        <label style="display:flex;align-items:center;gap:4px;font-size:0.8125rem;cursor:pointer;">
+                            <input class="component-checkbox" type="checkbox" name="bo_cuc[]" value="{{ $key }}" id="chk-{{ $key }}" checked>
+                            {{ $label }}
+                        </label>
                         @endforeach
                     </div>
                 </div>
-            </div>
 
-            <div class="mb-3" style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid var(--border);">
-                <div class="row g-2 mb-2">
-                    <div class="col-8">
-                        <label class="form-label" style="font-size:13px;">Địa điểm mặc định</label>
-                        <input type="text" name="dia_diem" id="inputDiaDiem" class="form-control form-control-sm" placeholder="Địa điểm...">
+                <div class="input-grid form-group mb-0">
+                    <div>
+                        <label class="form-label text-xs">Địa điểm mặc định</label>
+                        <input type="text" name="dia_diem" id="inputDiaDiem" class="form-control" placeholder="Địa điểm...">
                     </div>
-                    <div class="col-4">
-                        <label class="form-label" style="font-size:13px;">Điểm cộng</label>
-                        <input type="number" name="diem_cong" id="inputDiemCong" class="form-control form-control-sm" placeholder="0" min="0">
-                    </div>
-                </div>
-                <div class="row g-2">
-                    <div class="col-12">
-                        <label class="form-label" style="font-size:13px;">Số lượng tối đa</label>
-                        <input type="number" name="so_luong_toi_da" id="inputSoLuong" class="form-control form-control-sm" placeholder="0" min="0">
+                    <div>
+                        <label class="form-label text-xs">Tối đa</label>
+                        <input type="number" name="so_luong_toi_da" id="inputSoLuong" class="form-control" placeholder="0" min="0">
                     </div>
                 </div>
-                
-                <div class="mt-2 mb-0">
-                    <label class="form-label" style="font-size:13px;">Ảnh nền mặc định (tải lên file)</label>
-                    <input type="file" name="anh_su_kien" class="form-control form-control-sm" accept="image/*">
-                    <small style="font-size:11px;color:var(--text-light);">Bỏ trống nếu không muốn đổi ảnh bìa khi chọn mẫu này.</small>
-                </div>
-            </div>
             </div>
             
-            <div class="mb-3">
-                <label class="form-label">Nội dung mô tả <span style="color:var(--danger)">*</span></label>
+            <div class="form-group">
+                <label class="form-label">Nội dung mô tả *</label>
                 <input type="hidden" name="noi_dung" id="inputNoiDung" required>
-                <div id="editor-container" style="background:#fff;"></div>
+                <div id="editor-container"></div>
             </div>
             
-            <div style="display:flex;gap:8px;">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-check"></i> Lưu Template</button>
-                <button type="button" onclick="resetForm()" class="btn btn-secondary">Đặt lại form</button>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;"><i class="bi bi-save"></i> Lưu Template</button>
+                <button type="button" onclick="resetForm()" class="btn btn-outline">Làm lại</button>
             </div>
         </form>
     </div>
@@ -157,7 +140,6 @@
 @section('scripts')
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script>
-// Khởi tạo Quill Editor
 var quill = new Quill('#editor-container', {
     theme: 'snow',
     placeholder: 'Nhập nội dung template...',
@@ -171,7 +153,6 @@ var quill = new Quill('#editor-container', {
     }
 });
 
-// Update hidden input liên tục
 quill.on('text-change', function() {
     let html = quill.root.innerHTML;
     if (html === '<p><br></p>') html = '';
@@ -179,7 +160,7 @@ quill.on('text-change', function() {
 });
 
 function editTemplate(id, ten, nd, loai, diadiem, soluong, diem, layoutJson) {
-    document.getElementById('formTitle').innerHTML = '<i class="bi bi-pencil" style="color:var(--warning)"></i> Chỉnh sửa template';
+    document.getElementById('formTitle').innerHTML = '<i class="bi bi-pencil"></i> Chỉnh sửa template';
     document.getElementById('templateForm').action = '/admin/templates/' + id;
     document.getElementById('methodField').innerHTML = '<input type="hidden" name="_method" value="PUT">';
     
@@ -190,9 +171,7 @@ function editTemplate(id, ten, nd, loai, diadiem, soluong, diem, layoutJson) {
     
     document.getElementById('inputDiaDiem').value = diadiem || '';
     document.getElementById('inputSoLuong').value = soluong || 0;
-    document.getElementById('inputDiem').value = diem || 0;
 
-    // Cập nhật các checkbox bố cục
     const layout = JSON.parse(layoutJson || '[]');
     document.querySelectorAll('.component-checkbox').forEach(chk => {
         chk.checked = layout.includes(chk.value);
@@ -202,14 +181,13 @@ function editTemplate(id, ten, nd, loai, diadiem, soluong, diem, layoutJson) {
 }
 
 function resetForm() {
-    document.getElementById('formTitle').innerHTML = '<i class="bi bi-plus-circle" style="color:var(--success)"></i> Tạo template mới';
+    document.getElementById('formTitle').innerHTML = '<i class="bi bi-plus-circle"></i> Tạo template mới';
     document.getElementById('templateForm').action = '{{ route("admin.templates.store") }}';
     document.getElementById('methodField').innerHTML = '';
     document.getElementById('templateForm').reset();
     quill.root.innerHTML = '';
     document.getElementById('inputNoiDung').value = '';
     
-    // Reset checkboxes về mặc định
     document.querySelectorAll('.component-checkbox').forEach(chk => chk.checked = true);
 }
 </script>
