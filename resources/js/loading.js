@@ -124,11 +124,13 @@ window.LoadingStore = LoadingStore;
 window.useLoading   = useLoading;
 
 // [TÍNH NĂNG MỚI] Tự động show Loading khi submit các form truyền thống
-document.addEventListener('submit', (e) => {
-    // Nếu form không có target="_blank" (mở tab mới)
-    if (!e.target.hasAttribute('target') || e.target.getAttribute('target') !== '_blank') {
-        LoadingStore.showLoading();
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('submit', (e) => {
+        // Nếu form không có target="_blank" (mở tab mới)
+        if (!e.target.hasAttribute('target') || e.target.getAttribute('target') !== '_blank') {
+            LoadingStore.showLoading();
+        }
+    });
 });
 
 export { LoadingStore, useLoading };

@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'mat_khau',
         'so_dien_thoai',
+        'lop',                  // ← TRƯỜNG MỚI
         'duong_dan_anh',
         'trang_thai',
         'email_verified_at'
