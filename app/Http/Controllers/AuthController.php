@@ -68,17 +68,13 @@ class AuthController extends Controller
         $request->validate([
             'ho_ten'       => 'required|max:100',
             'ma_sinh_vien' => 'required|max:20|unique:nguoi_dung,ma_sinh_vien',
-            'lop'          => 'required|max:10|regex:/^[0-9]{2,}\.[A-Za-z]{2,}-[0-9]{1,}$/', // ← MỚI
             'email'        => 'required|email|unique:nguoi_dung,email',
             'password'     => 'required|min:8|confirmed',
-        ], [
-            'lop.regex' => 'Định dạng lớp không hợp lệ. Vui lòng nhập theo format: 64.CNTT-1',
         ]);
 
         $user = User::create([
             'ho_ten'       => $request->ho_ten,
             'ma_sinh_vien' => $request->ma_sinh_vien,
-            'lop'          => $request->lop,  // ← MỚI
             'email'        => $request->email,
             'vai_tro'      => 'sinh_vien',
             'mat_khau'     => Hash::make($request->password),

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,7 +73,6 @@
         }
     </style>
 </head>
-
 <body>
     <x-loading-overlay />
 
@@ -91,7 +89,7 @@
             <i class="bi bi-x-circle"></i>
             <div>
                 @foreach ($errors->all() as $error)
-                {{ $error }}<br>
+                    {{ $error }}<br>
                 @endforeach
             </div>
         </div>
@@ -104,18 +102,18 @@
                 <div class="form-group">
                     <label for="ho_ten" class="form-label">Họ và tên</label>
                     <input type="text" id="ho_ten" name="ho_ten" class="form-control @error('ho_ten') is-invalid @enderror"
-                        value="{{ old('ho_ten') }}" placeholder="Nguyễn Văn A" required>
+                           value="{{ old('ho_ten') }}" placeholder="Nguyễn Văn A" required>
                     @error('ho_ten')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="form-group">
                     <label for="email" class="form-label">Email</label>
                     <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                        value="{{ old('email') }}" placeholder="example@ntu.edu.vn" required>
+                           value="{{ old('email') }}" placeholder="example@ntu.edu.vn" required>
                     @error('email')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
@@ -123,33 +121,23 @@
                     <div class="form-group">
                         <label for="password" class="form-label">Mật khẩu</label>
                         <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror"
-                            placeholder="Tối thiểu 8 ký tự" required>
+                               placeholder="Tối thiểu 8 ký tự" required>
                         @error('password')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>
                         <input type="password" id="password_confirmation" name="password_confirmation" class="form-control"
-                            placeholder="Nhập lại mật khẩu" required>
+                               placeholder="Nhập lại mật khẩu" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="ma_sinh_vien" class="form-label">Mã sinh viên (tùy chọn)</label>
                     <input type="text" id="ma_sinh_vien" name="ma_sinh_vien" class="form-control"
-                        value="{{ old('ma_sinh_vien') }}" placeholder="VD: 62131234">
-                </div>
-
-                <div class="form-group">
-                    <label for="lop" class="form-label">Lớp <span style="color:#e74c3c;">*</span></label>
-                    <input type="text" id="lop" name="lop" class="form-control @error('lop') is-invalid @enderror"
-                        value="{{ old('lop') }}" placeholder="VD: 64.CNTT-1" required>
-                    <small style="color: var(--text-muted);">Định dạng: số.chữ-số (Ví dụ: 64.CNTT-1)</small>
-                    @error('lop')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                           value="{{ old('ma_sinh_vien') }}" placeholder="VD: 62131234">
                 </div>
 
                 <button type="submit" class="btn btn-primary w-full" style="padding:12px;">Đăng ký</button>
@@ -161,5 +149,4 @@
         </p>
     </div>
 </body>
-
 </html>

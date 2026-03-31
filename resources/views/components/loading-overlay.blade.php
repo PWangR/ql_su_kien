@@ -1,6 +1,5 @@
-<div class="loading-overlay" id="global-loading-overlay">
-    <div class="loading-spinner-wrap">
-        <div class="loading-ring"></div>
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner">
         <span class="loading-text">Đang xử lý...</span>
     </div>
 </div>
