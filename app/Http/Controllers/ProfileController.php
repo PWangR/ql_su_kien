@@ -18,21 +18,25 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'ho_ten'        => 'required|max:100',
+            'ho_ten' => 'required|max:100',
+            'lop' => 'required|max:10|regex:/^[0-9]{2,}\.[A-Za-z]{2,}-[0-9]{1,}$/', // ← MỚI
             'so_dien_thoai' => 'nullable|regex:/^[0-9]{10,11}$/',
-            'avatar'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'mat_khau_moi'  => 'nullable|min:8|confirmed',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+            'mat_khau_moi' => 'nullable|min:8|confirmed',
         ], [
-            'ho_ten.required'       => 'Vui lòng nhập họ tên',
-            'so_dien_thoai.regex'   => 'Số điện thoại phải là 10-11 chữ số',
-            'avatar.image'          => 'File phải là hình ảnh',
-            'avatar.max'            => 'Kích thước ảnh tối đa 5MB',
-            'mat_khau_moi.min'      => 'Mật khẩu mới ít nhất 8 ký tự',
+            'ho_ten.required' => 'Vui lòng nhập họ tên',
+            'lop.required' => 'Vui lòng nhập lớp', // ← MỚI
+            'lop.regex' => 'Định dạng lớp không hợp lệ. Vui lòng nhập theo format: 64.CNTT-1', // ← MỚI
+            'so_dien_thoai.regex' => 'Số điện thoại phải là 10-11 chữ số',
+            'avatar.image' => 'File phải là hình ảnh',
+            'avatar.max' => 'Kích thước ảnh tối đa 5MB',
+            'mat_khau_moi.min' => 'Mật khẩu mới ít nhất 8 ký tự',
             'mat_khau_moi.confirmed' => 'Xác nhận mật khẩu không khớp',
         ]);
 
         $data = [
             'ho_ten' => $request->ho_ten,
+            'lop' => $request->lop,  // ← MỚI
         ];
 
         // Chỉ cập nhật số điện thoại nếu được cung cấp

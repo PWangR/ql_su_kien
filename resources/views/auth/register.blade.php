@@ -89,7 +89,7 @@
             <i class="bi bi-x-circle"></i>
             <div>
                 @foreach ($errors->all() as $error)
-                    {{ $error }}<br>
+                {{ $error }}<br>
                 @endforeach
             </div>
         </div>
@@ -137,7 +137,17 @@
                 <div class="form-group">
                     <label for="ma_sinh_vien" class="form-label">Mã sinh viên (tùy chọn)</label>
                     <input type="text" id="ma_sinh_vien" name="ma_sinh_vien" class="form-control"
-                           value="{{ old('ma_sinh_vien') }}" placeholder="VD: 62131234">
+                        value="{{ old('ma_sinh_vien') }}" placeholder="VD: 62131234">
+                </div>
+
+                <div class="form-group">
+                    <label for="lop" class="form-label">Lớp <span style="color:#e74c3c;">*</span></label>
+                    <input type="text" id="lop" name="lop" class="form-control @error('lop') is-invalid @enderror"
+                        value="{{ old('lop') }}" placeholder="VD: 64.CNTT-1" required>
+                    <small style="color: var(--text-muted);">Định dạng: số.chữ-số (Ví dụ: 64.CNTT-1)</small>
+                    @error('lop')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <button type="submit" class="btn btn-primary w-full" style="padding:12px;">Đăng ký</button>

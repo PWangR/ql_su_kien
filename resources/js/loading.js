@@ -14,8 +14,8 @@
 const LoadingStore = (() => {
     // ── Internal State ──────────────────────────────────────
     let activeRequests = 0;   // Số request đang pending
-    let debounceTimer  = null; // Timer debounce
-    let _visible       = false; // Trạng thái thật sự của overlay
+    let debounceTimer = null; // Timer debounce
+    let _visible = false; // Trạng thái thật sự của overlay
 
     // ── DOM Reference ───────────────────────────────────────
     const getOverlay = () => document.getElementById('global-loading-overlay');
@@ -112,19 +112,18 @@ const LoadingStore = (() => {
 // ============================================================
 function useLoading() {
     return {
-        showLoading : LoadingStore.showLoading,
-        hideLoading : LoadingStore.hideLoading,
-        isLoading   : LoadingStore.isLoading,
-        forceHide   : LoadingStore.forceHide,
+        showLoading: LoadingStore.showLoading,
+        hideLoading: LoadingStore.hideLoading,
+        isLoading: LoadingStore.isLoading,
+        forceHide: LoadingStore.forceHide,
     };
 }
 
 // Expose ra global scope để dùng trong Blade templates & scripts inline
 window.LoadingStore = LoadingStore;
-window.useLoading   = useLoading;
+window.useLoading = useLoading;
 
 // [TÍNH NĂNG MỚI] Tự động show Loading khi submit các form truyền thống
-
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('submit', (e) => {
         // Skip loading nếu form có data-skip-loading="true"
@@ -136,15 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
             LoadingStore.showLoading();
         }
     });
-});
-document.addEventListener('submit', (e) => {
-    // Nếu form không có target="_blank" (mở tab mới)
-    if (!e.target.hasAttribute('target') || e.target.getAttribute('target') !== '_blank') {
-        LoadingStore.showLoading();
-    }
-
-
-
 });
 
 export { LoadingStore, useLoading };

@@ -20,6 +20,7 @@ class User extends Authenticatable
         'vai_tro',
         'ma_sinh_vien',
         'ho_ten',
+        'lop',
         'email',
         'mat_khau',
         'so_dien_thoai',
