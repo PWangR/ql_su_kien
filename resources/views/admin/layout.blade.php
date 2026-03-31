@@ -53,6 +53,9 @@
         </a>
 
         <div class="sidebar-label">Báo cáo</div>
+        <a href="{{ route('admin.bao-cao.index') }}" class="{{ request()->routeIs('admin.bao-cao*') ? 'active' : '' }}">
+            <i class="bi bi-file-earmark-excel"></i> Xuất báo cáo
+        </a>
         <a href="{{ route('admin.thong-ke.index') }}" class="{{ request()->routeIs('admin.thong-ke*') ? 'active' : '' }}">
             <i class="bi bi-bar-chart"></i> Thống kê
         </a>

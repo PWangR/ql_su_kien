@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\BauCuController;
 use App\Http\Controllers\Admin\UngCuVienController;
 use App\Http\Controllers\Admin\CuTriController;
 use App\Http\Controllers\Admin\KetQuaBauCuController;
+use App\Http\Controllers\Admin\BaoCaoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
@@ -124,7 +125,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Thá»‘ng kÃª
     Route::get('thong-ke',      [ThongKeController::class, 'index'])->name('thong-ke.index');
     Route::get('thong-ke/diem', [ThongKeController::class, 'diem'])->name('thong-ke.diem');
-
+    // Báo cáo
+    Route::get('bao-cao',           [BaoCaoController::class, 'index'])->name('bao-cao.index');
+    Route::post('bao-cao/export',   [BaoCaoController::class, 'export'])->name('bao-cao.export');
     // Quáº£n lÃ½ báº§u cá»­
     Route::resource('bau-cu', BauCuController::class);
     Route::post('bau-cu/{id}/toggle-visibility', [BauCuController::class, 'toggleVisibility'])->name('bau-cu.toggle-visibility');

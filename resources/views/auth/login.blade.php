@@ -174,17 +174,6 @@
             </form>
         </div>
 
-        <!-- Demo Accounts -->
-        <div class="demo-section">
-            <h4>Tài khoản thử nghiệm</h4>
-            <div class="demo-item">
-                <strong>Admin:</strong> admin@example.com / password
-            </div>
-            <div class="demo-item">
-                <strong>Sinh viên:</strong> student@example.com / password
-            </div>
-        </div>
-
         <p class="login-footer-text">
             &copy; {{ date('Y') }} Khoa CNTT — ĐH Nha Trang
         </p>

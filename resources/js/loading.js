@@ -126,6 +126,10 @@ window.useLoading   = useLoading;
 // [TÍNH NĂNG MỚI] Tự động show Loading khi submit các form truyền thống
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('submit', (e) => {
+        // Skip loading nếu form có data-skip-loading="true"
+        if (e.target.hasAttribute('data-skip-loading') && e.target.getAttribute('data-skip-loading') === 'true') {
+            return;
+        }
         // Nếu form không có target="_blank" (mở tab mới)
         if (!e.target.hasAttribute('target') || e.target.getAttribute('target') !== '_blank') {
             LoadingStore.showLoading();
