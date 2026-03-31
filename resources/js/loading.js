@@ -124,6 +124,7 @@ window.LoadingStore = LoadingStore;
 window.useLoading   = useLoading;
 
 // [TÍNH NĂNG MỚI] Tự động show Loading khi submit các form truyền thống
+<<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('submit', (e) => {
         // Skip loading nếu form có data-skip-loading="true"
@@ -136,12 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+=======
+>>>>>>> parent of dac9391 (Cập nhật lại dữ liệu cho bảng nguoidung)
 document.addEventListener('submit', (e) => {
     // Nếu form không có target="_blank" (mở tab mới)
     if (!e.target.hasAttribute('target') || e.target.getAttribute('target') !== '_blank') {
         LoadingStore.showLoading();
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of dac9391 (Cập nhật lại dữ liệu cho bảng nguoidung)
 });
 
 export { LoadingStore, useLoading };
