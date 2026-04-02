@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Http\Controllers\Admin\SuKienController;
 use App\Http\Controllers\Admin\NguoiDungController;
@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\BauCuController;
 use App\Http\Controllers\Admin\UngCuVienController;
 use App\Http\Controllers\Admin\CuTriController;
 use App\Http\Controllers\Admin\KetQuaBauCuController;
+use App\Http\Controllers\Admin\DiemDanhController;
 use App\Http\Controllers\Admin\BaoCaoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
@@ -101,7 +102,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         return view('admin.dashboard');
     })->name('dashboard.alt');
 
-    // Quáº£n lÃ½ sá»± kiá»‡n
+    // Điểm danh
+    Route::get('diem-danh', [DiemDanhController::class, 'index'])->name('diem-danh.index');
+    Route::get('diem-danh/scanner', [DiemDanhController::class, 'scanner'])->name('diem-danh.scanner');
+    Route::post('diem-danh/scanner', [DiemDanhController::class, 'processScanner'])->name('diem-danh.process-scanner');
+
+    // Quản lý sự kiện
     Route::post('su-kien/loai-su-kien', [SuKienController::class, 'storeLoaiSuKien'])->name('su-kien.store-loai');
     Route::post('su-kien/kiem-tra-trung-lich', [SuKienController::class, 'kiemTraTrungLich'])->name('su-kien.kiem-tra-trung-lich');
     Route::post('su-kien/check-collision', [SuKienController::class, 'checkCollision'])->name('su-kien.check-collision');

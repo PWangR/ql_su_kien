@@ -130,7 +130,7 @@
     text-align: center;
 }
 
-.qr-section canvas { border: 1px solid var(--border); background: #fff; padding: 8px; }
+.qr-section img { border: 1px solid var(--border); background: #fff; padding: 8px; width: 180px; height: 180px; object-fit: contain; }
 
 @media (max-width: 768px) {
     .event-detail-grid { grid-template-columns: 1fr; }
@@ -316,29 +316,33 @@
             @endauth
         </div>
 
-        {{-- QR Code section --}}
+        {{-- Student QR Code section --}}
         @auth
         @if($daDangKy)
         <div class="qr-section">
-            <div class="info-label" style="margin-bottom:var(--space-sm);">QR Check-in</div>
-            <div id="qr-code-display" style="margin-bottom:var(--space-sm);">
-                {{-- QR will be rendered here --}}
+            <div class="info-label" style="margin-bottom:var(--space-sm);">Mã QR Điểm Danh Cá Nhân</div>
+            <div style="margin-bottom:var(--space-sm); display:flex; justify-content:center; position: relative;">
+                <img id="qr-image" alt="QR Code" style="display:none;">
             </div>
-            <button class="btn btn-outline btn-sm" id="generateQrBtn" onclick="generateQR()">
-                <i class="bi bi-qr-code"></i> Tạo QR Check-in
-            </button>
-            <div id="qr-info" class="text-sm text-muted" style="margin-top:var(--space-sm);display:none;"></div>
+            <div id="qr-info" class="text-sm text-muted" style="margin-top:var(--space-sm);display:none;">
+                Đưa mã này cho Admin quét để điểm danh.<br>
+                Mã sẽ tự động làm mới sau <strong id="qr-countdown">20</strong>s.
+            </div>
+            <div id="qr-loading">
+                <i class="bi bi-arrow-repeat spin"></i> Đang tải mã QR...
+            </div>
         </div>
         @endif
         @endauth
+
     </div>
 
 </div>
 @endsection
 
 @section('scripts')
-{{-- QR Code library --}}
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+{{-- Không cần thư viện JS nữa vì dùng Server-side QR --}}
+
 
 <script>
 // Countdown timer
@@ -365,32 +369,56 @@ function updateCountdown() {
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
-// QR Code generation
+// Student QR Code generation (Dynamic)
+@auth
+@if($daDangKy)
+let qrRefreshTimer = 20;
+
 function generateQR() {
     const maSuKien = '{{ $suKien->ma_su_kien }}';
-    const thoiGianTao = new Date().toISOString();
+    const mssv = '{{ auth()->user()->ma_sinh_vien ?? '' }}';
+    const timestamp = Date.now();
+    
+    // Yêu cầu action: student_checkin để phân biệt với QR của hệ thống
     const qrData = JSON.stringify({
+        action: 'student_checkin',
         ma_su_kien: maSuKien,
-        thoi_gian_tao_qr: thoiGianTao
+        ma_sinh_vien: mssv,
+        t: timestamp
     });
+    
+    const qrUrl = `/api/generate-qr?base64=1&data=${encodeURIComponent(btoa(qrData))}`;
+    
+    const img = document.getElementById('qr-image');
+    if (img) {
+        img.src = qrUrl;
+        img.style.display = 'block';
+    }
 
-    const container = document.getElementById('qr-code-display');
-    container.innerHTML = '';
-
-    const canvas = document.createElement('canvas');
-    container.appendChild(canvas);
-
-    QRCode.toCanvas(canvas, qrData, {
-        width: 180,
-        margin: 2,
-        color: { dark: '#002060', light: '#FFFFFF' }
-    });
-
-    const infoDiv = document.getElementById('qr-info');
-    infoDiv.style.display = 'block';
-    infoDiv.innerHTML = `Mã SK: <strong>${maSuKien}</strong><br>Tạo lúc: <strong>${new Date(thoiGianTao).toLocaleString('vi-VN')}</strong>`;
-
-    document.getElementById('generateQrBtn').innerHTML = '<i class="bi bi-arrow-clockwise"></i> Tạo lại QR';
+    document.getElementById('qr-loading').style.display = 'none';
+    document.getElementById('qr-info').style.display = 'block';
+    qrRefreshTimer = 20;
+    document.getElementById('qr-countdown').innerText = qrRefreshTimer;
 }
+
+// Initial draw
+generateQR();
+
+// Refresh every 20s
+setInterval(() => {
+    qrRefreshTimer--;
+    if (qrRefreshTimer <= 0) {
+        generateQR();
+    } else {
+        const cdLabel = document.getElementById('qr-countdown');
+        if (cdLabel) {
+            cdLabel.innerText = qrRefreshTimer;
+        }
+    }
+}, 1000);
+
+@endif
+@endauth
+
 </script>
 @endsection

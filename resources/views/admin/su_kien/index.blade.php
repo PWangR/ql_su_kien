@@ -88,7 +88,6 @@
                         <a href="{{ route('admin.su-kien.show', $sk->ma_su_kien) }}" style="font-weight:600;color:var(--text);text-decoration:none;">{{ $sk->ten_su_kien }}</a>
                         <div style="margin-top:4px;display:flex;align-items:center;gap:6px;">
                             <span class="badge badge-primary" style="font-size:0.625rem;">{{ $sk->loaiSuKien->ten_loai ?? 'Chưa phân loại' }}</span>
-                            @if($sk->qr_code_path)<span class="badge badge-secondary"><i class="bi bi-qr-code"></i></span>@endif
                             @if($sk->diem_cong > 0)<span class="text-sm font-semibold" style="color:var(--warning);"><i class="bi bi-star"></i> +{{ $sk->diem_cong }}</span>@endif
                         </div>
                     </td>

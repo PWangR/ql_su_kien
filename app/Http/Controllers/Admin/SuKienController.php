@@ -9,7 +9,6 @@ use App\Models\SuKien;
 use App\Models\LoaiSuKien;
 use App\Models\LichSuDiem;
 use App\Models\User;
-use App\Services\QrCheckinService;
 use App\Imports\SuKienImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +19,7 @@ use App\Traits\HasImageUpload;
 class SuKienController extends Controller
 {
     use HasImageUpload;
-    public function __construct(private QrCheckinService $qrService) {}
+    public function __construct() {}
     public function index(Request $request)
     {
         $query = SuKien::with('loaiSuKien');
@@ -54,7 +53,6 @@ class SuKienController extends Controller
         $data['anh_su_kien'] = $this->handleImageUpload($request, null);
 
         $suKien = SuKien::create($data);
-        $this->qrService->ensure($suKien);
 
         // Upload gallery images if any
         $this->_uploadGallery($suKien, $request->file('gallery'));
@@ -65,7 +63,6 @@ class SuKienController extends Controller
     public function show($id)
     {
         $suKien = SuKien::with(['loaiSuKien', 'dangKy.nguoiDung'])->findOrFail($id);
-        $this->qrService->ensure($suKien);
         return view('admin.su_kien.show', compact('suKien'));
     }
     public function edit($id)
@@ -88,7 +85,6 @@ class SuKienController extends Controller
         $data['anh_su_kien'] = $this->handleImageUpload($request, $suKien);
 
         $suKien->update($data);
-        $this->qrService->ensure($suKien);
 
         // Xử lý upload thêm ảnh vào Gallery
         $this->_uploadGallery($suKien, $request->file('gallery'));
@@ -125,7 +121,6 @@ class SuKienController extends Controller
 
         try {
             Excel::import(new SuKienImport(auth()->id()), $request->file('file'));
-            SuKien::whereNull('qr_checkin_token')->get()->each(fn($sk) => $this->qrService->ensure($sk));
             return back()->with('success', 'Nhập danh sách sự kiện thành công!');
         } catch (\Throwable $e) {
             return back()->with('error', 'Có lỗi khi nhập file: ' . $e->getMessage());

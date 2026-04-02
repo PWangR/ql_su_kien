@@ -285,32 +285,6 @@ Hình ảnh sự kiện
 {{-- SIDEBAR --}}
 <div class="col-lg-4">
 
-<div class="card shadow-sm mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <div>
-            <i class="bi bi-qr-code-scan"></i>
-            QR điểm danh
-        </div>
-        <a href="{{ route('events.qr-checkin', $suKien->qr_checkin_token) }}" target="_blank" class="btn btn-secondary btn-sm">
-            <i class="bi bi-box-arrow-up-right"></i> Mở link
-        </a>
-    </div>
-    <div class="card-body text-center">
-        @if($suKien->qr_code_path)
-            <img src="{{ asset('storage/'.$suKien->qr_code_path) }}" alt="QR check-in" style="max-width:220px;width:100%;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
-            <div class="mt-3 d-flex justify-content-center gap-2">
-                <a class="btn btn-primary btn-sm" href="{{ asset('storage/'.$suKien->qr_code_path) }}" download="qr-sukien-{{ $suKien->ma_su_kien }}.svg">
-                    <i class="bi bi-download"></i> Tải xuống
-                </a>
-                <a class="btn btn-secondary btn-sm" href="{{ route('events.qr-checkin', $suKien->qr_checkin_token) }}" target="_blank">
-                    <i class="bi bi-phone"></i> Quét thử
-                </a>
-            </div>
-        @else
-            <div class="text-muted">Chưa có mã QR</div>
-        @endif
-    </div>
-</div>
 
 <div class="card shadow-sm">
 

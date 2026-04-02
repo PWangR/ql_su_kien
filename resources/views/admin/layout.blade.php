@@ -59,6 +59,14 @@
         <a href="{{ route('admin.thong-ke.index') }}" class="{{ request()->routeIs('admin.thong-ke*') ? 'active' : '' }}">
             <i class="bi bi-bar-chart"></i> Thống kê
         </a>
+
+        <div class="sidebar-label">Điểm danh</div>
+        <a href="{{ route('admin.diem-danh.index') }}" class="{{ request()->routeIs('admin.diem-danh.index') ? 'active' : '' }}">
+            <i class="bi bi-qr-code"></i> Mã QR Sự kiện
+        </a>
+        <a href="{{ route('admin.diem-danh.scanner') }}" class="{{ request()->routeIs('admin.diem-danh.scanner') ? 'active' : '' }}">
+            <i class="bi bi-camera"></i> Máy quét QR
+        </a>
     </nav>
 
     <div class="sidebar-footer">

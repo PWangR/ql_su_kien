@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
 import useAuthStore from '../store/authStore';
+import useQueueStore from '../store/queueStore';
 
 const HomeScreen = ({ navigation }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const logout = useAuthStore((state) => state.logout);
+  const queue = useQueueStore((state) => state.queue);
+  const syncQueue = useQueueStore((state) => state.syncQueue);
 
   useEffect(() => {
     fetchEvents();
+    
+    // Bắt đầu chu kỳ đồng bộ hàng chờ mỗi 15 giây
+    const interval = setInterval(() => {
+      syncQueue();
+    }, 15000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchEvents = async () => {
@@ -49,6 +60,20 @@ const HomeScreen = ({ navigation }) => {
       )}
       <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
         <Text style={styles.logoutText}>Đăng xuất</Text>
+      </TouchableOpacity>
+
+      {queue.length > 0 && (
+        <View style={styles.syncStatus}>
+          <MaterialIcons name="sync" size={14} color="#007bff" />
+          <Text style={styles.syncText}>Đang chờ đồng bộ: {queue.length}</Text>
+        </View>
+      )}
+
+      <TouchableOpacity 
+        style={styles.fab} 
+        onPress={() => navigation.navigate('QRScanner')}
+      >
+        <MaterialIcons name="qr-code-scanner" size={28} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -96,6 +121,35 @@ const styles = StyleSheet.create({
   logoutText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#007bff',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+    elevation: 8,
+  },
+  syncStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    backgroundColor: '#e7f3ff',
+    borderRadius: 20,
+    marginHorizontal: 40,
+    marginBottom: 5,
+  },
+  syncText: {
+    marginLeft: 5,
+    fontSize: 12,
+    color: '#007bff',
+    fontWeight: '600',
   },
 });
 

@@ -11,6 +11,7 @@ import HomeScreen from '../screens/HomeScreen';
 import EventDetailScreen from '../screens/EventDetailScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
+import QRScannerScreen from '../screens/QRScannerScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -74,6 +75,11 @@ const AppNavigator = () => {
               name="EventDetail"
               component={EventDetailScreen}
               options={{ title: 'Chi tiết sự kiện' }}
+            />
+            <Stack.Screen
+              name="QRScanner"
+              component={QRScannerScreen}
+              options={{ title: 'Quét QR Điểm Danh' }}
             />
           </>
         )}

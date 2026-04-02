@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\NotificationApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\PointApiController;
 use App\Http\Controllers\Api\MediaApiController;
+use App\Http\Controllers\Api\QrCodeApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +27,8 @@ Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:s
 // Event endpoints (public)
 Route::get('/events', [EventApiController::class, 'index']);
 Route::get('/events/{id}', [EventApiController::class, 'show']);
-Route::get('/events/search/{keyword}', [EventApiController::class, 'search']);
+// QR Code generation (public)
+Route::get('/generate-qr', [QrCodeApiController::class, 'generate'])->name('api.generate-qr');
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -40,6 +42,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/change-password', [UserApiController::class, 'changePassword']);
 
     // Event registration
+    Route::post('/registrations/app-scan', [RegistrationApiController::class, 'appScanQr']);
+    Route::post('/registrations/app-scan-batch', [RegistrationApiController::class, 'appScanBatchQr']);
     Route::post('/registrations/{eventId}', [RegistrationApiController::class, 'store']);
     Route::delete('/registrations/{eventId}', [RegistrationApiController::class, 'destroy']);
     Route::get('/registrations/history', [RegistrationApiController::class, 'userHistory']);
