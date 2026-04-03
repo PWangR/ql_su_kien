@@ -211,7 +211,7 @@ class RegistrationApiController extends Controller
 
         // 3. Khởi tạo/cập nhật điểm danh
         $dangKy = DangKy::withTrashed()
-            ->where('ma_nguoi_dung', auth()->id())
+            ->where('ma_sinh_vien', auth()->id())
             ->where('ma_su_kien', $maSuKien)
             ->first();
 
@@ -224,7 +224,7 @@ class RegistrationApiController extends Controller
             }
 
             DangKy::create([
-                'ma_nguoi_dung' => auth()->id(),
+                'ma_sinh_vien' => auth()->id(),
                 'ma_su_kien' => $maSuKien,
                 'trang_thai_tham_gia' => 'da_tham_gia'
             ]);
@@ -277,7 +277,7 @@ class RegistrationApiController extends Controller
                 if ($action === 'student_checkin' && isset($event['ma_sinh_vien'])) {
                     $targetUser = \App\Models\User::where('ma_sinh_vien', $event['ma_sinh_vien'])->first();
                     if (!$targetUser) continue;
-                    $targetUserId = $targetUser->ma_nguoi_dung;
+                    $targetUserId = $targetUser->ma_sinh_vien;
                 } else {
                     $targetUserId = $userId;
                 }
@@ -289,7 +289,7 @@ class RegistrationApiController extends Controller
                 }
 
                 $dangKy = DangKy::withTrashed()
-                    ->where('ma_nguoi_dung', $targetUserId)
+                    ->where('ma_sinh_vien', $targetUserId)
                     ->where('ma_su_kien', $maSuKien)
                     ->first();
 
@@ -299,7 +299,7 @@ class RegistrationApiController extends Controller
                     }
 
                     DangKy::create([
-                        'ma_nguoi_dung' => $targetUserId,
+                        'ma_sinh_vien' => $targetUserId,
                         'ma_su_kien' => $maSuKien,
                         'trang_thai_tham_gia' => 'da_tham_gia'
                     ]);

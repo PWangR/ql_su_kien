@@ -165,7 +165,7 @@ class UserApiController extends Controller
 
             $validated = $request->validate([
                 'ho_ten' => 'sometimes|string|max:100',
-                'email' => 'sometimes|email|unique:nguoi_dung,email,' . $id . ',ma_nguoi_dung',
+                'email' => 'sometimes|email|unique:nguoi_dung,email,' . $id . ',ma_sinh_vien',
                 'so_dien_thoai' => 'sometimes|string|max:15',
                 'vai_tro' => 'sometimes|in:admin,sinh_vien',
                 'trang_thai' => 'sometimes|in:hoat_dong,khong_hoat_dong,bi_khoa',

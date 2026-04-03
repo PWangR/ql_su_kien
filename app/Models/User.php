@@ -8,13 +8,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\VaiTro;
+use App\Notifications\ResetPasswordNotification;
 
 class User extends Authenticatable
 {
     use HasFactory, HasApiTokens, SoftDeletes, Notifiable;
 
     protected $table = 'nguoi_dung';
-    protected $primaryKey = 'ma_nguoi_dung';
+    protected $primaryKey = 'ma_sinh_vien';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'vai_tro',
@@ -67,5 +70,10 @@ class User extends Authenticatable
     public function hasRole($role)
     {
         return $this->vai_tro === $role;
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

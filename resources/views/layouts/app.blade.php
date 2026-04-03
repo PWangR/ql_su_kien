@@ -55,7 +55,7 @@
             <a href="{{ route('notifications.index') }}" class="{{ request()->routeIs('notifications.*') ? 'active' : '' }}">
                 <i class="bi bi-bell"></i> Thông báo
                 @php
-                    $unreadCount = \App\Models\ThongBao::where('ma_nguoi_dung', auth()->id())->where('da_doc', false)->count();
+                    $unreadCount = \App\Models\ThongBao::where('ma_sinh_vien', auth()->id())->where('da_doc', false)->count();
                 @endphp
                 @if($unreadCount > 0)
                     <span class="notif-badge">{{ $unreadCount }}</span>

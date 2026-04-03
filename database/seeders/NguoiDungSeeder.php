@@ -13,7 +13,7 @@ class NguoiDungSeeder extends Seeder
         DB::table('nguoi_dung')->insert([
             [
                 'vai_tro' => 'admin',
-                'ma_sinh_vien' => 'ADMIN001',
+                'ma_sinh_vien' => '00000000',
                 'ho_ten' => 'Quản trị viên',
                 'email' => 'admin@local.test',
                 'mat_khau' => Hash::make('12345678'),
@@ -25,7 +25,7 @@ class NguoiDungSeeder extends Seeder
             ],
             [
                 'vai_tro' => 'sinh_vien',
-                'ma_sinh_vien' => 'SV001',
+                'ma_sinh_vien' => '64130001',
                 'ho_ten' => 'Sinh viên mẫu',
                 'email' => 'sv@local.test',
                 'mat_khau' => Hash::make('12345678'),

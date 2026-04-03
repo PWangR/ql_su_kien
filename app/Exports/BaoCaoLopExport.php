@@ -42,7 +42,7 @@ class BaoCaoLopExport implements FromQuery, WithHeadings, WithColumnWidths, With
         return User::query()
             ->where('lop', $this->lop)
             ->where('vai_tro', 'sinh_vien')
-            ->leftJoin('lich_su_diem', 'nguoi_dung.ma_nguoi_dung', '=', 'lich_su_diem.ma_nguoi_dung')
+            ->leftJoin('lich_su_diem', 'nguoi_dung.ma_sinh_vien', '=', 'lich_su_diem.ma_sinh_vien')
             // Filter by date range nếu có
             ->when($this->fromDate && $this->toDate, function ($query) {
                 $query->whereBetween('lich_su_diem.thoi_gian_ghi_nhan', [
@@ -51,13 +51,13 @@ class BaoCaoLopExport implements FromQuery, WithHeadings, WithColumnWidths, With
                 ]);
             })
             ->select(
-                'nguoi_dung.ma_nguoi_dung as ma_sinh_vien',
+                'nguoi_dung.ma_sinh_vien as ma_sinh_vien',
                 'nguoi_dung.ho_ten',
                 'nguoi_dung.lop',
                 \DB::raw('COALESCE(SUM(lich_su_diem.diem), 0) as tong_diem')
             )
             ->groupBy(
-                'nguoi_dung.ma_nguoi_dung',
+                'nguoi_dung.ma_sinh_vien',
                 'nguoi_dung.ho_ten',
                 'nguoi_dung.lop'
             )

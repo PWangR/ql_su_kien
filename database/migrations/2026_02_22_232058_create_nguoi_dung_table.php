@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -12,10 +13,8 @@ return new class extends Migration
         public function up()
     {
         Schema::create('nguoi_dung', function (Blueprint $table) {
-            $table->id('ma_nguoi_dung');
-
             $table->enum('vai_tro', ['admin', 'sinh_vien'])->default('sinh_vien');
-            $table->string('ma_sinh_vien', 20)->unique();
+            $table->string('ma_sinh_vien', 8)->primary();
             $table->string('ho_ten', 100);
             $table->string('email', 100)->unique();
             $table->string('mat_khau');
@@ -29,6 +28,12 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+        DB::statement("
+            ALTER TABLE nguoi_dung
+            ADD CONSTRAINT chk_nguoi_dung_ma_sinh_vien_format
+            CHECK (ma_sinh_vien REGEXP '^[0-9]{8}$')
+        ");
     }
 
     /**

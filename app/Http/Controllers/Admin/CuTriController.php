@@ -17,11 +17,13 @@ class CuTriController extends Controller
         $bauCu = BauCu::findOrFail($bauCuId);
 
         $request->validate([
-            'ma_nguoi_dung' => 'required|exists:nguoi_dung,ma_nguoi_dung',
+            'ma_sinh_vien' => 'required|digits:8|exists:nguoi_dung,ma_sinh_vien',
         ]);
 
+        $mssv = $request->input('ma_sinh_vien');
+
         $existing = CuTri::where('ma_bau_cu', $bauCuId)
-            ->where('ma_nguoi_dung', $request->ma_nguoi_dung)
+            ->where('ma_sinh_vien', $mssv)
             ->first();
 
         if ($existing) {
@@ -30,7 +32,7 @@ class CuTriController extends Controller
 
         CuTri::create([
             'ma_bau_cu'     => $bauCuId,
-            'ma_nguoi_dung' => $request->ma_nguoi_dung,
+            'ma_sinh_vien' => $mssv,
         ]);
 
         return redirect()
@@ -58,19 +60,19 @@ class CuTriController extends Controller
 
         // Lấy tất cả sinh viên chưa có trong danh sách cử tri
         $existingIds = CuTri::where('ma_bau_cu', $bauCuId)
-            ->pluck('ma_nguoi_dung')
+            ->pluck('ma_sinh_vien')
             ->toArray();
 
         $sinhViens = User::where('vai_tro', 'sinh_vien')
             ->where('trang_thai', 'hoat_dong')
-            ->whereNotIn('ma_nguoi_dung', $existingIds)
+            ->whereNotIn('ma_sinh_vien', $existingIds)
             ->get();
 
         $count = 0;
         foreach ($sinhViens as $sv) {
             CuTri::create([
                 'ma_bau_cu'     => $bauCuId,
-                'ma_nguoi_dung' => $sv->ma_nguoi_dung,
+                'ma_sinh_vien' => $sv->ma_sinh_vien,
             ]);
             $count++;
         }

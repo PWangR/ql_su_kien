@@ -7,12 +7,14 @@ use App\Http\Requests\Admin\StoreSuKienRequest;
 use App\Http\Requests\Admin\UpdateSuKienRequest;
 use App\Models\SuKien;
 use App\Models\LoaiSuKien;
+use App\Models\ThuVienDaPhuongTien;
 use App\Models\LichSuDiem;
 use App\Models\User;
 use App\Imports\SuKienImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Traits\HasImageUpload;
 
@@ -49,6 +51,7 @@ class SuKienController extends Controller
         $data = $request->validated();
         $data['ma_nguoi_tao'] = auth()->id();
         $data['trang_thai']   = 'sap_to_chuc';
+        $data['bo_cuc'] = $this->resolveLayout($request);
 
         $data['anh_su_kien'] = $this->handleImageUpload($request, null);
 
@@ -56,6 +59,7 @@ class SuKienController extends Controller
 
         // Upload gallery images if any
         $this->_uploadGallery($suKien, $request->file('gallery'));
+        $this->_attachLibraryGallery($suKien, $request->input('selected_media_ids', []));
 
         return redirect()->route('admin.su-kien.index')
             ->with('success', 'Tạo sự kiện thành công!');
@@ -81,6 +85,7 @@ class SuKienController extends Controller
         $data['trang_thai'] = $request->trang_thai;
         $data['mo_ta_chi_tiet'] = $request->mo_ta_chi_tiet;
         $data['dia_diem'] = $request->dia_diem;
+        $data['bo_cuc'] = $this->resolveLayout($request, $suKien->bo_cuc);
 
         $data['anh_su_kien'] = $this->handleImageUpload($request, $suKien);
 
@@ -88,6 +93,7 @@ class SuKienController extends Controller
 
         // Xử lý upload thêm ảnh vào Gallery
         $this->_uploadGallery($suKien, $request->file('gallery'));
+        $this->_attachLibraryGallery($suKien, $request->input('selected_media_ids', []));
 
         return redirect()->route('admin.su-kien.index')
             ->with('success', 'Cập nhật sự kiện thành công!');
@@ -113,6 +119,58 @@ class SuKienController extends Controller
         }
     }
 
+    private function _attachLibraryGallery(SuKien $suKien, array $mediaIds): void
+    {
+        $mediaIds = collect($mediaIds)
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($mediaIds->isEmpty()) {
+            return;
+        }
+
+        $libraryItems = ThuVienDaPhuongTien::whereIn('ma_phuong_tien', $mediaIds)
+            ->where('loai_tep', 'hinh_anh')
+            ->get();
+
+        foreach ($libraryItems as $item) {
+            if (!$item->duong_dan_tep || !Storage::disk('public')->exists($item->duong_dan_tep)) {
+                continue;
+            }
+
+            $extension = pathinfo($item->duong_dan_tep, PATHINFO_EXTENSION) ?: 'jpg';
+            $copiedPath = 'su_kien/gallery/' . Str::uuid() . '.' . $extension;
+
+            if (!Storage::disk('public')->copy($item->duong_dan_tep, $copiedPath)) {
+                continue;
+            }
+
+            ThuVienDaPhuongTien::create([
+                'ma_su_kien' => $suKien->ma_su_kien,
+                'ma_nguoi_tai_len' => auth()->id(),
+                'ten_tep' => $item->ten_tep,
+                'duong_dan_tep' => $copiedPath,
+                'loai_tep' => 'hinh_anh',
+                'kich_thuoc' => Storage::disk('public')->size($copiedPath),
+                'la_cong_khai' => true,
+            ]);
+        }
+    }
+
+    private function resolveLayout(Request $request, ?array $fallback = null): array
+    {
+        $allowedModules = ['banner', 'header', 'info', 'description', 'gallery'];
+
+        $layout = collect($request->input('bo_cuc', $fallback ?? $allowedModules))
+            ->filter(fn ($module) => in_array($module, $allowedModules, true))
+            ->values()
+            ->all();
+
+        return $layout !== [] ? $layout : $allowedModules;
+    }
+
     public function importExcel(Request $request)
     {
         $request->validate([
@@ -135,9 +193,9 @@ class SuKienController extends Controller
     public function thongKeDiem()
     {
         $tongDiem = DB::table('lich_su_diem')
-            ->join('nguoi_dung', 'lich_su_diem.ma_nguoi_dung', '=', 'nguoi_dung.ma_nguoi_dung')
+            ->join('nguoi_dung', 'lich_su_diem.ma_sinh_vien', '=', 'nguoi_dung.ma_sinh_vien')
             ->select('nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien', DB::raw('SUM(lich_su_diem.diem) as tong_diem'))
-            ->groupBy('lich_su_diem.ma_nguoi_dung', 'nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien')
+            ->groupBy('lich_su_diem.ma_sinh_vien', 'nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien')
             ->orderByDesc('tong_diem')
             ->get();
 
@@ -219,12 +277,14 @@ class SuKienController extends Controller
         $request->validate([
             'thoi_gian_bat_dau' => 'required|date',
             'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
-            'dia_diem' => 'required|string'
+            'dia_diem' => 'required|string',
+            'bo_qua_id' => 'nullable|integer',
         ]);
 
         $batDau = $request->input('thoi_gian_bat_dau');
         $ketThuc = $request->input('thoi_gian_ket_thuc');
         $diaDiem = $request->input('dia_diem');
+        $boQuaId = $request->input('bo_qua_id');
 
         // Tìm các sự kiện trùng lịch và địa điểm
         $conflicts = SuKien::where('dia_diem', 'like', '%' . $diaDiem . '%')
@@ -239,6 +299,7 @@ class SuKienController extends Controller
             })
             ->where('trang_thai', '!=', 'da_huy')
             ->select('ma_su_kien', 'ten_su_kien', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem')
+            ->when($boQuaId, fn ($query) => $query->where('ma_su_kien', '!=', $boQuaId))
             ->get();
 
         return response()->json([

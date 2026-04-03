@@ -14,8 +14,10 @@ return new class extends Migration
     Schema::create('dang_ky', function (Blueprint $table) {
         $table->id('ma_dang_ky');
 
-        $table->foreignId('ma_nguoi_dung')
-              ->constrained('nguoi_dung', 'ma_nguoi_dung')
+        $table->string('ma_sinh_vien', 8);
+        $table->foreign('ma_sinh_vien')
+              ->references('ma_sinh_vien')
+              ->on('nguoi_dung')
               ->cascadeOnDelete();
 
         $table->foreignId('ma_su_kien')
@@ -30,7 +32,7 @@ return new class extends Migration
 
         $table->softDeletes();
 
-        $table->unique(['ma_nguoi_dung','ma_su_kien']);
+        $table->unique(['ma_sinh_vien','ma_su_kien']);
     });
 }
 

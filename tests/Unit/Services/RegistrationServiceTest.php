@@ -37,13 +37,13 @@ class RegistrationServiceTest extends TestCase
             ]);
 
         $result = $this->registrationService->registerEvent(
-            $student->ma_nguoi_dung,
+            $student->ma_sinh_vien,
             $event->ma_su_kien
         );
 
         $this->assertTrue($result['success']);
         $this->assertDatabaseHas('dang_ky', [
-            'ma_nguoi_dung' => $student->ma_nguoi_dung,
+            'ma_sinh_vien' => $student->ma_sinh_vien,
             'ma_su_kien' => $event->ma_su_kien,
         ]);
     }
@@ -61,12 +61,12 @@ class RegistrationServiceTest extends TestCase
             ->create(['so_luong_toi_da' => 100]);
 
         $this->registrationService->registerEvent(
-            $student->ma_nguoi_dung,
+            $student->ma_sinh_vien,
             $event->ma_su_kien
         );
 
         $result = $this->registrationService->registerEvent(
-            $student->ma_nguoi_dung,
+            $student->ma_sinh_vien,
             $event->ma_su_kien
         );
 
@@ -86,13 +86,13 @@ class RegistrationServiceTest extends TestCase
             ->create(['so_luong_toi_da' => 100]);
 
         DangKy::create([
-            'ma_nguoi_dung' => $student->ma_nguoi_dung,
+            'ma_sinh_vien' => $student->ma_sinh_vien,
             'ma_su_kien' => $event->ma_su_kien,
             'trang_thai_tham_gia' => 'da_dang_ky',
         ]);
 
         $result = $this->registrationService->cancelRegistration(
-            $student->ma_nguoi_dung,
+            $student->ma_sinh_vien,
             $event->ma_su_kien
         );
 
@@ -127,7 +127,7 @@ class RegistrationServiceTest extends TestCase
             ->create();
 
         $history = $this->registrationService->getUserEventHistory(
-            $student->ma_nguoi_dung,
+            $student->ma_sinh_vien,
             10,
             1
         );

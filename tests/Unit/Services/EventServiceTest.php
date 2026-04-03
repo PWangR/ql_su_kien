@@ -61,11 +61,11 @@ class EventServiceTest extends TestCase
             'diem_cong' => 10,
         ];
 
-        $event = $this->eventService->createEvent($data, $admin->ma_nguoi_dung);
+        $event = $this->eventService->createEvent($data, $admin->ma_sinh_vien);
 
         $this->assertDatabaseHas('su_kien', [
             'ten_su_kien' => 'Test Event',
-            'ma_nguoi_tao' => $admin->ma_nguoi_dung,
+            'ma_nguoi_tao' => $admin->ma_sinh_vien,
         ]);
     }
 

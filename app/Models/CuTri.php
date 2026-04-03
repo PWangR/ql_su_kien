@@ -10,7 +10,7 @@ class CuTri extends Model
     protected $primaryKey = 'ma_cu_tri';
 
     protected $fillable = [
-        'ma_bau_cu', 'ma_nguoi_dung',
+        'ma_bau_cu', 'ma_sinh_vien',
         'da_bo_phieu', 'thoi_gian_bo_phieu',
     ];
 
@@ -28,6 +28,6 @@ class CuTri extends Model
 
     public function nguoiDung()
     {
-        return $this->belongsTo(User::class, 'ma_nguoi_dung', 'ma_nguoi_dung');
+        return $this->belongsTo(User::class, 'ma_sinh_vien', 'ma_sinh_vien');
     }
 }

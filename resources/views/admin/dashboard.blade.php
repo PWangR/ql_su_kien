@@ -43,8 +43,8 @@ $suKienTheoLoai = SuKien::whereNull('deleted_at')
     ->get();
 
 // Chart data: Top students by points
-$topSinhVien = LichSuDiem::select('ma_nguoi_dung', DB::raw('SUM(diem) as tong_diem'))
-    ->groupBy('ma_nguoi_dung')
+$topSinhVien = LichSuDiem::select('ma_sinh_vien', DB::raw('SUM(diem) as tong_diem'))
+    ->groupBy('ma_sinh_vien')
     ->orderByDesc('tong_diem')
     ->take(5)
     ->with('nguoiDung')

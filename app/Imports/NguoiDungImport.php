@@ -29,7 +29,7 @@ class NguoiDungImport implements ToModel, WithHeadingRow, WithValidation
     {
         return [
             '*.ho_ten'       => 'required|max:100',
-            '*.ma_sinh_vien' => 'required|max:20|unique:nguoi_dung,ma_sinh_vien',
+            '*.ma_sinh_vien' => 'required|digits:8|unique:nguoi_dung,ma_sinh_vien',
             '*.email'        => 'required|email|unique:nguoi_dung,email',
             '*.vai_tro'      => 'nullable|in:admin,sinh_vien',
         ];

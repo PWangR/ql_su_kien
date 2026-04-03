@@ -15,8 +15,10 @@ return new class extends Migration
                   ->constrained('bau_cu', 'ma_bau_cu')
                   ->cascadeOnDelete();
 
-            $table->foreignId('ma_nguoi_dung')
-                  ->constrained('nguoi_dung', 'ma_nguoi_dung')
+            $table->string('ma_sinh_vien', 8);
+            $table->foreign('ma_sinh_vien')
+                  ->references('ma_sinh_vien')
+                  ->on('nguoi_dung')
                   ->cascadeOnDelete();
 
             $table->boolean('da_bo_phieu')->default(false);
@@ -24,7 +26,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['ma_bau_cu', 'ma_nguoi_dung'], 'unique_cu_tri_bau_cu');
+            $table->unique(['ma_bau_cu', 'ma_sinh_vien'], 'unique_cu_tri_bau_cu');
         });
     }
 

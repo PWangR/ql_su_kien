@@ -42,7 +42,7 @@ class ThuVienDaPhuongTien extends Model
 
     public function nguoiTaiLen()
     {
-        return $this->belongsTo(User::class, 'ma_nguoi_tai_len', 'ma_nguoi_dung');
+        return $this->belongsTo(User::class, 'ma_nguoi_tai_len', 'ma_sinh_vien');
     }
 
     public function getLoaiTepLabelAttribute()

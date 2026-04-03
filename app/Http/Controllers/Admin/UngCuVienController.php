@@ -18,7 +18,7 @@ class UngCuVienController extends Controller
         $request->validate([
             'ho_ten'       => 'required|min:2|max:100',
             'lop'          => 'required|max:50',
-            'ma_sinh_vien' => 'required|max:20',
+            'ma_sinh_vien' => 'required|digits:8',
         ]);
 
         // Kiểm tra trùng MSSV
@@ -67,7 +67,7 @@ class UngCuVienController extends Controller
         $request->validate([
             'ho_ten'       => 'required|min:2|max:100',
             'lop'          => 'required|max:50',
-            'ma_sinh_vien' => 'required|max:20',
+            'ma_sinh_vien' => 'required|digits:8',
         ]);
 
         // Kiểm tra trùng MSSV (trừ chính nó)

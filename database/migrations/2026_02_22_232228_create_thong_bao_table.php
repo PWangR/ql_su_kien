@@ -14,8 +14,10 @@ return new class extends Migration
     Schema::create('thong_bao', function (Blueprint $table) {
         $table->id('ma_thong_bao');
 
-        $table->foreignId('ma_nguoi_dung')
-              ->constrained('nguoi_dung','ma_nguoi_dung')
+        $table->string('ma_sinh_vien', 8);
+        $table->foreign('ma_sinh_vien')
+              ->references('ma_sinh_vien')
+              ->on('nguoi_dung')
               ->cascadeOnDelete();
 
         $table->string('tieu_de',200);
@@ -34,7 +36,7 @@ return new class extends Migration
 
         $table->timestamps();
 
-        $table->index(['ma_nguoi_dung','da_doc']);
+        $table->index(['ma_sinh_vien','da_doc']);
     });
 }
 

@@ -35,7 +35,7 @@ class BauCuFrontController extends Controller
         $laCuTri = false;
         if (auth()->check()) {
             $cuTri = CuTri::where('ma_bau_cu', $id)
-                ->where('ma_nguoi_dung', auth()->id())
+                ->where('ma_sinh_vien', auth()->id())
                 ->first();
             $laCuTri = $cuTri !== null;
             $daBoPhieu = $cuTri && $cuTri->da_bo_phieu;

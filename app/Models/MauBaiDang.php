@@ -23,7 +23,7 @@ class MauBaiDang extends Model
 
     public function nguoiTao()
     {
-        return $this->belongsTo(User::class, 'ma_nguoi_tao', 'ma_nguoi_dung');
+        return $this->belongsTo(User::class, 'ma_nguoi_tao', 'ma_sinh_vien');
     }
 
     public function loaiSuKien()

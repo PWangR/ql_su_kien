@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DangKy;
+use App\Models\LichSuDiem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -10,7 +12,42 @@ class ProfileController extends Controller
     public function index()
     {
         $user = auth()->user();
-        return view('profile.index', compact('user'));
+
+        $registrationStats = DangKy::where('ma_sinh_vien', $user->ma_sinh_vien)
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(trang_thai_tham_gia = 'da_tham_gia') as attended,
+                SUM(trang_thai_tham_gia = 'da_dang_ky') as upcoming,
+                SUM(trang_thai_tham_gia = 'huy') as cancelled
+            ")
+            ->first();
+
+        $totalPoints = LichSuDiem::where('ma_sinh_vien', $user->ma_sinh_vien)->sum('diem');
+
+        $recentRegistrations = DangKy::with('suKien')
+            ->where('ma_sinh_vien', $user->ma_sinh_vien)
+            ->orderByDesc('thoi_gian_dang_ky')
+            ->take(3)
+            ->get();
+
+        $nextEvent = DangKy::with('suKien')
+            ->where('ma_sinh_vien', $user->ma_sinh_vien)
+            ->where('trang_thai_tham_gia', 'da_dang_ky')
+            ->whereHas('suKien', function ($query) {
+                $query->where('thoi_gian_bat_dau', '>=', now());
+            })
+            ->join('su_kien', 'dang_ky.ma_su_kien', '=', 'su_kien.ma_su_kien')
+            ->orderBy('su_kien.thoi_gian_bat_dau')
+            ->select('dang_ky.*')
+            ->first();
+
+        return view('profile.index', compact(
+            'user',
+            'registrationStats',
+            'totalPoints',
+            'recentRegistrations',
+            'nextEvent'
+        ));
     }
 
     public function update(Request $request)

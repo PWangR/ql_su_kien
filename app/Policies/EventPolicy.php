@@ -28,7 +28,7 @@ class EventPolicy
      */
     public function update(User $user, SuKien $event): bool
     {
-        return $user->isAdmin() && ($user->ma_nguoi_dung === $event->ma_nguoi_tao || $user->hasRole('super_admin'));
+        return $user->isAdmin() && ($user->ma_sinh_vien === $event->ma_nguoi_tao || $user->hasRole('super_admin'));
     }
 
     /**
@@ -36,7 +36,7 @@ class EventPolicy
      */
     public function delete(User $user, SuKien $event): bool
     {
-        return $user->isAdmin() && ($user->ma_nguoi_dung === $event->ma_nguoi_tao || $user->hasRole('super_admin'));
+        return $user->isAdmin() && ($user->ma_sinh_vien === $event->ma_nguoi_tao || $user->hasRole('super_admin'));
     }
 
     /**

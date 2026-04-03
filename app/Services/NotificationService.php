@@ -13,7 +13,7 @@ class NotificationService
     public function createNotification($userId, $title, $content, $type = 'he_thong', $eventId = null)
     {
         return ThongBao::create([
-            'ma_nguoi_dung' => $userId,
+            'ma_sinh_vien' => $userId,
             'tieu_de' => $title,
             'noi_dung' => $content,
             'loai_thong_bao' => $type,
@@ -30,7 +30,7 @@ class NotificationService
         $notifications = [];
         foreach ($userIds as $userId) {
             $notifications[] = [
-                'ma_nguoi_dung' => $userId,
+                'ma_sinh_vien' => $userId,
                 'tieu_de' => $title,
                 'noi_dung' => $content,
                 'loai_thong_bao' => $type,
@@ -49,7 +49,7 @@ class NotificationService
      */
     public function getUnreadNotifications($userId)
     {
-        return ThongBao::where('ma_nguoi_dung', $userId)
+        return ThongBao::where('ma_sinh_vien', $userId)
             ->where('da_doc', false)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -60,7 +60,7 @@ class NotificationService
      */
     public function getUserNotifications($userId, $limit = 20, $page = 1)
     {
-        return ThongBao::where('ma_nguoi_dung', $userId)
+        return ThongBao::where('ma_sinh_vien', $userId)
             ->orderBy('created_at', 'desc')
             ->paginate($limit, ['*'], 'page', $page);
     }
@@ -82,7 +82,7 @@ class NotificationService
      */
     public function markAllAsRead($userId)
     {
-        return ThongBao::where('ma_nguoi_dung', $userId)
+        return ThongBao::where('ma_sinh_vien', $userId)
             ->where('da_doc', false)
             ->update(['da_doc' => true]);
     }
@@ -96,7 +96,7 @@ class NotificationService
         if (!$event) return false;
 
         $registrations = \App\Models\DangKy::where('ma_su_kien', $eventId)
-            ->pluck('ma_nguoi_dung')
+            ->pluck('ma_sinh_vien')
             ->toArray();
 
         $this->createBulkNotification(

@@ -9,11 +9,11 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        $thongBao = ThongBao::where('ma_nguoi_dung', auth()->id())
+        $thongBao = ThongBao::where('ma_sinh_vien', auth()->id())
             ->latest('created_at')
             ->paginate(20);
 
-        $chuaDoc = ThongBao::where('ma_nguoi_dung', auth()->id())
+        $chuaDoc = ThongBao::where('ma_sinh_vien', auth()->id())
             ->where('da_doc', false)
             ->count();
 
@@ -23,7 +23,7 @@ class NotificationController extends Controller
     public function markRead($id)
     {
         ThongBao::where('ma_thong_bao', $id)
-            ->where('ma_nguoi_dung', auth()->id())
+            ->where('ma_sinh_vien', auth()->id())
             ->update(['da_doc' => true]);
 
         return back()->with('success', 'Đã đánh dấu đã đọc!');
@@ -31,7 +31,7 @@ class NotificationController extends Controller
 
     public function markAllRead()
     {
-        ThongBao::where('ma_nguoi_dung', auth()->id())
+        ThongBao::where('ma_sinh_vien', auth()->id())
             ->where('da_doc', false)
             ->update(['da_doc' => true]);
 

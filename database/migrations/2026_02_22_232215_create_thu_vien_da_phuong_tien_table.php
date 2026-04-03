@@ -19,9 +19,10 @@ public function up()
               ->constrained('su_kien', 'ma_su_kien')
               ->nullOnDelete();
 
-        $table->foreignId('ma_nguoi_tai_len')
-              ->nullable()
-              ->constrained('nguoi_dung', 'ma_nguoi_dung')
+        $table->string('ma_nguoi_tai_len', 8)->nullable();
+        $table->foreign('ma_nguoi_tai_len')
+              ->references('ma_sinh_vien')
+              ->on('nguoi_dung')
               ->nullOnDelete();
 
         $table->string('ten_tep',255)->nullable();

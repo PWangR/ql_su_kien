@@ -13,8 +13,9 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'ma_sinh_vien' => $this->faker->unique()->numerify('##########'),
+            'ma_sinh_vien' => $this->faker->unique()->numerify('########'),
             'ho_ten' => $this->faker->name(),
+            'lop' => $this->faker->randomElement(['64.CNTT-1', '64.CNTT-2', '65.CNTT-1']),
             'email' => $this->faker->unique()->safeEmail(),
             'mat_khau' => static::$password ??= Hash::make('password'),
             'so_dien_thoai' => $this->faker->numerify('09########'),

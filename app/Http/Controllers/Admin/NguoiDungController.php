@@ -37,7 +37,7 @@ class NguoiDungController extends Controller
         $request->validate([
             'ho_ten'      => 'required|max:100',
             'email'       => 'required|email|unique:nguoi_dung,email',
-            'ma_sinh_vien'=> 'required|unique:nguoi_dung,ma_sinh_vien',
+            'ma_sinh_vien'=> 'required|digits:8|unique:nguoi_dung,ma_sinh_vien',
             'vai_tro'  => 'required',
             'mat_khau'    => 'required|min:8',
         ]);
@@ -97,4 +97,3 @@ class NguoiDungController extends Controller
         return back()->with('success', 'ÄÃ£ cáº­p nháº­t tráº¡ng thÃ¡i!');
     }
 }
-

@@ -24,7 +24,7 @@ class RegistrationService
         }
 
         // Kiểm tra đã đăng ký chưa
-        $existingRegistration = DangKy::where('ma_nguoi_dung', $userId)
+        $existingRegistration = DangKy::where('ma_sinh_vien', $userId)
             ->where('ma_su_kien', $eventId)
             ->whereNull('deleted_at')
             ->first();
@@ -34,7 +34,7 @@ class RegistrationService
         }
 
         $registration = DangKy::create([
-            'ma_nguoi_dung' => $userId,
+            'ma_sinh_vien' => $userId,
             'ma_su_kien' => $eventId,
             'trang_thai_tham_gia' => 'da_dang_ky',
         ]);
@@ -50,7 +50,7 @@ class RegistrationService
      */
     public function cancelRegistration($userId, $eventId)
     {
-        $registration = DangKy::where('ma_nguoi_dung', $userId)
+        $registration = DangKy::where('ma_sinh_vien', $userId)
             ->where('ma_su_kien', $eventId)
             ->first();
 
@@ -88,7 +88,7 @@ class RegistrationService
         if ($status === 'da_tham_gia' && !LichSuDiem::where('ma_dang_ky', $registrationId)->exists()) {
             $event = $registration->suKien;
             LichSuDiem::create([
-                'ma_nguoi_dung' => $registration->ma_nguoi_dung,
+                'ma_sinh_vien' => $registration->ma_sinh_vien,
                 'ma_su_kien' => $registration->ma_su_kien,
                 'ma_dang_ky' => $registrationId,
                 'diem' => $event->diem_cong,
@@ -104,7 +104,7 @@ class RegistrationService
      */
     public function getUserEventHistory($userId, $limit = 10, $page = 1)
     {
-        return DangKy::where('ma_nguoi_dung', $userId)
+        return DangKy::where('ma_sinh_vien', $userId)
             ->with(['suKien', 'suKien.loaiSuKien'])
             ->orderBy('thoi_gian_dang_ky', 'desc')
             ->paginate($limit, ['*'], 'page', $page);

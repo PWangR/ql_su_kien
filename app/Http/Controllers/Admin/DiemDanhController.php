@@ -41,7 +41,7 @@ class DiemDanhController extends Controller
     public function processScanner(Request $request)
     {
         $request->validate([
-            'mssv' => 'required|string',
+            'mssv' => 'required|digits:8',
             'ma_su_kien' => 'required|integer'
         ]);
 
@@ -72,7 +72,7 @@ class DiemDanhController extends Controller
         }
 
         $dangKy = DangKy::withTrashed()
-            ->where('ma_nguoi_dung', $user->ma_nguoi_dung)
+            ->where('ma_sinh_vien', $user->ma_sinh_vien)
             ->where('ma_su_kien', $maSuKien)
             ->first();
 
@@ -87,7 +87,7 @@ class DiemDanhController extends Controller
 
             // Tạo mới & Điểm danh luôn
             DangKy::create([
-                'ma_nguoi_dung' => $user->ma_nguoi_dung,
+                'ma_sinh_vien' => $user->ma_sinh_vien,
                 'ma_su_kien' => $maSuKien,
                 'trang_thai_tham_gia' => 'da_tham_gia'
             ]);

@@ -10,7 +10,7 @@ class ThongBao extends Model
     protected $primaryKey = 'ma_thong_bao';
 
     protected $fillable = [
-        'ma_nguoi_dung', 'tieu_de', 'noi_dung',
+        'ma_sinh_vien', 'tieu_de', 'noi_dung',
         'da_doc', 'loai_thong_bao', 'ma_su_kien_lien_quan'
     ];
 
@@ -20,7 +20,7 @@ class ThongBao extends Model
 
     public function nguoiDung()
     {
-        return $this->belongsTo(User::class, 'ma_nguoi_dung', 'ma_nguoi_dung');
+        return $this->belongsTo(User::class, 'ma_sinh_vien', 'ma_sinh_vien');
     }
 
     public function suKienLienQuan()

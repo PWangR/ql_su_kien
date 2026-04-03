@@ -54,7 +54,7 @@ class AuthApiController extends Controller
             'data' => [
                 'token' => $token,
                 'user' => [
-                    'id' => $user->ma_nguoi_dung,
+                    'id' => $user->ma_sinh_vien,
                     'name' => $user->ho_ten,
                     'email' => $user->email,
                     'vai_tro' => $user->vai_tro,
@@ -77,7 +77,7 @@ class AuthApiController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'id' => $user->ma_nguoi_dung,
+                'id' => $user->ma_sinh_vien,
                 'name' => $user->ho_ten,
                 'email' => $user->email,
                 'ma_sinh_vien' => $user->ma_sinh_vien,

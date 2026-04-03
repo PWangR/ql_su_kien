@@ -97,7 +97,7 @@ class PointApiController extends Controller
     {
         try {
             $validated = \request()->validate([
-                'user_id' => 'required|integer|exists:nguoi_dung,ma_nguoi_dung',
+                'user_id' => 'required|digits:8|exists:nguoi_dung,ma_sinh_vien',
                 'points' => 'required|integer|min:1',
                 'source' => 'sometimes|in:tham_gia_su_kien,thuong_them,phat_tru',
             ]);
@@ -128,7 +128,7 @@ class PointApiController extends Controller
     {
         try {
             $validated = \request()->validate([
-                'user_id' => 'required|integer|exists:nguoi_dung,ma_nguoi_dung',
+                'user_id' => 'required|digits:8|exists:nguoi_dung,ma_sinh_vien',
                 'points' => 'required|integer|min:1',
             ]);
 

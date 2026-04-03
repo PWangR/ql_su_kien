@@ -26,8 +26,10 @@ return new class extends Migration
             $table->enum('trang_thai', ['nhap', 'dang_dien_ra', 'hoan_thanh', 'huy'])
                   ->default('nhap');
 
-            $table->foreignId('ma_nguoi_tao')
-                  ->constrained('nguoi_dung', 'ma_nguoi_dung')
+            $table->string('ma_nguoi_tao', 8);
+            $table->foreign('ma_nguoi_tao')
+                  ->references('ma_sinh_vien')
+                  ->on('nguoi_dung')
                   ->restrictOnDelete();
 
             $table->timestamps();

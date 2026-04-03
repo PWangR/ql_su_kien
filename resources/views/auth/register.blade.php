@@ -1,162 +1,178 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Đăng Ký — Quản Lý Sự Kiện NTU</title>
+@extends('layouts.auth')
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+@section('title', 'Đăng ký')
+@section('auth_body_class', 'auth-register')
+@section('auth_kicker', 'Khởi tạo tài khoản mới')
+@section('auth_headline', 'Tạo hồ sơ để tham gia, tích điểm và theo dõi các sự kiện.')
+@section('auth_description', 'Trang đăng ký mới dùng cùng ngôn ngữ split layout với trang đăng nhập, pha mảng xanh sâu và lớp sáng mềm giống tinh thần ảnh mẫu nhưng tối ưu cho biểu mẫu sinh viên NTU.')
+@section('auth_form_title', 'Tạo tài khoản sinh viên')
+@section('auth_form_subtitle', 'Điền đúng thông tin để hệ thống gửi email xác thực và kích hoạt tài khoản của bạn ngay sau khi đăng ký.')
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+@section('auth_visual_card')
+<div class="auth-checks">
+    <div class="auth-check">
+        <i class="bi bi-check2-circle"></i>
+        <span>Nhận email xác thực ngay sau khi gửi biểu mẫu đăng ký.</span>
+    </div>
+    <div class="auth-check">
+        <i class="bi bi-check2-circle"></i>
+        <span>Theo dõi sự kiện, điểm danh và lịch sử tham gia trên cùng một tài khoản.</span>
+    </div>
+    <div class="auth-check">
+        <i class="bi bi-check2-circle"></i>
+        <span>Dùng chính địa chỉ email này để khôi phục mật khẩu khi cần.</span>
+    </div>
+</div>
 
-    <style>
-        body {
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: var(--space-lg);
-        }
+<div class="auth-meta">
+    <span class="auth-meta-badge"><i class="bi bi-mortarboard"></i> Dành cho sinh viên</span>
+    <span class="auth-meta-badge"><i class="bi bi-patch-check"></i> Xác thực qua email</span>
+</div>
+@endsection
 
-        .register-page {
-            max-width: 480px;
-            width: 100%;
-        }
+@section('content')
+<form action="{{ route('register') }}" method="POST" class="auth-form">
+    @csrf
 
-        .register-seal {
-            width: 70px;
-            height: 70px;
-            border: 2.5px solid var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto var(--space-md);
-            color: var(--accent);
-            font-size: 28px;
-        }
-
-        .register-title {
-            font-family: var(--font-serif);
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text);
-            text-align: center;
-            margin-bottom: 4px;
-        }
-
-        .register-subtitle {
-            text-align: center;
-            font-size: 0.8125rem;
-            color: var(--text-muted);
-            margin-bottom: var(--space-xl);
-        }
-
-        .register-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--border-radius-md);
-            padding: var(--space-xl);
-        }
-
-        .register-footer {
-            text-align: center;
-            margin-top: var(--space-lg);
-            font-size: 0.8125rem;
-            color: var(--text-light);
-        }
-
-        .register-footer a {
-            font-weight: 600;
-        }
-    </style>
-</head>
-<body>
-    <x-loading-overlay />
-
-    <div class="register-page">
-        <div class="register-seal">
-            <i class="bi bi-person-plus"></i>
-        </div>
-
-        <h1 class="register-title">Tạo tài khoản</h1>
-        <p class="register-subtitle">Đăng ký để tham gia các sự kiện Khoa CNTT</p>
-
-        @if ($errors->any())
-        <div class="alert alert-error">
-            <i class="bi bi-x-circle"></i>
-            <div>
-                @foreach ($errors->all() as $error)
-                {{ $error }}<br>
-                @endforeach
+    <div class="auth-form-grid">
+        <div class="auth-field">
+            <label for="ho_ten" class="auth-label">
+                <i class="bi bi-person-badge"></i>
+                Họ và tên
+            </label>
+            <div class="auth-input">
+                <i class="bi bi-person"></i>
+                <input
+                    type="text"
+                    id="ho_ten"
+                    name="ho_ten"
+                    class="form-control @error('ho_ten') is-invalid @enderror"
+                    value="{{ old('ho_ten') }}"
+                    placeholder="Nguyễn Văn A"
+                    autocomplete="name"
+                    required>
             </div>
         </div>
-        @endif
 
-        <div class="register-card">
-            <form action="{{ route('register') }}" method="POST">
-                @csrf
+        <div class="auth-field">
+            <label for="ma_sinh_vien" class="auth-label">
+                <i class="bi bi-upc-scan"></i>
+                Mã sinh viên
+            </label>
+            <div class="auth-input">
+                <i class="bi bi-hash"></i>
+                <input
+                    type="text"
+                    id="ma_sinh_vien"
+                    name="ma_sinh_vien"
+                    class="form-control @error('ma_sinh_vien') is-invalid @enderror"
+                    value="{{ old('ma_sinh_vien') }}"
+                    placeholder="Ví dụ: 62131234"
+                    required>
+            </div>
+        </div>
+    </div>
 
-                <div class="form-group">
-                    <label for="ho_ten" class="form-label">Họ và tên</label>
-                    <input type="text" id="ho_ten" name="ho_ten" class="form-control @error('ho_ten') is-invalid @enderror"
-                           value="{{ old('ho_ten') }}" placeholder="Nguyễn Văn A" required>
-                    @error('ho_ten')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                           value="{{ old('email') }}" placeholder="example@ntu.edu.vn" required>
-                    @error('email')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label for="password" class="form-label">Mật khẩu</label>
-                        <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror"
-                               placeholder="Tối thiểu 8 ký tự" required>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password_confirmation" class="form-label">Xác nhận mật khẩu</label>
-                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-control"
-                               placeholder="Nhập lại mật khẩu" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="ma_sinh_vien" class="form-label">Mã sinh viên (tùy chọn)</label>
-                    <input type="text" id="ma_sinh_vien" name="ma_sinh_vien" class="form-control"
-                        value="{{ old('ma_sinh_vien') }}" placeholder="VD: 62131234">
-                </div>
-
-                <div class="form-group">
-                    <label for="lop" class="form-label">Lớp <span style="color:#e74c3c;">*</span></label>
-                    <input type="text" id="lop" name="lop" class="form-control @error('lop') is-invalid @enderror"
-                        value="{{ old('lop') }}" placeholder="VD: 64.CNTT-1" required>
-                    <small style="color: var(--text-muted);">Định dạng: số.chữ-số (Ví dụ: 64.CNTT-1)</small>
-                    @error('lop')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <button type="submit" class="btn btn-primary w-full" style="padding:12px;">Đăng ký</button>
-            </form>
+    <div class="auth-form-grid">
+        <div class="auth-field">
+            <label for="lop" class="auth-label">
+                <i class="bi bi-diagram-3"></i>
+                Lớp
+            </label>
+            <div class="auth-input">
+                <i class="bi bi-collection"></i>
+                <input
+                    type="text"
+                    id="lop"
+                    name="lop"
+                    class="form-control @error('lop') is-invalid @enderror"
+                    value="{{ old('lop') }}"
+                    placeholder="Ví dụ: 64.CNTT-1"
+                    required>
+            </div>
+            <div class="auth-helper">Định dạng chuẩn: số.chữ-số, ví dụ <strong>64.CNTT-1</strong>.</div>
         </div>
 
-        <p class="register-footer">
-            Đã có tài khoản? <a href="{{ route('login') }}">Đăng nhập</a>
-        </p>
+        <div class="auth-field">
+            <label for="email" class="auth-label">
+                <i class="bi bi-envelope-paper"></i>
+                Email
+            </label>
+            <div class="auth-input">
+                <i class="bi bi-envelope"></i>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control @error('email') is-invalid @enderror"
+                    value="{{ old('email') }}"
+                    placeholder="example@ntu.edu.vn"
+                    autocomplete="email"
+                    required>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+
+    <div class="auth-form-grid">
+        <div class="auth-field">
+            <label for="password" class="auth-label">
+                <i class="bi bi-lock"></i>
+                Mật khẩu
+            </label>
+            <div class="auth-input">
+                <i class="bi bi-key"></i>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-control @error('password') is-invalid @enderror"
+                    placeholder="Tối thiểu 8 ký tự"
+                    autocomplete="new-password"
+                    required>
+            </div>
+        </div>
+
+        <div class="auth-field">
+            <label for="password_confirmation" class="auth-label">
+                <i class="bi bi-shield-check"></i>
+                Xác nhận mật khẩu
+            </label>
+            <div class="auth-input">
+                <i class="bi bi-check2-square"></i>
+                <input
+                    type="password"
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    class="form-control"
+                    placeholder="Nhập lại mật khẩu"
+                    autocomplete="new-password"
+                    required>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-note-panel">
+        <strong>Lưu ý:</strong> Sau khi tạo tài khoản, hệ thống sẽ gửi email xác thực trước khi bạn có thể đăng nhập và sử dụng đầy đủ chức năng.
+    </div>
+
+    <div class="auth-actions">
+        <button type="submit" class="btn auth-submit">
+            <i class="bi bi-person-check"></i>
+            Đăng ký tài khoản
+        </button>
+
+        <a
+            href="{{ route('login') }}"
+            class="btn auth-alt-btn"
+            data-auth-transition
+            data-transition-direction="backward">
+            <i class="bi bi-arrow-left-circle"></i>
+            Quay lại đăng nhập
+        </a>
+    </div>
+
+    <p class="auth-form-footnote">
+        Cùng một email sẽ được dùng cho xác thực tài khoản và quên mật khẩu về sau.
+    </p>
+</form>
+@endsection

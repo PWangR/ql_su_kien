@@ -38,7 +38,7 @@ class UngCuVienImport implements ToModel, WithHeadingRow, WithValidation
     {
         return [
             'ho_ten' => 'required',
-            'ma_sinh_vien' => 'required',
+            'ma_sinh_vien' => 'required|digits:8',
         ];
     }
 }

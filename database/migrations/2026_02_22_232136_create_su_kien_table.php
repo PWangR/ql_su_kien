@@ -34,14 +34,16 @@ return new class extends Migration
         $table->integer('so_luong_hien_tai')->default(0);
         $table->integer('diem_cong')->default(0);
 
-        $table->foreignId('ma_nguoi_tao')
-              ->nullable()
-              ->constrained('nguoi_dung', 'ma_nguoi_dung')
+        $table->string('ma_nguoi_tao', 8)->nullable();
+        $table->foreign('ma_nguoi_tao')
+              ->references('ma_sinh_vien')
+              ->on('nguoi_dung')
               ->nullOnDelete();
 
-        $table->foreignId('ma_nguoi_to_chuc')
-              ->nullable()
-              ->constrained('nguoi_dung', 'ma_nguoi_dung')
+        $table->string('ma_nguoi_to_chuc', 8)->nullable();
+        $table->foreign('ma_nguoi_to_chuc')
+              ->references('ma_sinh_vien')
+              ->on('nguoi_dung')
               ->nullOnDelete();
 
         $table->enum('trang_thai', 

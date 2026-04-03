@@ -27,7 +27,7 @@ class BoPhieuController extends Controller
 
         // Kiểm tra là cử tri
         $cuTri = CuTri::where('ma_bau_cu', $id)
-            ->where('ma_nguoi_dung', auth()->id())
+            ->where('ma_sinh_vien', auth()->id())
             ->first();
 
         if (!$cuTri) {
@@ -94,7 +94,7 @@ class BoPhieuController extends Controller
 
         // Kiểm tra cử tri
         $cuTri = CuTri::where('ma_bau_cu', $id)
-            ->where('ma_nguoi_dung', auth()->id())
+            ->where('ma_sinh_vien', auth()->id())
             ->first();
 
         if (!$cuTri || $cuTri->da_bo_phieu) {
@@ -119,7 +119,7 @@ class BoPhieuController extends Controller
         try {
             // Recheck
             $cuTri = CuTri::where('ma_bau_cu', $id)
-                ->where('ma_nguoi_dung', auth()->id())
+                ->where('ma_sinh_vien', auth()->id())
                 ->lockForUpdate()
                 ->first();
 

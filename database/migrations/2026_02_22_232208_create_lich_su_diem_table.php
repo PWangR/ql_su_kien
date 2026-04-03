@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('lich_su_diem', function (Blueprint $table) {
             $table->id('ma_lich_su_diem');
 
-            $table->foreignId('ma_nguoi_dung')
-                ->constrained('nguoi_dung', 'ma_nguoi_dung')
+            $table->string('ma_sinh_vien', 8);
+            $table->foreign('ma_sinh_vien')
+                ->references('ma_sinh_vien')
+                ->on('nguoi_dung')
                 ->cascadeOnDelete();
 
             $table->foreignId('ma_dang_ky')
@@ -38,8 +40,8 @@ return new class extends Migration
 
             $table->timestamp('thoi_gian_ghi_nhan')->useCurrent();
 
-            $table->index('ma_nguoi_dung');
-            $table->index(['ma_nguoi_dung', 'loai_log']);
+            $table->index('ma_sinh_vien');
+            $table->index(['ma_sinh_vien', 'loai_log']);
         });
     }
 

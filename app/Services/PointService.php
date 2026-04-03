@@ -13,7 +13,7 @@ class PointService
     public function addPoints($userId, $points, $source = 'tham_gia_su_kien', $eventId = null, $registrationId = null)
     {
         return LichSuDiem::create([
-            'ma_nguoi_dung' => $userId,
+            'ma_sinh_vien' => $userId,
             'ma_su_kien' => $eventId,
             'ma_dang_ky' => $registrationId,
             'diem' => $points,
@@ -34,7 +34,7 @@ class PointService
      */
     public function getTotalPoints($userId)
     {
-        return LichSuDiem::where('ma_nguoi_dung', $userId)
+        return LichSuDiem::where('ma_sinh_vien', $userId)
             ->sum('diem');
     }
 
@@ -43,7 +43,7 @@ class PointService
      */
     public function getPointHistory($userId, $limit = 20, $page = 1)
     {
-        return LichSuDiem::where('ma_nguoi_dung', $userId)
+        return LichSuDiem::where('ma_sinh_vien', $userId)
             ->with(['suKien', 'dangKy'])
             ->orderBy('thoi_gian_ghi_nhan', 'desc')
             ->paginate($limit, ['*'], 'page', $page);
@@ -55,9 +55,9 @@ class PointService
     public function getTopStudents($limit = 10)
     {
         return User::selectRaw('nguoi_dung.*, SUM(lich_su_diem.diem) as total_points')
-            ->leftJoin('lich_su_diem', 'nguoi_dung.ma_nguoi_dung', '=', 'lich_su_diem.ma_nguoi_dung')
+            ->leftJoin('lich_su_diem', 'nguoi_dung.ma_sinh_vien', '=', 'lich_su_diem.ma_sinh_vien')
             ->where('vai_tro', 'sinh_vien')
-            ->groupBy('nguoi_dung.ma_nguoi_dung')
+            ->groupBy('nguoi_dung.ma_sinh_vien')
             ->orderByDesc('total_points')
             ->limit($limit)
             ->get();
@@ -70,10 +70,10 @@ class PointService
     {
         return [
             'total_points_distributed' => LichSuDiem::sum('diem'),
-            'average_points_per_student' => LichSuDiem::groupBy('ma_nguoi_dung')
+            'average_points_per_student' => LichSuDiem::groupBy('ma_sinh_vien')
                 ->selectRaw('AVG(diem) as avg_points')
                 ->avg('diem'),
-            'total_students_with_points' => LichSuDiem::distinct('ma_nguoi_dung')->count(),
+            'total_students_with_points' => LichSuDiem::distinct('ma_sinh_vien')->count(),
         ];
     }
 }

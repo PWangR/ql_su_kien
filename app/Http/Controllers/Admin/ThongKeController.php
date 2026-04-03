@@ -44,9 +44,9 @@ class ThongKeController extends Controller
     public function diem()
     {
         $tongDiem = DB::table('lich_su_diem')
-            ->join('nguoi_dung', 'lich_su_diem.ma_nguoi_dung', '=', 'nguoi_dung.ma_nguoi_dung')
+            ->join('nguoi_dung', 'lich_su_diem.ma_sinh_vien', '=', 'nguoi_dung.ma_sinh_vien')
             ->select('nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien', DB::raw('SUM(lich_su_diem.diem) as tong_diem'))
-            ->groupBy('lich_su_diem.ma_nguoi_dung', 'nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien')
+            ->groupBy('lich_su_diem.ma_sinh_vien', 'nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien')
             ->orderByDesc('tong_diem')
             ->paginate(20);
 

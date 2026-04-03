@@ -14,7 +14,7 @@ class DangKyFactory extends Factory
     public function definition(): array
     {
         return [
-            'ma_nguoi_dung' => User::factory(),
+            'ma_sinh_vien' => User::factory(),
             'ma_su_kien' => SuKien::factory(),
             'trang_thai_tham_gia' => 'da_dang_ky',
         ];

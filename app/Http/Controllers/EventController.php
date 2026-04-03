@@ -39,7 +39,7 @@ class EventController extends Controller
         // IDs sự kiện đã đăng ký
         $daDangKyIds = [];
         if (auth()->check()) {
-            $daDangKyIds = DangKy::where('ma_nguoi_dung', auth()->id())
+            $daDangKyIds = DangKy::where('ma_sinh_vien', auth()->id())
                 ->whereIn('trang_thai_tham_gia', ['da_dang_ky', 'da_tham_gia'])
                 ->whereNull('deleted_at')
                 ->pluck('ma_su_kien')
@@ -55,7 +55,7 @@ class EventController extends Controller
 
         $daDangKy = false;
         if (auth()->check()) {
-            $daDangKy = DangKy::where('ma_nguoi_dung', auth()->id())
+            $daDangKy = DangKy::where('ma_sinh_vien', auth()->id())
                 ->where('ma_su_kien', $id)
                 ->whereIn('trang_thai_tham_gia', ['da_dang_ky', 'da_tham_gia'])
                 ->whereNull('deleted_at')
@@ -82,7 +82,7 @@ class EventController extends Controller
         }
 
         $dangKy = DangKy::withTrashed()
-            ->where('ma_nguoi_dung', auth()->id())
+            ->where('ma_sinh_vien', auth()->id())
             ->where('ma_su_kien', $suKien->ma_su_kien)
             ->first();
 
@@ -94,7 +94,7 @@ class EventController extends Controller
             }
 
             $dangKy = DangKy::create([
-                'ma_nguoi_dung'       => auth()->id(),
+                'ma_sinh_vien'        => auth()->id(),
                 'ma_su_kien'          => $suKien->ma_su_kien,
                 'trang_thai_tham_gia' => 'da_tham_gia',
             ]);
@@ -121,7 +121,7 @@ class EventController extends Controller
         $suKien = SuKien::findOrFail($id);
 
         // Kiểm tra đã đăng ký chưa
-        $exists = DangKy::where('ma_nguoi_dung', auth()->id())
+        $exists = DangKy::where('ma_sinh_vien', auth()->id())
             ->where('ma_su_kien', $id)
             ->whereNull('deleted_at')
             ->exists();
@@ -141,7 +141,7 @@ class EventController extends Controller
         }
 
         DangKy::create([
-            'ma_nguoi_dung'      => auth()->id(),
+            'ma_sinh_vien'       => auth()->id(),
             'ma_su_kien'         => $id,
             'trang_thai_tham_gia' => 'da_dang_ky',
         ]);
@@ -154,7 +154,7 @@ class EventController extends Controller
 
     public function huyDangKy($id)
     {
-        $dangKy = DangKy::where('ma_nguoi_dung', auth()->id())
+        $dangKy = DangKy::where('ma_sinh_vien', auth()->id())
             ->where('ma_su_kien', $id)
             ->where('trang_thai_tham_gia', 'da_dang_ky')
             ->whereNull('deleted_at')

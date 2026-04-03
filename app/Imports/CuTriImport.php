@@ -44,13 +44,13 @@ class CuTriImport implements ToModel, WithHeadingRow
         if ($user) {
             // Prevent duplicate insertion in DB
             $existing = CuTri::where('ma_bau_cu', $this->maBauCu)
-                             ->where('ma_nguoi_dung', $user->ma_nguoi_dung)
+                             ->where('ma_sinh_vien', $user->ma_sinh_vien)
                              ->exists();
-            if (!$existing && !in_array($user->ma_nguoi_dung, $this->addedIds)) {
-                $this->addedIds[] = $user->ma_nguoi_dung;
+            if (!$existing && !in_array($user->ma_sinh_vien, $this->addedIds, true)) {
+                $this->addedIds[] = $user->ma_sinh_vien;
                 return new CuTri([
                     'ma_bau_cu'     => $this->maBauCu,
-                    'ma_nguoi_dung' => $user->ma_nguoi_dung,
+                    'ma_sinh_vien' => $user->ma_sinh_vien,
                 ]);
             }
         }

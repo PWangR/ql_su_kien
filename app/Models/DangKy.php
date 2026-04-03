@@ -14,14 +14,14 @@ class DangKy extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'ma_nguoi_dung',
+        'ma_sinh_vien',
         'ma_su_kien',
         'trang_thai_tham_gia'
     ];
 
     public function nguoiDung()
     {
-        return $this->belongsTo(User::class, 'ma_nguoi_dung', 'ma_nguoi_dung');
+        return $this->belongsTo(User::class, 'ma_sinh_vien', 'ma_sinh_vien');
     }
 
     public function suKien()

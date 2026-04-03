@@ -19,7 +19,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return $user->isAdmin() || $user->ma_nguoi_dung === $model->ma_nguoi_dung;
+        return $user->isAdmin() || $user->ma_sinh_vien === $model->ma_sinh_vien;
     }
 
     /**
@@ -35,7 +35,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->isAdmin() || $user->ma_nguoi_dung === $model->ma_nguoi_dung;
+        return $user->isAdmin() || $user->ma_sinh_vien === $model->ma_sinh_vien;
     }
 
     /**
@@ -43,6 +43,6 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->hasRole('super_admin') && $user->ma_nguoi_dung !== $model->ma_nguoi_dung;
+        return $user->hasRole('super_admin') && $user->ma_sinh_vien !== $model->ma_sinh_vien;
     }
 }

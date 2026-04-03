@@ -14,7 +14,7 @@ class StoreNguoiDungRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ma_sinh_vien' => 'required|string|max:20|unique:nguoi_dung,ma_sinh_vien',
+            'ma_sinh_vien' => 'required|digits:8|unique:nguoi_dung,ma_sinh_vien',
             'ho_ten'       => 'required|string|max:100',
             'email'        => 'required|email|max:100|unique:nguoi_dung,email',
             'mat_khau'     => 'required|string|min:6|confirmed',
@@ -27,6 +27,7 @@ class StoreNguoiDungRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'ma_sinh_vien.digits'   => 'Mã sinh viên phải gồm đúng 8 chữ số.',
             'ma_sinh_vien.unique'   => 'Mã sinh viên này đã tồn tại.',
             'email.unique'          => 'Email này đã được đăng ký.',
             'mat_khau.confirmed'    => 'Xác nhận mật khẩu không khớp.',
