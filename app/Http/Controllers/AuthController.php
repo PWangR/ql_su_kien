@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ActivityLog;
 use App\Notifications\VerifyEmailNotification;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
@@ -59,6 +60,9 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+
+        // Ghi log đăng nhập thành công
+        ActivityLog::log('login', "Đăng nhập thành công — {$user->ho_ten} ({$user->email})");
 
         $fallback = $user->isAdmin() ? route('admin.dashboard') : route('home');
 
@@ -234,11 +238,14 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        // Ghi log đăng xuất trước khi xóa session
+        ActivityLog::log('logout', 'Đăng xuất khỏi hệ thống');
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('logout.page');
     }
 
     private function passwordStatusMessage(string $status): string

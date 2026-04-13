@@ -81,5 +81,8 @@
             </tbody>
         </table>
     </div>
+    @if($bauCus->hasPages())
+    <div style="padding:var(--space-md) 20px;border-top:1px solid var(--border-light);">{{ $bauCus->links() }}</div>
+    @endif
 </div>
 @endsection

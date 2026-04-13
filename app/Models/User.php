@@ -9,10 +9,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\VaiTro;
 use App\Notifications\ResetPasswordNotification;
+use App\Traits\LogsActivity;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasApiTokens, SoftDeletes, Notifiable;
+    use HasFactory, HasApiTokens, SoftDeletes, Notifiable, LogsActivity;
 
     protected $table = 'nguoi_dung';
     protected $primaryKey = 'ma_sinh_vien';

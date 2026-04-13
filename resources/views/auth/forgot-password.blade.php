@@ -1,75 +1,82 @@
 @extends('layouts.auth')
 
 @section('title', 'Quên mật khẩu')
-@section('auth_body_class', 'auth-forgot')
-@section('auth_kicker', 'Khôi phục truy cập')
-@section('auth_headline', 'Quên mật khẩu cũng không làm bạn lỡ nhịp sự kiện.')
-@section('auth_description', 'Nhập email đã dùng khi đăng ký. Hệ thống sẽ gửi liên kết đặt lại mật khẩu qua chính kênh SMTP đang phục vụ email xác thực tài khoản.')
-@section('auth_form_title', 'Gửi liên kết đặt lại mật khẩu')
-@section('auth_form_subtitle', 'Liên kết sẽ được gửi tới hộp thư của bạn và chỉ có hiệu lực trong một khoảng thời gian ngắn để đảm bảo an toàn.')
 
-@section('auth_aux_link')
-    <a href="{{ route('login') }}" class="auth-aux-link" data-auth-transition data-transition-direction="backward">
-        <i class="bi bi-arrow-left"></i>
-        Trở lại đăng nhập
-    </a>
-@endsection
+{{-- Panel --}}
+@section('panel_badge', 'Khôi phục truy cập')
+@section('panel_heading', 'Quên mật khẩu cũng không làm bạn lỡ nhịp sự kiện.')
+@section('panel_desc', 'Nhập email đã dùng khi đăng ký. Hệ thống sẽ gửi liên kết đặt lại mật khẩu qua kênh SMTP bảo mật.')
 
-@section('auth_visual_card')
-    <div class="auth-checks">
-        <div class="auth-check">
-            <i class="bi bi-send-check"></i>
-            <span>Email khôi phục được gửi bằng cùng cấu hình SMTP Gmail của dự án.</span>
-        </div>
-        <div class="auth-check">
-            <i class="bi bi-clock-history"></i>
-            <span>Liên kết có thời hạn để hạn chế rủi ro chia sẻ trái phép.</span>
-        </div>
-        <div class="auth-check">
-            <i class="bi bi-shield-lock"></i>
-            <span>Sau khi đổi mật khẩu, bạn có thể đăng nhập lại ngay với mật khẩu mới.</span>
-        </div>
+@section('panel_card')
+<div class="auth-panel-checks">
+    <div class="auth-panel-check">
+        <i class="bi bi-send-check"></i>
+        <span>Email khôi phục gửi bằng cùng cấu hình SMTP của hệ thống.</span>
     </div>
+    <div class="auth-panel-check">
+        <i class="bi bi-clock-history"></i>
+        <span>Liên kết có thời hạn, hạn chế rủi ro chia sẻ trái phép.</span>
+    </div>
+    <div class="auth-panel-check">
+        <i class="bi bi-shield-lock"></i>
+        <span>Sau khi đổi mật khẩu, bạn có thể đăng nhập ngay với mật khẩu mới.</span>
+    </div>
+</div>
 @endsection
+
+@section('back_link')
+<a href="{{ route('login') }}" class="auth-back-link" data-nav>
+    <i class="bi bi-arrow-left"></i>
+    Trở lại đăng nhập
+</a>
+@endsection
+
+@section('form_title', 'Đặt lại mật khẩu')
+@section('form_subtitle', 'Nhập email tài khoản để nhận liên kết khôi phục. Kiểm tra cả thư mục Spam nếu không thấy.')
 
 @section('content')
-    <form action="{{ route('password.email') }}" method="POST" class="auth-form">
-        @csrf
+<form action="{{ route('password.email') }}" method="POST" class="auth-form" id="form-forgot">
+    @csrf
 
-        <div class="auth-field">
-            <label for="email" class="auth-label">
-                <i class="bi bi-envelope-paper-heart"></i>
-                Email đã đăng ký
-            </label>
-            <div class="auth-input">
-                <i class="bi bi-envelope"></i>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    class="form-control @error('email') is-invalid @enderror"
-                    value="{{ old('email') }}"
-                    placeholder="example@ntu.edu.vn"
-                    autocomplete="email"
-                    required
-                >
-            </div>
-            <div class="auth-helper">Hãy dùng đúng email đã tạo tài khoản để hệ thống tìm và gửi liên kết khôi phục.</div>
+    <div class="auth-field">
+        <label for="fp-email" class="auth-label">
+            <i class="bi bi-envelope-paper-heart"></i> Email đã đăng ký
+        </label>
+        <div class="auth-input-wrap">
+            <i class="bi bi-envelope auth-input-icon"></i>
+            <input
+                type="email"
+                id="fp-email"
+                name="email"
+                class="auth-input-field @error('email') is-invalid @enderror"
+                value="{{ old('email') }}"
+                placeholder="example@ntu.edu.vn"
+                autocomplete="email"
+                required>
         </div>
+        @error('email')
+            <span class="auth-helper is-error"><i class="bi bi-exclamation-circle"></i> {{ $message }}</span>
+        @enderror
+        <span class="auth-helper">Dùng đúng email đã tạo tài khoản để hệ thống gửi liên kết khôi phục.</span>
+    </div>
 
-        <div class="auth-note-panel">
-            <strong>Không thấy email?</strong> Hãy kiểm tra thêm mục Spam hoặc Junk sau khi gửi yêu cầu.
-        </div>
+    <div class="auth-tip">
+        <strong>Không thấy email?</strong> Hãy kiểm tra thêm mục <em>Spam</em> hoặc <em>Junk</em> sau khi gửi yêu cầu.
+    </div>
 
-        <div class="auth-actions">
-            <button type="submit" class="btn auth-submit">
-                <i class="bi bi-envelope-arrow-up"></i>
-                Gửi liên kết khôi phục
-            </button>
-        </div>
+    <button type="submit" class="auth-btn auth-btn-primary">
+        <i class="bi bi-envelope-arrow-up"></i>
+        Gửi liên kết khôi phục
+    </button>
 
-        <p class="auth-form-footnote">
-            Nếu đã nhớ lại mật khẩu, bạn có thể quay về trang đăng nhập mà không cần gửi yêu cầu mới.
-        </p>
-    </form>
+    <a href="{{ route('login') }}" class="auth-btn auth-btn-ghost" data-nav>
+        <i class="bi bi-arrow-left"></i>
+        Quay lại đăng nhập
+    </a>
+
+    <p class="auth-footnote">
+        Nếu đã nhớ lại mật khẩu, bạn có thể
+        <a href="{{ route('login') }}" data-nav>đăng nhập ngay</a> mà không cần gửi yêu cầu mới.
+    </p>
+</form>
 @endsection

@@ -1,48 +1,86 @@
-@extends('layouts.app')
+@extends('layouts.auth')
 
 @section('title', 'Xác thực Email')
 
+{{-- Panel --}}
+@section('panel_badge', 'Kích hoạt tài khoản')
+@section('panel_heading', 'Một bước nữa để bắt đầu hành trình của bạn.')
+@section('panel_desc', 'Chúng tôi đã gửi email xác thực. Nhấp vào liên kết trong hộp thư để kích hoạt tài khoản và tham gia vào hệ thống sự kiện NTU.')
+
+@section('panel_card')
+    <div class="auth-panel-checks">
+        <div class="auth-panel-check">
+            <i class="bi bi-envelope-open"></i>
+            <span>Kiểm tra hộp thư đến và thư mục Spam / Junk.</span>
+        </div>
+        <div class="auth-panel-check">
+            <i class="bi bi-clock-history"></i>
+            <span>Liên kết xác thực có hiệu lực trong 60 phút kể từ khi gửi.</span>
+        </div>
+        <div class="auth-panel-check">
+            <i class="bi bi-arrow-repeat"></i>
+            <span>Nếu không nhận được, bạn có thể yêu cầu gửi lại bất kỳ lúc nào.</span>
+        </div>
+    </div>
+@endsection
+
+@section('form_title', 'Xác thực địa chỉ Email')
+@section('form_subtitle', '')
+
 @section('content')
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f8fafc;">
-    <div style="width:100%;max-width:420px;background:#fff;padding:40px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #e2e8f0;">
+    <div style="margin-top: 10px;">
 
-        <div style="text-align:center;margin-bottom:32px;">
-            <i class="bi bi-envelope-check" style="font-size:64px;color:#16a34a;display:block;margin-bottom:16px;"></i>
-            <h2 style="font-size:24px;font-weight:800;color:#0f172a;margin-bottom:8px;">Xác thực Email</h2>
-            <p style="color:#64748b;font-size:14px;">Vui lòng kiểm tra email của bạn để hoàn tất đăng ký</p>
-        </div>
-
-        <div style="background:#dcfce7;border-left:4px solid #16a34a;padding:16px;border-radius:8px;margin-bottom:24px;">
-            <p style="color:#15803d;font-size:14px;margin:0;">
-                <i class="bi bi-info-circle me-2"></i>
-                Chúng tôi đã gửi email xác thực đến địa chỉ email của bạn.
-                Nhấp vào liên kết trong email để xác thực tài khoản.
+        {{-- Status icon --}}
+        <div style="text-align:center; margin-bottom:28px;">
+            <div style="
+                width: 72px; height: 72px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+                display: inline-flex; align-items: center; justify-content: center;
+                font-size: 2rem;
+                color: var(--c-brand);
+                margin-bottom: 16px;
+                box-shadow: 0 0 0 8px #eff6ff;
+            ">
+                <i class="bi bi-envelope-check"></i>
+            </div>
+            <p style="font-size:.9rem; color:var(--c-text-2); line-height:1.65;">
+                Chúng tôi đã gửi email xác thực đến địa chỉ email của bạn. Vui lòng nhấp vào liên kết trong email để hoàn
+                tất đăng ký.
             </p>
         </div>
 
-        <div style="background:#fef3c7;border-left:4px solid #d97706;padding:16px;border-radius:8px;margin-bottom:24px;">
-            <p style="color:#b45309;font-size:13px;margin:0;">
-                <i class="bi bi-clock me-2"></i>
-                <strong>Lưu ý:</strong> Liên kết xác thực sẽ hết hạn sau 1 giờ.
-                Nếu bạn không nhận được email, vui lòng kiểm tra thư mục Spam hoặc Junk.
-            </p>
+        {{-- Info panels --}}
+        <div style="display:grid; gap:10px; margin-bottom:24px;">
+            <div class="auth-alert is-info">
+                <i class="bi bi-info-circle-fill"></i>
+                <span>Email xác thực đã được gửi đến hộp thư của bạn. Nếu không thấy, hãy kiểm tra thư mục
+                    <strong>Spam</strong> hoặc <strong>Junk</strong>.</span>
+            </div>
+            <div class="auth-alert is-warning">
+                <i class="bi bi-clock-fill"></i>
+                <span><strong>Lưu ý:</strong> Liên kết xác thực sẽ hết hạn sau <strong>60 phút</strong>. Hãy kiểm tra email
+                    ngay.</span>
+            </div>
         </div>
 
-        <form method="POST" action="{{ route('verification.resend') }}" style="margin-bottom:16px;">
+        {{-- Resend form --}}
+        <form method="POST" action="{{ route('verification.resend') }}" style="margin-bottom:12px;">
             @csrf
             <input type="hidden" name="email" value="{{ auth()->user()->email ?? request()->query('email') }}">
-            <button type="submit" class="btn btn-primary w-100" style="width:100%;padding:12px;font-size:14px;font-weight:600;">
-                <i class="bi bi-arrow-repeat me-2"></i> Gửi lại email xác thực
+            <button type="submit" class="auth-btn auth-btn-primary">
+                <i class="bi bi-arrow-repeat"></i>
+                Gửi lại email xác thực
             </button>
         </form>
 
-        <a href="{{ route('logout') }}" class="btn btn-outline-secondary" style="width:100%;padding:12px;font-size:14px;font-weight:600;display:block;text-align:center;text-decoration:none;color:#475569;border:1.5px solid #cbd5e1;border-radius:10px;transition:all 0.2s;">
-            <i class="bi bi-box-arrow-left me-2"></i> Đăng xuất
-        </a>
-
-        <div style="margin-top:24px;padding-top:24px;border-top:1px solid #e2e8f0;text-align:center;font-size:13px;color:#64748b;">
-            <p style="margin:0;">Cần giúp đỡ? <a href="#" style="color:#2563eb;text-decoration:none;">Liên hệ hỗ trợ</a></p>
-        </div>
+        {{-- Logout --}}
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="auth-btn auth-btn-ghost">
+                <i class="bi bi-box-arrow-left"></i>
+                Đăng xuất và dùng tài khoản khác
+            </button>
+        </form>
     </div>
-</div>
 @endsection

@@ -21,7 +21,7 @@ class BauCuController extends Controller
                 },
             ])
             ->orderByDesc('created_at')
-            ->get();
+            ->paginate(10);
 
         return view('admin.bau_cu.index', compact('bauCus'));
     }

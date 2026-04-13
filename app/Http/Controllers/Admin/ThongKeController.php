@@ -48,7 +48,7 @@ class ThongKeController extends Controller
             ->select('nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien', DB::raw('SUM(lich_su_diem.diem) as tong_diem'))
             ->groupBy('lich_su_diem.ma_sinh_vien', 'nguoi_dung.ho_ten', 'nguoi_dung.ma_sinh_vien')
             ->orderByDesc('tong_diem')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('admin.thong_ke.diem', compact('tongDiem'));
     }

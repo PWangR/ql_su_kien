@@ -67,6 +67,14 @@
         <a href="{{ route('admin.diem-danh.scanner') }}" class="{{ request()->routeIs('admin.diem-danh.scanner') ? 'active' : '' }}">
             <i class="bi bi-camera"></i> Máy quét QR
         </a>
+
+        <div class="sidebar-label">Cài đặt</div>
+        <a href="{{ route('admin.smtp.index') }}" class="{{ request()->routeIs('admin.smtp*') ? 'active' : '' }}">
+            <i class="bi bi-envelope-gear"></i> Cấu hình SMTP
+        </a>
+        <a href="{{ route('admin.activity-logs.index') }}" class="{{ request()->routeIs('admin.activity-logs*') ? 'active' : '' }}">
+            <i class="bi bi-clock-history"></i> Log hoạt động
+        </a>
     </nav>
 
     <div class="sidebar-footer">

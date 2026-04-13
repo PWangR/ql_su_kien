@@ -16,10 +16,10 @@ class NguoiDungController extends Controller
         $query = User::whereNull('deleted_at');
 
         if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('ho_ten', 'like', '%'.$request->search.'%')
-                  ->orWhere('email', 'like', '%'.$request->search.'%')
-                  ->orWhere('ma_sinh_vien', 'like', '%'.$request->search.'%');
+            $query->where(function ($q) use ($request) {
+                $q->where('ho_ten', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('ma_sinh_vien', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -27,7 +27,7 @@ class NguoiDungController extends Controller
             $query->where('vai_tro', $request->vai_tro);
         }
 
-        $nguoiDung = $query->latest()->paginate(15)->withQueryString();
+        $nguoiDung = $query->latest()->paginate(10)->withQueryString();
 
         return view('admin.nguoi_dung.index', compact('nguoiDung'));
     }
@@ -35,41 +35,42 @@ class NguoiDungController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ho_ten'      => 'required|max:100',
-            'email'       => 'required|email|unique:nguoi_dung,email',
-            'ma_sinh_vien'=> 'required|digits:8|unique:nguoi_dung,ma_sinh_vien',
-            'vai_tro'  => 'required',
-            'mat_khau'    => 'required|min:8',
+            'ho_ten' => 'required|max:100',
+            'email' => 'required|email|unique:nguoi_dung,email',
+            'ma_sinh_vien' => 'required|digits:8|unique:nguoi_dung,ma_sinh_vien',
+            'vai_tro' => 'required',
+            'mat_khau' => 'required|min:8',
         ]);
 
         User::create([
-            'ho_ten'       => $request->ho_ten,
-            'email'        => $request->email,
+            'ho_ten' => $request->ho_ten,
+            'email' => $request->email,
             'ma_sinh_vien' => $request->ma_sinh_vien,
-            'vai_tro'      => $request->vai_tro,
-            'mat_khau'     => Hash::make($request->mat_khau),
-            'so_dien_thoai'=> $request->so_dien_thoai,
-            'trang_thai'   => 'hoat_dong',
+            'vai_tro' => $request->vai_tro,
+            'mat_khau' => Hash::make($request->mat_khau),
+            'so_dien_thoai' => $request->so_dien_thoai,
+            'lop' => $request->lop,
+            'trang_thai' => 'hoat_dong',
         ]);
 
-        return back()->with('success', 'ÄÃ£ thÃªm ngÆ°á»i dÃ¹ng!');
+        return back()->with('success', 'Đã thêm người dùng!');
     }
 
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
         $request->validate([
-            'ho_ten'    => 'required|max:100',
-            'vai_tro'   => 'required',
+            'ho_ten' => 'required|max:100',
+            'vai_tro' => 'required',
         ]);
 
-        $data = $request->only(['ho_ten', 'vai_tro', 'so_dien_thoai', 'trang_thai']);
+        $data = $request->only(['ho_ten', 'vai_tro', 'so_dien_thoai', 'trang_thai', 'lop']);
         if ($request->filled('mat_khau')) {
             $data['mat_khau'] = Hash::make($request->mat_khau);
         }
 
         $user->update($data);
-        return back()->with('success', 'Cáº­p nháº­t thÃ nh cÃ´ng!');
+        return back()->with('success', 'Cập nhật thành công!');
     }
 
     public function importExcel(Request $request)
@@ -80,13 +81,13 @@ class NguoiDungController extends Controller
 
         Excel::import(new NguoiDungImport(), $request->file('file'));
 
-        return back()->with('success', 'Nháº­p danh sÃ¡ch ngÆ°á»i dÃ¹ng thÃ nh cÃ´ng!');
+        return back()->with('success', 'Nhập danh sách người dùng thành công!');
     }
 
     public function destroy($id)
     {
         User::findOrFail($id)->delete();
-        return back()->with('success', 'ÄÃ£ xÃ³a ngÆ°á»i dÃ¹ng!');
+        return back()->with('success', 'Đã xóa người dùng!');
     }
 
     public function toggleStatus($id)
@@ -94,6 +95,6 @@ class NguoiDungController extends Controller
         $user = User::findOrFail($id);
         $user->trang_thai = $user->trang_thai === 'hoat_dong' ? 'bi_khoa' : 'hoat_dong';
         $user->save();
-        return back()->with('success', 'ÄÃ£ cáº­p nháº­t tráº¡ng thÃ¡i!');
+        return back()->with('success', 'Đã cập nhật trạng thái!');
     }
 }

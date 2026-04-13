@@ -13,7 +13,7 @@ class MediaController extends Controller
         $media = ThuVienDaPhuongTien::with(['suKien', 'nguoiTaiLen'])
             ->whereNull('deleted_at')
             ->latest('created_at')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('admin.media.index', compact('media'));
     }

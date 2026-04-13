@@ -12,25 +12,49 @@
 
 /* ── CSS Custom Properties ── */
 :root {
-    /* Colors — Monochrome */
-    --bg: #FDFCF8;
-    --bg-alt: #F5F3ED;
-    --bg-dark: #1A1A1A;
+    /* ===== CORE BACKGROUND ===== */
+    --bg: #F8FAFC;
+    /* nền chính (sáng hơn, sạch hơn) */
+    --bg-alt: #F1F5F9;
+    /* nền phụ */
+    --bg-dark: #0F172A;
+    /* dark mode chuẩn SaaS */
+
+    /* ===== SURFACE ===== */
     --card: #FFFFFF;
-    --text: #000000;
-    --text-light: #6B6B6B;
-    --text-muted: #999999;
-    --accent: #3b517b;
-    --accent-light: #003399;
-    --accent-bg: #E8ECF4;
-    --border: #D5D0C8;
-    --border-light: #E8E4DC;
-    --danger: #8B0000;
-    --danger-bg: #F8E8E8;
-    --success: #2E5930;
-    --success-bg: #E8F0E8;
-    --warning: #8B6914;
-    --warning-bg: #F5F0E0;
+    --card-hover: #F9FBFD;
+    /* hover nhẹ */
+    --border: #E2E8F0;
+    --border-light: #EDF2F7;
+
+    /* ===== TEXT ===== */
+    --text: #0F172A;
+    /* gần đen nhưng mềm hơn */
+    --text-light: #1E293B;
+    --text-muted: #64748B;
+
+    /* ===== PRIMARY (ACCENT) ===== */
+    --accent: #2563EB;
+    /* xanh hiện đại (CTA chính) */
+    --accent-light: #3B82F6;
+    --accent-hover: #1D4ED8;
+    --accent-bg: #EFF6FF;
+
+    /* ===== SUCCESS ===== */
+    --success: #16A34A;
+    --success-bg: #F0FDF4;
+
+    /* ===== WARNING ===== */
+    --warning: #D97706;
+    --warning-bg: #FFFBEB;
+
+    /* ===== DANGER ===== */
+    --danger: #DC2626;
+    --danger-bg: #FEF2F2;
+
+    /* ===== SPECIAL ===== */
+    --shadow: rgba(15, 23, 42, 0.08);
+    --shadow-strong: rgba(15, 23, 42, 0.15);
 
     /* Typography */
     --font-serif: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
@@ -2051,4 +2075,282 @@ select.form-control {
         margin-left: 0;
         padding-top: 0;
     }
+}
+
+/* ================================================================
+   🚀 SAAS DASHBOARD REFACTOR - OVERRIDES
+   Nâng cấp nguyên lý hiển thị theo hướng hiện đại, chiều sâu
+   ================================================================ */
+
+/* ── 5. Design System Extensions ── */
+:root {
+    /* Radii */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-pill: 9999px;
+    
+    /* Shadows (Depth) */
+    --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+    --shadow-sm: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+    
+    /* Transitions */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── 10. Micro-interactions Global ── */
+a, button, .card, .btn, .sidebar-nav a, input, select {
+    transition: background var(--transition-base), 
+                color var(--transition-base), 
+                border-color var(--transition-base), 
+                box-shadow var(--transition-base), 
+                transform var(--transition-base);
+}
+
+/* ── 1. Card & 11. Event Card ── */
+.card, .panel, .stat-card, .event-card, .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Hover effect cho các card clickable */
+a.card:hover, a.event-card:hover, .clickable-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-light);
+}
+
+/* ── 9. Card Header ── */
+.card-header, .panel-head {
+    background: transparent;
+    border-bottom: 1px solid var(--border-light);
+    padding: var(--space-md) var(--space-lg);
+}
+
+/* ── 2. Button (CTA) ── */
+.btn {
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    box-shadow: var(--shadow-xs);
+}
+
+.btn-primary {
+    background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
+    color: #FFF;
+    border: 1px solid transparent;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.2);
+    color: #FFF;
+}
+
+/* ── 3. Sidebar (Dashboard feel) ── */
+.sidebar {
+    background: var(--bg-dark);
+    border-right: 1px solid rgba(255,255,255,0.05);
+    color: #94A3B8;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.sidebar .sidebar-brand-text {
+    color: #F8FAFC;
+}
+
+.sidebar-nav {
+    padding: var(--space-md);
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.sidebar-label {
+    color: #64748B;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-top: var(--space-md);
+    margin-bottom: var(--space-xs);
+}
+
+/* Fix margin cho label đầu tiên */
+.sidebar-nav > .sidebar-label:first-child {
+    margin-top: 0;
+}
+
+.sidebar-nav a {
+    color: #CBD5E1;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    margin-bottom: 2px;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a:focus {
+    background: rgba(255,255,255,0.05);
+    color: #F8FAFC;
+}
+
+.sidebar-nav a.active {
+    background: linear-gradient(90deg, rgba(37,99,235,0.15) 0%, transparent 100%);
+    color: #60A5FA;
+    border-left: 3px solid var(--accent-light);
+}
+
+.sidebar-nav a i {
+    color: inherit;
+    opacity: 0.7;
+}
+.sidebar-nav a.active i {
+    opacity: 1;
+}
+
+/* ── 4. Table (Data Dashboard) ── */
+.table-container {
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table thead th {
+    background: var(--bg-alt);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border);
+}
+
+table tbody td {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text);
+    vertical-align: middle;
+}
+
+table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+table tbody tr:hover {
+    background: var(--card-hover);
+}
+
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ── 6. Form ── */
+.form-control, .form-select, input, select, textarea {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--card);
+    transition: all var(--transition-fast);
+    padding: 0.625rem 1rem;
+    color: var(--text);
+}
+
+.form-control:focus, .form-select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 4px var(--accent-bg);
+}
+
+/* ── 7. Badge ── */
+.badge, .status-badge, .pill-badge {
+    border-radius: var(--radius-pill);
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* ── 8. Typography Hierarchy ── */
+body {
+    color: var(--text);
+}
+
+h1, h2, h3, h4, .panel-title {
+    color: var(--text-light);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+/* ── 12. Chatbot UI (Modern Float) ── */
+.chatbot-float, .chat-window {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ── 13. Empty State ── */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-3xl) var(--space-lg);
+    text-align: center;
+    background: var(--card);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: var(--border);
+    margin-bottom: var(--space-md);
+}
+
+.empty-state h4 {
+    color: var(--text-light);
+    margin-bottom: var(--space-sm);
+}
+
+/* ── 14. Loading Skeleton ── */
+.skeleton {
+    background: #E2E8F0;
+    background: linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }

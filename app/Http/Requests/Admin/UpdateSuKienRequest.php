@@ -15,13 +15,13 @@ class UpdateSuKienRequest extends FormRequest
     {
         return [
             'ten_su_kien' => 'required|max:200',
-            'mo_ta_chi_tiet' => 'nullable|string|max:5000',
-            'dia_diem' => 'nullable|string|max:255',
+            'mo_ta_chi_tiet' => 'required|string|max:5000',
+            'dia_diem' => 'required|string|max:255',
             'ma_loai_su_kien' => 'required|exists:loai_su_kien,ma_loai_su_kien',
             'thoi_gian_bat_dau' => 'required|date',
             'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
-            'so_luong_toi_da' => 'nullable|integer|min:1',
-            'diem_cong' => 'nullable|integer|min:0',
+            'so_luong_toi_da' => 'required|integer|min:1',
+            'diem_cong' => 'required|integer|min:0',
             'trang_thai' => 'nullable|in:sap_to_chuc,dang_dien_ra,da_ket_thuc,huy',
             'anh_su_kien' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'gallery' => 'nullable|array',
@@ -33,16 +33,78 @@ class UpdateSuKienRequest extends FormRequest
         ];
     }
 
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $diaDiem = $this->input('dia_diem');
+            $batDau = $this->input('thoi_gian_bat_dau');
+            $ketThuc = $this->input('thoi_gian_ket_thuc');
+            $maSuKien = $this->route('su_kien') ?? $this->input('ma_su_kien');
+
+            if ($diaDiem && $batDau && $ketThuc) {
+                // Check collision
+                $conflictQuery = \App\Models\SuKien::where('dia_diem', 'like', '%' . $diaDiem . '%')
+                    ->where(function ($query) use ($batDau, $ketThuc) {
+                        $query->whereBetween('thoi_gian_bat_dau', [$batDau, $ketThuc])
+                            ->orWhereBetween('thoi_gian_ket_thuc', [$batDau, $ketThuc])
+                            ->orWhere(function ($q) use ($batDau, $ketThuc) {
+                                $q->where('thoi_gian_bat_dau', '<=', $batDau)
+                                  ->where('thoi_gian_ket_thuc', '>=', $ketThuc);
+                            });
+                    })
+                    ->where('trang_thai', '!=', 'da_huy');
+
+                // If editing, exclude the current event
+                if ($maSuKien) {
+                    $conflictQuery->where('ma_su_kien', '!=', $maSuKien);
+                }
+
+                $conflict = $conflictQuery->first();
+
+                if ($conflict && $this->input('force_update') !== '1') {
+                    $validator->errors()->add('dia_diem', 'Trùng lịch với sự kiện khác: "' . $conflict->ten_su_kien . '" diễn ra tại địa điểm này từ ' . \Carbon\Carbon::parse($conflict->thoi_gian_bat_dau)->format('H:i d/m/Y') . ' đến ' . \Carbon\Carbon::parse($conflict->thoi_gian_ket_thuc)->format('H:i d/m/Y') . '.');
+                }
+            }
+        });
+    }
+
     public function messages(): array
     {
         return [
-            'ten_su_kien.required' => 'Vui long nhap ten su kien',
-            'ma_loai_su_kien.required' => 'Vui long chon loai su kien',
-            'thoi_gian_bat_dau.required' => 'Vui long chon thoi gian bat dau',
-            'thoi_gian_ket_thuc.required' => 'Vui long chon thoi gian ket thuc',
-            'thoi_gian_ket_thuc.after' => 'Thoi gian ket thuc phai sau thoi gian bat dau',
-            'gallery.*.image' => 'Tat ca anh trong gallery phai la file anh hop le.',
-            'selected_media_ids.*.exists' => 'Mot anh trong thu vien khong con ton tai.',
+            'ten_su_kien.required' => 'Vui lòng nhập tên sự kiện.',
+            'ten_su_kien.max' => 'Tên sự kiện không được vượt quá 200 ký tự.',
+            'mo_ta_chi_tiet.required' => 'Vui lòng nhập nội dung mô tả chi tiết.',
+            'mo_ta_chi_tiet.string' => 'Nội dung mô tả chi tiết phải là dạng chuỗi văn bản.',
+            'mo_ta_chi_tiet.max' => 'Nội dung mô tả chi tiết không được vượt quá 5000 ký tự.',
+            'dia_diem.required' => 'Vui lòng nhập địa điểm tổ chức.',
+            'dia_diem.string' => 'Địa điểm tổ chức phải là chuỗi ký tự.',
+            'dia_diem.max' => 'Tên địa điểm không được vượt quá 255 ký tự.',
+            'ma_loai_su_kien.required' => 'Vui lòng chọn phân loại cho sự kiện.',
+            'ma_loai_su_kien.exists' => 'Loại sự kiện đã chọn không hợp lệ hoặc đã bị xóa.',
+            'thoi_gian_bat_dau.required' => 'Vui lòng xác định thời gian bắt đầu.',
+            'thoi_gian_bat_dau.date' => 'Định dạng ngày/giờ bắt đầu không hợp lệ.',
+            'thoi_gian_ket_thuc.required' => 'Vui lòng xác định thời gian kết thúc.',
+            'thoi_gian_ket_thuc.date' => 'Định dạng ngày/giờ kết thúc không hợp lệ.',
+            'thoi_gian_ket_thuc.after' => 'Thời gian kết thúc phải diễn ra SAU thời gian bắt đầu sự kiện.',
+            'so_luong_toi_da.required' => 'Vui lòng nhập số lượng người tham gia tối đa.',
+            'so_luong_toi_da.integer' => 'Số lượng người tham gia tối đa phải là một số nguyên dương.',
+            'so_luong_toi_da.min' => 'Số lượng người tham gia tối đa không được nhỏ hơn 1.',
+            'diem_cong.required' => 'Vui lòng nhập điểm cộng rèn luyện.',
+            'diem_cong.integer' => 'Điểm cộng rèn luyện phải là một số nguyên dương.',
+            'diem_cong.min' => 'Điểm cộng rèn luyện không được là số âm.',
+            'trang_thai.in' => 'Trạng thái sự kiện không hợp lệ (hỗ trợ: sắp tổ chức, đang diễn ra, đã kết thúc, hủy).',
+            'anh_su_kien.image' => 'Tệp được chọn làm ảnh bìa phải là định dạng hình ảnh.',
+            'anh_su_kien.mimes' => 'Ảnh bìa chỉ hỗ trợ các định dạng: jpeg, png, jpg, gif, webp.',
+            'anh_su_kien.max' => 'Dung lượng ảnh bìa không được vượt quá 5MB.',
+            'gallery.array' => 'Danh sách dữ liệu hình ảnh tải lên không đúng định dạng.',
+            'gallery.*.image' => 'Tất cả các tệp trong bộ sưu tập (gallery) phải là định dạng hình ảnh.',
+            'gallery.*.mimes' => 'Hình ảnh gallery phải thuộc các định dạng: jpeg, png, jpg, gif, webp.',
+            'gallery.*.max' => 'Dung lượng mỗi ảnh trong gallery không được vượt quá 5MB.',
+            'selected_media_ids.array' => 'Danh sách hình ảnh từ thư viện không hợp lệ.',
+            'selected_media_ids.*.integer' => 'Mã định danh của tệp phương tiện phải là số nguyên.',
+            'selected_media_ids.*.exists' => 'Một hoặc nhiều hình ảnh chọn từ thư viện không còn tồn tại trên hệ thống.',
+            'bo_cuc.array' => 'Dữ liệu bố cục không hợp lệ. Vui lòng kiểm tra lại.',
+            'bo_cuc.*.in' => 'Một trong số các mô-đun bố cục được chọn không tồn tại (hỗ trợ: banner, header, info, description, gallery).',
         ];
     }
 }

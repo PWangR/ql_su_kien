@@ -10,7 +10,6 @@ use App\Models\LoaiSuKien;
 use App\Models\ThuVienDaPhuongTien;
 use App\Models\LichSuDiem;
 use App\Models\User;
-use App\Imports\SuKienImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -31,11 +30,43 @@ class SuKienController extends Controller
         }
 
         if ($request->filled('trang_thai')) {
-            $query->where('trang_thai', $request->trang_thai);
+            $status = $request->trang_thai;
+            $now = now();
+
+            if ($status === 'huy') {
+                $query->where('trang_thai', 'huy');
+            } else {
+                $query->where('trang_thai', '!=', 'huy');
+
+                if ($status === 'sap_to_chuc') {
+                    $query->where('thoi_gian_bat_dau', '>', $now);
+                } elseif ($status === 'dang_dien_ra') {
+                    $query->where('thoi_gian_bat_dau', '<=', $now)
+                          ->where('thoi_gian_ket_thuc', '>=', $now);
+                } elseif ($status === 'da_ket_thuc') {
+                    $query->where('thoi_gian_ket_thuc', '<', $now);
+                }
+            }
         }
 
-        $suKien = $query->latest()->paginate(10)->withQueryString();
-        return view('admin.su_kien.index', compact('suKien'));
+        if ($request->filled('ma_loai_su_kien')) {
+            $query->where('ma_loai_su_kien', $request->ma_loai_su_kien);
+        }
+
+        $sortCol = $request->input('sort_col', 'created_at');
+        $sortDir = $request->input('sort_dir', 'desc');
+        $allowedSorts = ['ten_su_kien', 'created_at'];
+
+        if (in_array($sortCol, $allowedSorts)) {
+            $query->orderBy($sortCol, $sortDir === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->latest();
+        }
+
+        $suKien = $query->paginate(10)->withQueryString();
+        $loaiSuKien = LoaiSuKien::all();
+
+        return view('admin.su_kien.index', compact('suKien', 'loaiSuKien'));
     }
 
     public function create()
@@ -52,6 +83,8 @@ class SuKienController extends Controller
         $data['ma_nguoi_tao'] = auth()->id();
         $data['trang_thai']   = 'sap_to_chuc';
         $data['bo_cuc'] = $this->resolveLayout($request);
+        $data['so_luong_toi_da'] = $data['so_luong_toi_da'] ?? 0;
+        $data['diem_cong'] = $data['diem_cong'] ?? 0;
 
         $data['anh_su_kien'] = $this->handleImageUpload($request, null);
 
@@ -86,6 +119,8 @@ class SuKienController extends Controller
         $data['mo_ta_chi_tiet'] = $request->mo_ta_chi_tiet;
         $data['dia_diem'] = $request->dia_diem;
         $data['bo_cuc'] = $this->resolveLayout($request, $suKien->bo_cuc);
+        $data['so_luong_toi_da'] = $data['so_luong_toi_da'] ?? 0;
+        $data['diem_cong'] = $data['diem_cong'] ?? 0;
 
         $data['anh_su_kien'] = $this->handleImageUpload($request, $suKien);
 
@@ -171,19 +206,6 @@ class SuKienController extends Controller
         return $layout !== [] ? $layout : $allowedModules;
     }
 
-    public function importExcel(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xls,xlsx,csv|max:5120',
-        ]);
-
-        try {
-            Excel::import(new SuKienImport(auth()->id()), $request->file('file'));
-            return back()->with('success', 'Nhập danh sách sự kiện thành công!');
-        } catch (\Throwable $e) {
-            return back()->with('error', 'Có lỗi khi nhập file: ' . $e->getMessage());
-        }
-    }
     public function destroy($id)
     {
         SuKien::findOrFail($id)->delete();

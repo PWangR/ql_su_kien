@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('app:sync-event-status')->everyMinute();
+        $schedule->command('logs:prune --days=30')->dailyAt('02:00');
     }
 
     /**
