@@ -4,7 +4,8 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Mail\VerifyEmailMail;
 
 class VerifyEmailNotification extends Notification
 {
@@ -22,16 +23,12 @@ class VerifyEmailNotification extends Notification
         return ['mail'];
     }
 
-    public function toMail(object $notifiable): MailMessage
+    /**
+     * Gửi email xác thực bằng Mailable custom
+     */
+    public function toMail(object $notifiable)
     {
-        return (new MailMessage)
-            ->subject('Xác thực Email - Quản lý Sự kiện')
-            ->greeting('Chào ' . $notifiable->ho_ten)
-            ->line('Cảm ơn bạn đã đăng ký tài khoản. Vui lòng nhấp vào nút bên dưới để xác thực email của bạn.')
-            ->action('Xác thực Email', $this->signedUrl)
-            ->line('Liên kết này sẽ hết hạn sau 60 phút.')
-            ->line('Nếu bạn không tạo tài khoản này, hãy bỏ qua email này.')
-            ->salutation('Trân trọng, Ban quản trị');
+        return new VerifyEmailMail($notifiable, $this->signedUrl);
     }
 
     public function toArray(object $notifiable): array

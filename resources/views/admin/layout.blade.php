@@ -62,10 +62,10 @@
 
         <div class="sidebar-label">Điểm danh</div>
         <a href="{{ route('admin.diem-danh.index') }}" class="{{ request()->routeIs('admin.diem-danh.index') ? 'active' : '' }}">
-            <i class="bi bi-qr-code"></i> Mã QR Sự kiện
+            <i class="bi bi-qr-code"></i> QR sự kiện
         </a>
         <a href="{{ route('admin.diem-danh.scanner') }}" class="{{ request()->routeIs('admin.diem-danh.scanner') ? 'active' : '' }}">
-            <i class="bi bi-camera"></i> Máy quét QR
+            <i class="bi bi-camera"></i> Quét QR người dùng
         </a>
 
         <div class="sidebar-label">Cài đặt</div>

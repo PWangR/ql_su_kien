@@ -13,6 +13,11 @@ class UserService
      */
     public function createUser(array $data)
     {
+        if (isset($data['duong_dan_anh'])) {
+            $imagePath = $data['duong_dan_anh']->store('avatars', 'public');
+            $data['duong_dan_anh'] = $imagePath;
+        }
+
         $data['mat_khau'] = Hash::make($data['mat_khau']);
 
         return User::create($data);

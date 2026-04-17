@@ -101,4 +101,97 @@ class CuTriController extends Controller
             ->route('admin.bau-cu.show', $bauCuId)
             ->with('success', 'Đã xóa tất cả cử tri.');
     }
+
+    /**
+     * API: Lấy danh sách sinh viên có thể thêm làm cử tri (với tìm kiếm/lọc)
+     */
+    public function apiStudentList(Request $request, $bauCuId)
+    {
+        try {
+            $search = $request->query('search', '');
+            $class = $request->query('class', '');
+            $limit = $request->query('limit', 50);
+
+            // Lấy những sinh viên đã là cử tri của bầu cử này
+            $existingStudents = CuTri::where('ma_bau_cu', $bauCuId)
+                ->pluck('ma_sinh_vien')
+                ->toArray();
+
+            // Xây dựng query
+            $query = User::where('vai_tro', 'sinh_vien')
+                ->where('trang_thai', 'hoat_dong')
+                ->whereNotIn('ma_sinh_vien', $existingStudents);
+
+            // Tìm kiếm theo họ tên, MSSV, email
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('ho_ten', 'LIKE', "%{$search}%")
+                        ->orWhere('ma_sinh_vien', 'LIKE', "%{$search}%")
+                        ->orWhere('email', 'LIKE', "%{$search}%");
+                });
+            }
+
+            // Lọc theo lớp
+            if ($class) {
+                $query->where('lop', $class);
+            }
+
+            $students = $query->orderBy('ho_ten')
+                ->limit($limit)
+                ->get(['ma_sinh_vien as id', 'ma_sinh_vien', 'ho_ten', 'lop', 'email']);
+
+            return response()->json($students);
+        } catch (\Exception $e) {
+            // Return lỗi để debug trong console
+            return response()->json([
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Thêm cử tri từ danh sách chọn (AJAX)
+     * Always returns JSON since this is called via AJAX only
+     */
+    public function addSelected(Request $request, $bauCuId)
+    {
+        try {
+            $bauCu = BauCu::findOrFail($bauCuId);
+
+            $request->validate([
+                'student_ids' => 'required|array|min:1',
+                'student_ids.*' => 'string|digits:8|exists:nguoi_dung,ma_sinh_vien',
+            ]);
+
+            $students = User::whereIn('ma_sinh_vien', $request->student_ids)->get();
+
+            if ($students->isEmpty()) {
+                return response()->json(['success' => false, 'error' => 'Không tìm thấy sinh viên nào.'], 400);
+            }
+
+            $existingMssv = CuTri::where('ma_bau_cu', $bauCuId)
+                ->pluck('ma_sinh_vien')
+                ->toArray();
+
+            $added = 0;
+            foreach ($students as $student) {
+                if (!in_array($student->ma_sinh_vien, $existingMssv)) {
+                    CuTri::create([
+                        'ma_bau_cu' => $bauCuId,
+                        'ma_sinh_vien' => $student->ma_sinh_vien,
+                    ]);
+                    $added++;
+                }
+            }
+
+            // Always return JSON for AJAX requests
+            return response()->json(['success' => true, 'message' => "Đã thêm {$added} cử tri."]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'error' => $e->validator->errors()->first()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
 }

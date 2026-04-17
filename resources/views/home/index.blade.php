@@ -101,6 +101,11 @@
         <a href="{{ route('events.index') }}" class="btn btn-primary btn-lg">
             <i class="bi bi-calendar3"></i> Xem tất cả sự kiện
         </a>
+        @auth
+        <a href="{{ route('events.scanner') }}" class="btn btn-outline btn-lg">
+            <i class="bi bi-qr-code-scan"></i> Quét QR điểm danh
+        </a>
+        @endauth
         @guest
         <a href="{{ route('login') }}" class="btn btn-outline btn-lg">
             <i class="bi bi-person"></i> Đăng nhập ngay

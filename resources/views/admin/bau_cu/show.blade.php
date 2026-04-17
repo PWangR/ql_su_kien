@@ -4,21 +4,115 @@
 
 @section('styles')
 <style>
-.tabs { display:flex; gap:10px; border-bottom:1px solid var(--border); margin-bottom:var(--space-lg); }
-.tab-btn { padding:10px 16px; border:none; background:none; cursor:pointer; font-size:0.875rem; font-weight:600; color:var(--text-muted); border-bottom:2px solid transparent; margin-bottom:-1px; transition:color 0.2s, border-color 0.2s; font-family:var(--font-sans); }
-.tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
-.tab-btn:hover { color:var(--accent); }
-.tab-content { display:none; }
-.tab-content.active { display:block; }
-.info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; }
-.info-item label { font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
-.info-item p { font-size:0.9375rem; font-weight:600; color:var(--text); margin-top:4px; }
-.modal-layer { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center; padding:18px; }
-.modal-layer.show { display:flex; }
-.modal-box { background:var(--card); border:1px solid var(--border); border-radius:var(--border-radius-md); max-width:500px; width:100%; padding:24px; box-shadow:0 8px 30px rgba(0,0,0,0.1); max-height:80vh; overflow-y:auto; }
-.progress-bar-wrap { background:var(--bg-alt); border:1px solid var(--border-light); height:24px; overflow:hidden; position:relative; }
-.progress-bar-fill { height:100%; transition:width 0.5s; background:var(--accent); }
-.progress-bar-text { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:0.75rem; font-weight:700; color:#fff; }
+    .tabs {
+        display: flex;
+        gap: 10px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: var(--space-lg);
+    }
+
+    .tab-btn {
+        padding: 10px 16px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: color 0.2s, border-color 0.2s;
+        font-family: var(--font-sans);
+    }
+
+    .tab-btn.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+    }
+
+    .tab-btn:hover {
+        color: var(--accent);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .info-item label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .info-item p {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-top: 4px;
+    }
+
+    .modal-layer {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+    }
+
+    .modal-layer.show {
+        display: flex;
+    }
+
+    .modal-box {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius-md);
+        max-width: 500px;
+        width: 100%;
+        padding: 24px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .progress-bar-wrap {
+        background: var(--bg-alt);
+        border: 1px solid var(--border-light);
+        height: 24px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        transition: width 0.5s;
+        background: var(--accent);
+    }
+
+    .progress-bar-text {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #fff;
+    }
 </style>
 @endsection
 
@@ -147,6 +241,9 @@
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-sm);">
         <span class="text-sm text-muted">{{ $cuTris->count() }} cử tri</span>
         <div class="btn-group">
+            <button class="btn btn-sm btn-outline" onclick="document.getElementById('modalSelectStudents').classList.add('show')">
+                <i class="bi bi-search"></i> Chọn sinh viên
+            </button>
             <button class="btn btn-sm btn-outline" onclick="document.getElementById('modalImportCuTri').classList.add('show')">
                 <i class="bi bi-file-earmark-excel"></i> Nhập Excel
             </button>
@@ -304,20 +401,211 @@
         </form>
     </div>
 </div>
+
+{{-- Modal Chọn Sinh viên --}}
+<div class="modal-layer" id="modalSelectStudents" style="z-index:1001;">
+    <div class="modal-box" style="max-width:700px;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:var(--space-md);"><i class="bi bi-search"></i> Chọn Sinh viên từ danh sách</h3>
+
+        <div class="form-group">
+            <input type="text" id="searchStudent" placeholder="Tìm kiếm: Họ tên, MSSV, email..." class="form-control" style="margin-bottom:var(--space-sm);">
+            <select id="filterClass" class="form-control" style="margin-bottom:var(--space-sm);">
+                <option value="">Tất cả lớp</option>
+            </select>
+        </div>
+
+        <div style="border:1px solid var(--border);border-radius:var(--border-radius-sm);max-height:300px;overflow-y:auto;margin-bottom:var(--space-md);">
+            <div id="studentList" style="padding:10px;">
+                <p class="text-muted text-sm text-center" style="padding:20px;">Đang tải...</p>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-sm);padding-bottom:var(--space-sm);border-bottom:1px solid var(--border-light);">
+            <span class="text-sm" id="selectedCount">0 đã chọn</span>
+            <div>
+                <button type="button" class="btn btn-sm btn-outline" onclick="document.querySelectorAll('#studentList input[type=checkbox]').forEach(c => c.checked = false); updateSelectedCount();" style="margin-right:var(--space-xs);">Bỏ chọn tất cả</button>
+                <button type="button" class="btn btn-sm btn-outline" onclick="document.querySelectorAll('#studentList input[type=checkbox]').forEach(c => c.checked = true); updateSelectedCount();">Chọn tất cả trang</button>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary" onclick="addSelectedStudents()" id="addBtn">
+                <i class="bi bi-check"></i> Thêm cử tri
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('modalSelectStudents').classList.remove('show')">Hủy</button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
-function switchTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    event.currentTarget.classList.add('active');
-}
-document.querySelectorAll('.modal-layer').forEach(m => {
-    m.addEventListener('click', function(e) {
-        if (e.target === this) this.classList.remove('show');
+    const BAUCUCID = '{{ $bauCu->ma_bau_cu }}';
+    // FIX: Truyền ID thẳng vào route function, không dùng placeholder
+    const API_URL = '{{ route("admin.cu-tri.api.list", $bauCu->ma_bau_cu) }}';
+    const ADD_URL = '{{ route("admin.cu-tri.add-selected", $bauCu->ma_bau_cu) }}';
+    let allClasses = new Set();
+
+    // Khi modal được mở
+    document.getElementById('modalSelectStudents')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.remove('show');
+        }
     });
-});
+
+    // FIX: Load danh sách sinh viên khi modal được mở (bằng cách observe class 'show')
+    const modalElement = document.getElementById('modalSelectStudents');
+    if (modalElement) {
+        // Observer để detect khi modal được mở
+        const observer = new MutationObserver(function(mutations) {
+            if (modalElement.classList.contains('show') && document.getElementById('studentList').innerHTML.trim() === '<p class="text-muted text-sm text-center" style="padding:20px;">Đang tải...</p>') {
+                loadStudents();
+            }
+        });
+        observer.observe(modalElement, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+
+    document.querySelector('#searchStudent')?.addEventListener('input', debounce(loadStudents, 300));
+    document.querySelector('#filterClass')?.addEventListener('change', loadStudents);
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    async function loadStudents() {
+        const search = document.getElementById('searchStudent').value;
+        const classFilter = document.getElementById('filterClass').value;
+
+        try {
+            const resp = await fetch(`${API_URL}?search=${encodeURIComponent(search)}&class=${encodeURIComponent(classFilter)}&limit=100`);
+            const students = await resp.json();
+
+            // Collect classes
+            students.forEach(s => {
+                if (s.lop) allClasses.add(s.lop);
+            });
+
+            // Update class filter
+            const classSelect = document.getElementById('filterClass');
+            const currentValue = classSelect.value;
+            const currentOptions = Array.from(classSelect.options).map(o => o.value);
+
+            allClasses.forEach(cls => {
+                if (!currentOptions.includes(cls)) {
+                    const opt = document.createElement('option');
+                    opt.value = cls;
+                    opt.text = cls;
+                    classSelect.appendChild(opt);
+                }
+            });
+
+            // Render students
+            let html = '';
+            if (students.length === 0) {
+                html = '<p class="text-muted text-sm text-center" style="padding:20px;">Không tìm thấy sinh viên nào.</p>';
+            } else {
+                students.forEach(s => {
+                    html += `
+                    <label style="display:block;padding:8px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background 0.15s;">
+                        <input type="checkbox" data-id="${s.id}" data-name="${s.ho_ten}" value="${s.id}" onchange="updateSelectedCount()" style="margin-right:8px;">
+                        <span style="font-weight:600;">${s.ho_ten}</span>
+                        <span class="text-xs text-muted">${s.ma_sinh_vien}</span>
+                        <span class="text-xs text-light">${s.email}</span>
+                    </label>
+                `;
+                });
+            }
+            document.getElementById('studentList').innerHTML = html;
+            updateSelectedCount();
+        } catch (error) {
+            console.error('Lỗi tải danh sách:', error);
+            document.getElementById('studentList').innerHTML = '<p class="text-danger text-sm text-center" style="padding:20px;">Lỗi tải dữ liệu</p>';
+        }
+    }
+
+    function updateSelectedCount() {
+        const checked = document.querySelectorAll('#studentList input[type=checkbox]:checked');
+        const count = checked.length;
+        document.getElementById('selectedCount').textContent = `${count} đã chọn`;
+        document.getElementById('addBtn').disabled = count === 0;
+        document.getElementById('addBtn').style.opacity = count === 0 ? '0.5' : '1';
+    }
+
+    async function addSelectedStudents() {
+        const checked = Array.from(document.querySelectorAll('#studentList input[type=checkbox]:checked'));
+        if (checked.length === 0) {
+            alert('Vui lòng chọn ít nhất một sinh viên.');
+            return;
+        }
+
+        const studentIds = checked.map(c => c.value);
+        const btn = document.getElementById('addBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass"></i> Đang thêm...';
+
+        try {
+            const resp = await fetch(ADD_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                },
+                body: JSON.stringify({
+                    student_ids: studentIds
+                }),
+            });
+
+            let data;
+            try {
+                data = await resp.json();
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                const text = await resp.text();
+                console.error('Response text:', text);
+                alert('Lỗi: Server phản hồi không hợp lệ (HTTP ' + resp.status + ')\nResponse: ' + text.substring(0, 200));
+                return;
+            }
+
+            if (data.success) {
+                alert(data.message || 'Đã thêm cử tri thành công');
+                document.getElementById('modalSelectStudents').classList.remove('show');
+                location.reload();
+            } else if (data.error) {
+                alert('Lỗi: ' + data.error);
+            } else {
+                alert('Có lỗi xảy ra (HTTP ' + resp.status + ')');
+            }
+        } catch (error) {
+            console.error('Lỗi thêm cử tri:', error);
+            alert('Lỗi thêm cử tri: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check"></i> Thêm cử tri';
+        }
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+    document.querySelectorAll('.modal-layer').forEach(m => {
+        m.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('show');
+        });
+    });
 </script>
 @endsection

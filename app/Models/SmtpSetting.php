@@ -22,6 +22,14 @@ class SmtpSetting extends Model
         'mail_from_address',
         'mail_from_name',
         'is_active',
+        'mail_header',
+        'mail_body_template',
+        'mail_footer',
+        'mail_signature',
+        'subject_welcome',
+        'subject_event_confirm',
+        'subject_event_cancel',
+        'subject_event_update',
     ];
 
     protected $casts = [

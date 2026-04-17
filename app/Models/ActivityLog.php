@@ -36,7 +36,7 @@ class ActivityLog extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'ma_sinh_vien');
+        return $this->belongsTo(User::class, 'user_id', 'ma_sinh_vien')->withTrashed();
     }
 
     /**
@@ -50,6 +50,10 @@ class ActivityLog extends Model
         ?array $properties = null
     ): self {
         $user = auth()->user();
+
+        if (!static::shouldLogAuthenticatedAdmin($user)) {
+            return new static();
+        }
 
         return static::create([
             'user_id' => $user ? $user->ma_sinh_vien : null,
@@ -86,8 +90,12 @@ class ActivityLog extends Model
      */
     public function scopeBetweenDates($query, $from, $to)
     {
+        if ($from && $to && $from > $to) {
+            [$from, $to] = [$to, $from];
+        }
+
         if ($from) {
-            $query->where('created_at', '>=', $from);
+            $query->where('created_at', '>=', $from . ' 00:00:00');
         }
         if ($to) {
             $query->where('created_at', '<=', $to . ' 23:59:59');
@@ -143,5 +151,17 @@ class ActivityLog extends Model
     public static function pruneOlderThan(int $days = 30): int
     {
         return static::where('created_at', '<', now()->subDays($days))->delete();
+    }
+
+    public function scopeAdminOnly($query)
+    {
+        return $query->whereHas('user', function ($userQuery) {
+            $userQuery->whereIn('vai_tro', ['admin', 'super_admin']);
+        });
+    }
+
+    public static function shouldLogAuthenticatedAdmin($user): bool
+    {
+        return $user && method_exists($user, 'isAdmin') && $user->isAdmin();
     }
 }

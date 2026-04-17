@@ -1,0 +1,456 @@
+CHƯƠNG 4. PHÂN TÍCH THIẾT KẾ ỨNG DỤNG
+
+Chương này trình bày kết quả phân tích và thiết kế ứng dụng quản lý sự kiện dựa trên tài liệu đồ án hiện có và hiện trạng mã nguồn của dự án ql_su_kien. Nội dung chương tập trung vào các tác nhân, ca sử dụng, luồng nghiệp vụ, mô hình dữ liệu, kiến trúc triển khai, cơ chế phân quyền, thiết kế giao diện và các quyết định tối ưu hiệu năng. Việc phân tích được thực hiện bám sát phiên bản hệ thống đã triển khai bằng Laravel, MySQL, Blade, Tailwind CSS, REST API và ứng dụng di động React Native.
+
+Trong phạm vi hiện tại, hệ thống hiện thực hai vai trò chính là admin và sinh_vien. Vai trò giảng viên trong định hướng ban đầu của đề tài có thể được ánh xạ vào nhóm ban tổ chức hoặc nhóm quản trị khi được cấp quyền phù hợp. Ngoài giao diện web, hệ thống còn cung cấp API bảo vệ bởi Sanctum để phục vụ ứng dụng di động, đồng thời hỗ trợ các nghiệp vụ đặc thù như điểm danh QR hai bước, quản lý điểm tích lũy, thông báo, bầu cử trực tuyến và nhật ký hoạt động quản trị.
+
+4.1. DANH MỤC USE CASE VÀ CÁC LUỒNG NGHIỆP VỤ CHÍNH
+
+4.1.1. Tác nhân của hệ thống
+
+Hệ thống có ba nhóm tác nhân chính:
+
+Sinh viên: xem danh sách sự kiện, xem chi tiết, đăng ký hoặc hủy đăng ký, quét QR điểm danh, xem lịch sử tham gia, theo dõi thông báo, tra cứu điểm và tham gia bầu cử.
+
+Quản trị viên hoặc ban tổ chức: quản lý người dùng, tạo và cập nhật sự kiện, quản lý loại sự kiện, kiểm tra trùng lịch, phát sinh mã QR, điểm danh cho sinh viên, quản lý media, gửi thông báo, xuất báo cáo, theo dõi thống kê và vận hành bầu cử.
+
+Ứng dụng di động hoặc hệ thống ngoài: truy cập các API đã chuẩn hóa để đăng nhập, lấy danh sách sự kiện, kiểm tra trạng thái đăng ký, đồng bộ quét QR và hiển thị thông tin cá nhân.
+
+4.1.2. Danh mục use case chính
+
+1. Đăng nhập và đăng xuất
+Người dùng đăng nhập bằng email và mật khẩu. Hệ thống xác thực thông tin, kiểm tra trạng thái tài khoản và phân quyền theo vai trò. Với ứng dụng di động, hệ thống phát hành token thông qua Laravel Sanctum.
+
+2. Quản lý hồ sơ cá nhân
+Sinh viên có thể xem và cập nhật thông tin cá nhân, đổi mật khẩu và theo dõi thông tin tích lũy trong hệ thống.
+
+3. Xem danh sách sự kiện
+Người dùng có thể xem danh sách sự kiện theo dạng phân trang, tìm kiếm theo tên hoặc địa điểm, lọc theo loại sự kiện và lọc theo trạng thái như sắp tổ chức, đang diễn ra hoặc đã kết thúc.
+
+4. Xem chi tiết sự kiện
+Người dùng xem thông tin chi tiết của sự kiện gồm tên, loại, thời gian, địa điểm, mô tả, điểm cộng, số lượng tham gia, hình ảnh và trạng thái đăng ký hiện tại.
+
+5. Tạo, cập nhật và xóa sự kiện
+Admin có thể thêm mới, chỉnh sửa hoặc xóa sự kiện; đồng thời cập nhật ảnh đại diện, thư viện ảnh, số lượng tối đa, điểm cộng và trạng thái nghiệp vụ của sự kiện.
+
+6. Kiểm tra trùng lịch
+Trước khi lưu sự kiện, hệ thống kiểm tra xung đột về thời gian và địa điểm để giảm nguy cơ trùng lịch tổ chức.
+
+7. Đăng ký tham gia sự kiện
+Sinh viên có thể đăng ký tham gia nếu sự kiện chưa bắt đầu, còn chỗ trống và chưa đăng ký trước đó.
+
+8. Hủy đăng ký sự kiện
+Sinh viên chỉ được hủy đăng ký khi sự kiện chưa bắt đầu. Việc hủy đăng ký làm giảm số lượng hiện tại của sự kiện.
+
+9. Điểm danh bằng QR
+Hệ thống hỗ trợ hai luồng: admin hiển thị QR để sinh viên quét và admin quét mã sinh viên để ghi nhận tham gia. Hệ thống lưu thời gian điểm danh và phân biệt điểm danh đầu buổi, cuối buổi.
+
+10. Cộng, trừ điểm và xếp hạng
+Điểm được phát sinh tự động khi người dùng đủ điều kiện tham gia sự kiện hoặc được admin điều chỉnh thủ công. Hệ thống lưu lịch sử điểm để phục vụ tra cứu và xếp hạng.
+
+11. Quản lý thông báo
+Admin có thể gửi thông báo cho một người dùng hoặc hàng loạt. Người dùng có thể xem, đánh dấu đã đọc, đọc toàn bộ hoặc xóa thông báo.
+
+12. Quản lý media
+Admin tải lên ảnh, video hoặc tài liệu và gắn các tài nguyên này cho sự kiện hoặc lưu trong thư viện dùng lại.
+
+13. Quản lý bầu cử
+Admin tạo cuộc bầu cử, thêm ứng cử viên, thêm cử tri, cấu hình số lượng lựa chọn. Sinh viên trong danh sách cử tri được quyền bỏ phiếu và xem kết quả khi được công bố.
+
+14. Thống kê và báo cáo
+Admin xem dashboard tổng hợp, thống kê theo tháng, top sự kiện nhiều người đăng ký, bảng điểm sinh viên và xuất dữ liệu sang Excel.
+
+15. Ghi log hoạt động
+Hệ thống tự động ghi lại các thao tác tạo, sửa, xóa của quản trị viên để hỗ trợ truy vết và kiểm tra.
+
+4.1.3. Phân tích các luồng nghiệp vụ cốt lõi
+
+a) Luồng tạo sự kiện
+
+Admin nhập thông tin sự kiện gồm tên, loại sự kiện, thời gian bắt đầu, thời gian kết thúc, địa điểm, số lượng tối đa, điểm cộng và nội dung mô tả. Trước khi lưu, hệ thống có thể gọi chức năng kiểm tra trùng lịch để phát hiện xung đột về thời gian và địa điểm. Khi dữ liệu hợp lệ, hệ thống ghi bản ghi vào bảng su_kien, xử lý ảnh đại diện, đồng thời có thể gắn thêm ảnh thư viện vào album của sự kiện. Sau khi tạo thành công, hệ thống phát sinh thông báo hàng loạt tới sinh viên đang hoạt động.
+
+b) Luồng đăng ký tham gia sự kiện
+
+Sinh viên truy cập trang chi tiết sự kiện hoặc gọi API tương ứng. Hệ thống lần lượt kiểm tra các điều kiện: sự kiện có tồn tại hay không, sự kiện đã bắt đầu chưa, số lượng tối đa đã đầy chưa, người dùng đã đăng ký trước đó chưa. Nếu thỏa điều kiện, hệ thống tạo bản ghi trong bảng dang_ky với trạng thái da_dang_ky, sau đó tăng trường so_luong_hien_tai trong bảng su_kien.
+
+c) Luồng điểm danh QR
+
+Điểm danh QR là một trong những nghiệp vụ nổi bật nhất của hệ thống. Phiên bản hiện tại hỗ trợ hai cơ chế. Cơ chế thứ nhất là admin hiển thị QR để sinh viên quét bằng điện thoại hoặc ứng dụng di động. Cơ chế thứ hai là admin dùng màn hình scanner của trang quản trị để quét hoặc nhập mã sinh viên. Hệ thống kiểm tra mã QR còn hiệu lực thông qua chênh lệch thời gian diff nhằm giảm nguy cơ dùng lại mã cũ.
+
+Mỗi đăng ký có thể phát sinh hai bản ghi điểm danh là dau_buoi và cuoi_buoi trong bảng chi_tiet_diem_danh. Khi sinh viên đã đủ hai lần điểm danh, hệ thống tự động tạo bản ghi điểm trong lich_su_diem. Nếu sự kiện kết thúc nhưng người tham gia chỉ mới điểm danh một phần, trạng thái đăng ký được chuyển sang chua_du_dieu_kien.
+
+d) Luồng quản lý điểm và xếp hạng
+
+Điểm được tích lũy qua hai nguồn chính: tự động từ việc tham gia sự kiện và thủ công từ thao tác cộng hoặc trừ điểm của admin. Mỗi thay đổi được lưu thành một dòng lịch sử trong bảng lich_su_diem, giúp truy vết được thời điểm, nguồn gốc và đăng ký liên quan. Tổng điểm của mỗi sinh viên được tính bằng tổng đại số của toàn bộ bản ghi lịch sử.
+
+e) Luồng thông báo
+
+Thông báo hiện được thiết kế theo hướng lưu bền vững trong cơ sở dữ liệu thông qua bảng thong_bao. Khi có sự kiện mới, thay đổi thông tin quan trọng hoặc cập nhật điểm, hệ thống sẽ tạo thông báo theo từng người dùng hoặc hàng loạt. Người dùng có thể xem danh sách, lọc thông báo chưa đọc, đánh dấu đã đọc hoặc xóa thông báo.
+
+f) Luồng bầu cử trực tuyến
+
+Admin tạo cuộc bầu cử, thêm ứng cử viên và cử tri đủ điều kiện. Khi thời gian bầu cử bắt đầu, sinh viên trong danh sách cử tri có thể bỏ phiếu theo số lượng lựa chọn tối thiểu và tối đa được cấu hình. Dữ liệu phiếu bầu được lưu tách thành bảng phieu_bau và bảng chi_tiet_phieu_bau để vừa bảo toàn lịch sử, vừa thuận tiện cho thống kê kết quả.
+
+4.2. BIỂU ĐỒ HOẠT ĐỘNG VÀ TRÌNH TỰ XỬ LÝ CÁC LUỒNG CHÍNH
+
+4.2.1. Mô tả hoạt động của luồng đăng ký sự kiện
+
+Luồng đăng ký sự kiện được thiết kế theo thứ tự kiểm tra điều kiện trước, ghi dữ liệu sau. Cụ thể, khi sinh viên chọn đăng ký một sự kiện, hệ thống kiểm tra sự kiện có tồn tại hay không. Nếu không tồn tại, hệ thống trả về lỗi. Nếu tồn tại, hệ thống tiếp tục kiểm tra thời gian bắt đầu. Nếu sự kiện đã bắt đầu thì từ chối đăng ký. Nếu sự kiện chưa bắt đầu, hệ thống kiểm tra sức chứa tối đa. Nếu sự kiện đã đầy, hệ thống trả lỗi. Nếu còn chỗ trống, hệ thống kiểm tra người dùng đã đăng ký trước đó chưa. Nếu chưa đăng ký, hệ thống tạo bản ghi trong bảng dang_ky, tăng số lượng hiện tại của sự kiện và trả kết quả thành công.
+
+4.2.2. Mô tả trình tự xử lý đăng ký qua API
+
+Trình tự xử lý đăng ký qua API diễn ra như sau:
+
+Bước 1: Ứng dụng di động hoặc client gửi yêu cầu POST tới endpoint đăng ký sự kiện.
+
+Bước 2: RegistrationApiController tiếp nhận yêu cầu và chuyển xử lý cho RegistrationService.
+
+Bước 3: RegistrationService tìm sự kiện trong cơ sở dữ liệu.
+
+Bước 4: Service kiểm tra đăng ký trùng và các điều kiện nghiệp vụ.
+
+Bước 5: Nếu hợp lệ, service tạo bản ghi dang_ky mới và cập nhật so_luong_hien_tai của sự kiện.
+
+Bước 6: Controller trả về phản hồi JSON với mã 201 Created.
+
+Thiết kế này giúp controller giữ vai trò điều phối, còn toàn bộ nghiệp vụ được tập trung vào lớp service, nhờ đó giảm trùng lặp logic giữa web và API.
+
+4.2.3. Mô tả trình tự xử lý điểm danh QR hai bước
+
+Luồng điểm danh QR hai bước được thiết kế như sau:
+
+Bước 1: Sinh viên hoặc admin scanner gửi dữ liệu gồm ma_su_kien, diff và loai_diem_danh.
+
+Bước 2: Controller kiểm tra QR còn hiệu lực dựa trên chênh lệch thời gian.
+
+Bước 3: Controller gọi RegistrationService.checkInEvent.
+
+Bước 4: Service tìm hoặc tạo đăng ký tương ứng trong bảng dang_ky.
+
+Bước 5: Service kiểm tra sinh viên đã điểm danh loại đó chưa.
+
+Bước 6: Nếu chưa, hệ thống tạo bản ghi trong bảng chi_tiet_diem_danh.
+
+Bước 7: Hệ thống đếm tổng số lần điểm danh của đăng ký.
+
+Bước 8: Nếu đủ hai lần điểm danh, hệ thống tạo bản ghi cộng điểm trong lich_su_diem.
+
+Bước 9: Controller trả về phản hồi thành công hoặc lỗi cho giao diện.
+
+Thiết kế này giúp mô hình hóa chính xác việc tham gia đầu buổi và cuối buổi, đồng thời làm căn cứ khách quan để cộng điểm cho người dùng.
+
+4.3. MÔ HÌNH DỮ LIỆU VÀ THIẾT KẾ CƠ SỞ DỮ LIỆU
+
+4.3.1. Các nhóm thực thể chính
+
+Mô hình dữ liệu của hệ thống được chia thành bốn nhóm nghiệp vụ.
+
+Nhóm tài khoản và phân quyền: nguoi_dung, personal_access_tokens, password_reset_tokens.
+
+Nhóm quản lý sự kiện: loai_su_kien, su_kien, dang_ky, chi_tiet_diem_danh, lich_su_diem, thu_vien_da_phuong_tien, thong_bao.
+
+Nhóm bầu cử trực tuyến: bau_cu, ung_cu_vien, cu_tri, phieu_bau, chi_tiet_phieu_bau.
+
+Nhóm cấu hình và giám sát: smtp_settings, activity_logs.
+
+Trong đó, các bảng lõi nhất đối với bài toán quản lý sự kiện là nguoi_dung, su_kien, dang_ky, chi_tiet_diem_danh, lich_su_diem và thong_bao.
+
+4.3.2. Quan hệ dữ liệu tổng quát
+
+Một người dùng có thể tạo nhiều sự kiện.
+
+Một loại sự kiện có thể chứa nhiều sự kiện.
+
+Một người dùng có thể đăng ký nhiều sự kiện và một sự kiện có thể có nhiều người đăng ký, quan hệ này được cài đặt qua bảng dang_ky.
+
+Một đăng ký có thể phát sinh nhiều bản ghi điểm danh chi tiết.
+
+Một người dùng có thể có nhiều bản ghi lịch sử điểm.
+
+Một sự kiện có thể có nhiều tài nguyên media và nhiều thông báo liên quan.
+
+Một cuộc bầu cử có nhiều ứng cử viên, nhiều cử tri và nhiều phiếu bầu.
+
+4.3.3. Thiết kế bảng lõi
+
+a) Bảng nguoi_dung
+
+Đây là bảng gốc lưu thông tin định danh người dùng. Hệ thống sử dụng trực tiếp ma_sinh_vien làm khóa chính thay vì khóa số nguyên tự tăng. Quyết định này giúp đơn giản hóa việc hiển thị, tìm kiếm và điểm danh bằng mã sinh viên.
+
+Các thuộc tính quan trọng gồm:
+
+ma_sinh_vien: khóa chính, độ dài 8 ký tự, có ràng buộc kiểm tra định dạng số.
+
+vai_tro: phân biệt admin và sinh_vien.
+
+lop: hỗ trợ thống kê theo lớp.
+
+email_verified_at: phục vụ xác thực email trước khi dùng API mobile.
+
+trang_thai: phản ánh trạng thái hoạt động của tài khoản.
+
+b) Bảng su_kien
+
+Đây là bảng trung tâm của hệ thống. Mỗi sự kiện gắn với một loại sự kiện, người tạo, người tổ chức, số lượng tham gia, điểm cộng và trạng thái vòng đời.
+
+Các điểm thiết kế nổi bật:
+
+Trạng thái nghiệp vụ được mã hóa bằng enum: sap_to_chuc, dang_dien_ra, da_ket_thuc, huy.
+
+Có so_luong_toi_da và so_luong_hien_tai để kiểm soát sức chứa.
+
+Có qr_checkin_token và qr_code_path để phục vụ điểm danh bằng QR.
+
+Có trường bo_cuc kiểu mảng để lưu cấu hình bố cục hiển thị của trang chi tiết sự kiện.
+
+Sử dụng soft delete để tránh mất dữ liệu nghiệp vụ khi xóa sự kiện.
+
+c) Bảng dang_ky
+
+Đây là bảng liên kết nhiều - nhiều giữa người dùng và sự kiện, đồng thời lưu trạng thái tham gia. Bảng này không chỉ là bảng liên kết mà còn là thực thể nghiệp vụ quan trọng để suy ra điểm danh, cộng điểm và thống kê.
+
+Các ràng buộc chính:
+
+Khóa duy nhất kết hợp ma_sinh_vien và ma_su_kien để chống đăng ký trùng.
+
+Trạng thái tham gia gồm da_dang_ky, da_tham_gia, vang_mat, chua_du_dieu_kien, huy.
+
+Dùng soft delete để hỗ trợ hủy đăng ký mà vẫn bảo toàn lịch sử logic.
+
+d) Bảng chi_tiet_diem_danh
+
+Đây là bảng mở rộng giúp mô hình hóa chi tiết quá trình tham gia. Mỗi bản ghi biểu diễn một lần điểm danh hợp lệ của sinh viên trong một sự kiện.
+
+Thiết kế của bảng này giải quyết ba bài toán:
+
+Phân biệt điểm danh đầu buổi và cuối buổi.
+
+Chống quét trùng nhờ ràng buộc duy nhất theo ma_dang_ky và loai_diem_danh.
+
+Làm cơ sở để xác định người học đã đủ điều kiện nhận điểm hay chưa.
+
+e) Bảng lich_su_diem
+
+Thay vì lưu tổng điểm trực tiếp tại bảng người dùng, hệ thống lưu từng giao dịch điểm vào lich_su_diem. Cách tiếp cận này gần với mô hình sổ cái, vừa minh bạch vừa dễ mở rộng.
+
+Ưu điểm của thiết kế:
+
+Truy vết được nguồn gốc điểm cộng hoặc trừ.
+
+Dễ tính tổng điểm, bảng xếp hạng hoặc thống kê theo khoảng thời gian.
+
+Liên kết được với ma_dang_ky để biết điểm phát sinh từ sự kiện nào.
+
+f) Bảng thong_bao
+
+Mỗi thông báo gắn với một người dùng và có thể tham chiếu tới một sự kiện liên quan. Bảng có chỉ mục kép theo ma_sinh_vien và da_doc để tối ưu truy vấn thông báo chưa đọc, phù hợp với nhu cầu hiển thị badge trên giao diện web và mobile.
+
+g) Bảng thu_vien_da_phuong_tien
+
+Bảng này lưu các tệp ảnh, video và tài liệu. Thiết kế cho phép một tệp vừa gắn với một sự kiện cụ thể, vừa có thể đóng vai trò tài nguyên dùng lại trong thư viện. Thuộc tính la_cong_khai giúp tách biệt dữ liệu công khai và dữ liệu dùng nội bộ.
+
+4.3.4. Ràng buộc toàn vẹn và tối ưu truy vấn
+
+Hệ thống sử dụng kết hợp khóa ngoại, chỉ mục và enum để bảo đảm tính toàn vẹn dữ liệu.
+
+Các bảng lõi đều có khóa ngoại rõ ràng đến nguoi_dung, su_kien hoặc bau_cu.
+
+Bảng su_kien có chỉ mục trên thoi_gian_bat_dau, thoi_gian_ket_thuc và trang_thai để tăng tốc lọc theo thời gian và trạng thái.
+
+Bảng thong_bao có chỉ mục kép theo ma_sinh_vien và da_doc để hỗ trợ lấy thông báo chưa đọc.
+
+Bảng chi_tiet_diem_danh có chỉ mục trên ma_dang_ky, ma_su_kien, ma_sinh_vien và chỉ mục ghép với loai_diem_danh.
+
+Bảng activity_logs có chỉ mục theo user_id, action, created_at và cặp model_type, model_id để hỗ trợ truy vết.
+
+Nhìn tổng thể, mô hình dữ liệu của hệ thống đã tách được các thực thể độc lập, hạn chế dư thừa và đủ linh hoạt để mở rộng thêm mobile app, chatbot hoặc báo cáo thời gian thực.
+
+4.4. THIẾT KẾ KIẾN TRÚC ỨNG DỤNG
+
+4.4.1. Kiến trúc phân lớp
+
+Từ góc nhìn triển khai thực tế, hệ thống được tổ chức theo kiến trúc phân lớp gồm bốn lớp chính.
+
+Lớp giao diện: bao gồm giao diện Blade và Tailwind ở web, giao diện React Native ở mobile và các route định tuyến trong routes/web.php và routes/api.php.
+
+Lớp ứng dụng: bao gồm controller, form request, middleware, policy và command. Lớp này tiếp nhận request, xác thực dữ liệu đầu vào, điều phối service và quyết định response.
+
+Lớp nghiệp vụ: bao gồm các service như EventService, RegistrationService, NotificationService, PointService và QrCheckinService. Đây là nơi tập trung quy tắc nghiệp vụ quan trọng.
+
+Lớp dữ liệu: bao gồm Eloquent model, migration, seeder, MySQL và hệ thống lưu trữ file.
+
+Thiết kế phân lớp này giúp controller mỏng, nghiệp vụ tập trung và dễ dùng lại giữa web với API.
+
+4.4.2. Mô hình MVC mở rộng theo hướng service
+
+Framework Laravel được sử dụng như bộ khung triển khai chính cho ứng dụng web.
+
+Model đại diện cho dữ liệu như User, SuKien, DangKy, ThongBao, BauCu.
+
+View là các file Blade trong resources/views, chia thành khu vực công khai, khu vực người dùng và khu vực quản trị.
+
+Controller tiếp nhận yêu cầu từ route, gọi model hoặc service rồi trả về view hoặc JSON.
+
+Tuy nhiên, để giảm việc controller chứa quá nhiều nghiệp vụ, mã nguồn hiện tại đã tách thêm lớp service. Vì vậy có thể xem kiến trúc hiện tại là MVC mở rộng theo phong cách hướng dịch vụ.
+
+4.4.3. Thiết kế API và chuẩn phản hồi JSON
+
+Nhóm API trong routes/api.php được thiết kế phục vụ chủ yếu cho mobile app và các tác vụ tích hợp. Các endpoint được phân thành ba mức là public API, protected API và admin API.
+
+Mẫu phản hồi JSON được chuẩn hóa tương đối thống nhất với các trường success, message, data và pagination. Các mã lỗi sử dụng gồm 200 cho thành công, 201 cho tạo mới, 400 cho vi phạm điều kiện nghiệp vụ, 401 cho lỗi xác thực, 403 cho cấm truy cập, 404 cho không tìm thấy dữ liệu và 500 cho lỗi máy chủ.
+
+4.4.4. Tích hợp web và mobile
+
+Thiết kế hiện tại cho thấy hệ thống không chỉ là một website đơn lẻ.
+
+Web dùng session và Blade để phục vụ người dùng trình duyệt.
+
+Mobile dùng Sanctum token để xác thực, gọi các API JSON.
+
+Hai nền tảng cùng thao tác trên một cơ sở dữ liệu và các bảng nghiệp vụ dùng chung.
+
+Mobile có thêm cơ chế hàng chờ offline cho tác vụ quét QR, giúp tăng tính thực tiễn khi tổ chức sự kiện tại nơi mạng yếu.
+
+4.5. PHÂN QUYỀN VÀ BẢO MẬT
+
+4.5.1. Cơ chế xác thực
+
+Hệ thống sử dụng hai cơ chế xác thực song song.
+
+Web authentication xác thực phiên đăng nhập qua session, kèm các chức năng quên mật khẩu, đặt lại mật khẩu và xác minh email.
+
+API authentication dùng Laravel Sanctum để cấp token cho ứng dụng mobile.
+
+Ở phía API, ngoài việc kiểm tra email và mật khẩu, hệ thống còn kiểm tra email đã xác minh hay chưa và tài khoản có đang ở trạng thái hoạt động hay không.
+
+4.5.2. Phân quyền theo vai trò
+
+Phân quyền được triển khai theo nhiều tầng.
+
+Middleware auth và auth:sanctum buộc người dùng phải đăng nhập.
+
+Middleware role:admin chỉ cho phép admin vào khu vực quản trị hoặc gọi admin API.
+
+Các policy như EventPolicy và UserPolicy kiểm tra hành vi cụ thể như tạo, sửa hoặc xóa.
+
+Việc kết hợp middleware với policy tạo nên mô hình kiểm soát truy cập hai lớp: lớp thứ nhất kiểm tra người dùng thuộc nhóm nào, lớp thứ hai kiểm tra người dùng đó có được thao tác trên tài nguyên cụ thể hay không.
+
+4.5.3. Bảo vệ dữ liệu và tài nguyên
+
+Các biện pháp bảo vệ dữ liệu hiện có hoặc nên được áp dụng gồm:
+
+Mật khẩu được băm trước khi lưu.
+
+Token API được quản lý qua Sanctum.
+
+Web có CSRF token trong layout để chống giả mạo yêu cầu.
+
+Media được lưu trong storage public và chỉ hiển thị khi được truy cập hợp lệ.
+
+Tài khoản có trạng thái khóa hoặc mở để vô hiệu hóa truy cập.
+
+Mã sinh viên được kiểm tra định dạng bằng cả ràng buộc cơ sở dữ liệu và validation ở controller.
+
+4.5.4. Kiểm toán và truy vết hoạt động
+
+Một điểm mạnh trong thiết kế hiện tại là có cơ chế ghi nhật ký hoạt động thông qua bảng activity_logs và trait LogsActivity. Khi admin tạo, sửa hoặc xóa các bản ghi quan trọng như sự kiện hoặc bầu cử, hệ thống sẽ tự động lưu người thực hiện, hành động, mô tả, mô hình tác động, địa chỉ IP, trình duyệt và dữ liệu thay đổi. Thiết kế này vừa giúp hỗ trợ quản trị, vừa tăng độ tin cậy khi hệ thống được đưa vào sử dụng thực tế.
+
+4.6. THIẾT KẾ GIAO DIỆN VÀ TRẢI NGHIỆM NGƯỜI DÙNG
+
+4.6.1. Cấu trúc chức năng giao diện
+
+Khu vực người dùng web gồm các màn hình: đăng nhập, đăng ký, trang chủ, danh sách sự kiện, chi tiết sự kiện, lịch sử tham gia, quét QR, thông báo, hồ sơ cá nhân, danh sách bầu cử, bỏ phiếu và xem kết quả.
+
+Khu vực quản trị gồm dashboard, quản lý sự kiện, quản lý người dùng, thư viện media, templates, bầu cử, báo cáo, thống kê, QR sự kiện, quét QR người dùng, cấu hình SMTP và log hoạt động.
+
+Ứng dụng di động gồm màn hình đăng nhập, tab sự kiện, tab thông báo, tab cá nhân, màn hình chi tiết sự kiện và màn hình quét QR.
+
+4.6.2. Nguyên tắc thiết kế giao diện
+
+Từ cấu trúc Blade và mobile app hiện có, có thể rút ra các nguyên tắc thiết kế giao diện như sau:
+
+Giao diện chia rõ hai ngữ cảnh sử dụng là người dùng cuối và quản trị viên.
+
+Danh sách sự kiện được ưu tiên hiển thị theo card để người dùng dễ quét nhanh.
+
+Trạng thái sự kiện được gắn badge màu như sắp tổ chức, đang diễn ra, đã kết thúc và hủy để giảm tải nhận thức.
+
+Các trang danh sách đều hỗ trợ tìm kiếm, lọc và phân trang.
+
+Luồng quét QR được rút gọn thao tác, phù hợp sử dụng một tay trên điện thoại.
+
+Khu vực quản trị ưu tiên dạng dashboard và sidebar để thao tác nhanh trong lúc vận hành sự kiện.
+
+4.6.3. Thiết kế UX cho nghiệp vụ điểm danh QR
+
+Điểm danh là luồng đòi hỏi tốc độ thao tác cao. Vì vậy, thiết kế UX của hệ thống đi theo các nguyên tắc sau:
+
+Màn hình scanner toàn màn hình, vùng quét rõ ràng.
+
+Phản hồi tức thời sau khi quét thành công hoặc thất bại.
+
+Kiểm soát quét lặp bằng cờ trạng thái scanned.
+
+Tách thông điệp thành công và lỗi bằng màu sắc rõ ràng.
+
+Ở mobile, hỗ trợ hàng chờ offline để không gián đoạn quy trình tổ chức sự kiện.
+
+4.6.4. Thiết kế UX cho thông báo và trạng thái hệ thống
+
+Thông báo được hiển thị theo hai mức: badge số lượng chưa đọc trên thanh điều hướng và danh sách chi tiết trong trang thông báo hoặc tab mobile. Thiết kế này phù hợp với đặc thù người dùng sinh viên vì vừa cho phép nhận biết nhanh có thông tin mới, vừa có nơi tra cứu lịch sử đầy đủ.
+
+4.7. THIẾT KẾ HIỆU NĂNG VÀ KHẢ NĂNG MỞ RỘNG
+
+4.7.1. Tối ưu truy vấn dữ liệu
+
+Mã nguồn hiện tại đã thể hiện một số quyết định tối ưu rõ ràng:
+
+Dùng paginate cho danh sách sự kiện, đăng ký, điểm và thông báo.
+
+Dùng eager loading như with loaiSuKien, with media, with nguoiTao hoặc with nguoiDung để giảm truy vấn lặp.
+
+Sử dụng chỉ mục ở các bảng hay truy vấn lọc theo trạng thái, thời gian và người dùng.
+
+Tách bảng chi_tiet_diem_danh khỏi dang_ky để truy vấn theo loại điểm danh rõ ràng hơn.
+
+Các kỹ thuật này giúp hạn chế hiện tượng N+1 query và bảo đảm hệ thống vẫn đáp ứng được khi số lượng sự kiện hoặc người tham gia tăng lên.
+
+4.7.2. Chiến lược phân trang và hiển thị
+
+Phân trang được áp dụng ở cả web và API.
+
+Web sự kiện dùng 8 hoặc 10 bản ghi mỗi trang.
+
+API hỗ trợ tham số page và limit.
+
+Mobile sử dụng infinite scroll để giảm tải ban đầu và tăng trải nghiệm trên màn hình nhỏ.
+
+Thiết kế này giúp cân bằng giữa tốc độ tải trang, chi phí truy vấn và trải nghiệm người dùng.
+
+4.7.3. Thiết kế hỗ trợ thời gian thực
+
+Hệ thống đã chuẩn bị cấu hình broadcasting.php, Redis trong docker-compose.yml và cấu trúc frontend cho Echo hoặc Pusher. Tuy nhiên, ở phiên bản mã nguồn hiện tại, phần Echo phía client vẫn đang để ở trạng thái dự phòng. Điều này cho thấy hướng thiết kế là hỗ trợ thời gian thực, nhưng phần triển khai thực tế đang ưu tiên tính ổn định bằng thông báo lưu bền trong cơ sở dữ liệu, API polling cho kết quả bầu cử và đồng bộ mobile theo lô với hàng chờ offline.
+
+4.7.4. Caching, queue và rate limiting
+
+Về mặt thiết kế tổng thể, hệ thống có các điểm sẵn sàng cho mở rộng hiệu năng:
+
+Redis đã được khai báo như một service độc lập, có thể dùng cho cache, queue và broadcasting.
+
+Các tác vụ như gửi email, gửi thông báo hàng loạt hoặc đồng bộ trạng thái sự kiện có thể chuyển sang hàng đợi để tránh chặn request.
+
+Với API mobile, đặc biệt là nhóm đăng nhập và quét QR, có thể áp dụng thêm throttle theo người dùng hoặc theo IP để hạn chế spam và giảm nguy cơ brute-force.
+
+Hiện tại, các tối ưu đã hiện thực rõ nhất là phân trang, chỉ mục, eager loading và tách service. Các kỹ thuật cache và rate limit nâng cao là hướng mở rộng tự nhiên ở giai đoạn tiếp theo.
+
+4.7.5. Khả năng triển khai và mở rộng
+
+Thiết kế triển khai với Docker Compose cho thấy hệ thống đã được chuẩn bị theo hướng môi trường chuẩn hóa. Các thành phần app, db, nginx và redis được tách riêng, nhờ đó dễ cài đặt trên nhiều máy khác nhau, giảm sai lệch môi trường phát triển và thuận tiện khi mở rộng từng lớp độc lập.
+
+Từ nền tảng này, hệ thống có thể mở rộng theo các hướng như triển khai WebSocket thực thụ cho thông báo và kết quả bầu cử, mở rộng ứng dụng mobile đầy đủ cho admin, tích hợp chatbot tư vấn hoặc bổ sung dashboard phân tích sâu hơn theo lớp, theo loại sự kiện và theo học kỳ.
+
+KẾT LUẬN CHƯƠNG
+
+Kết quả phân tích và thiết kế cho thấy hệ thống quản lý sự kiện được xây dựng với cấu trúc tương đối hoàn chỉnh, có định hướng mở rộng rõ ràng và bám sát nghiệp vụ thực tế của Khoa Công nghệ Thông tin. Điểm nổi bật của thiết kế là việc kết hợp quản lý sự kiện truyền thống với các chức năng nâng cao như điểm danh QR hai bước, lịch sử điểm, thông báo, bầu cử trực tuyến, ứng dụng di động và nhật ký hoạt động quản trị.
+
+Về kỹ thuật, hệ thống thể hiện được tư duy phân lớp rõ ràng, dữ liệu được chuẩn hóa, API được chuẩn hóa ở mức thực dụng, còn giao diện được tách riêng theo ngữ cảnh người dùng và quản trị. Đây là cơ sở quan trọng để chuyển sang Chương 5, nơi trình bày quá trình xây dựng, hiện thực và kiểm thử các module đã được thiết kế trong chương này.

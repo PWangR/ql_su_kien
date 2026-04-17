@@ -58,6 +58,8 @@ Route::middleware(['auth'])->group(function () {
 
     // QR check-in
     Route::get('/qr/checkin/{token}', [EventController::class, 'qrCheckin'])->name('events.qr-checkin');
+    Route::get('/diem-danh/quet', [EventController::class, 'scanner'])->name('events.scanner');
+    Route::post('/diem-danh/quet', [EventController::class, 'processScanner'])->name('events.process-scanner');
 
     // Trang chủ
     Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -123,7 +125,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Quản lý người dùng
     Route::resource('nguoi-dung', NguoiDungController::class);
-    Route::post('nguoi-dung/import', [NguoiDungController::class, 'importExcel'])->name('nguoi-dung.import');
     Route::post('nguoi-dung/{id}/toggle-status', [NguoiDungController::class, 'toggleStatus'])->name('nguoi-dung.toggle-status');
 
     // Thư viện media
@@ -158,6 +159,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('bau-cu/{id}/cu-tri',                  [CuTriController::class, 'store'])->name('cu-tri.store');
     Route::post('bau-cu/{id}/cu-tri/add-all',          [CuTriController::class, 'addAll'])->name('cu-tri.add-all');
     Route::post('bau-cu/{id}/cu-tri/import',           [CuTriController::class, 'importExcel'])->name('cu-tri.import');
+    Route::post('bau-cu/{id}/cu-tri/add-selected',     [CuTriController::class, 'addSelected'])->name('cu-tri.add-selected');
+    Route::get('bau-cu/{id}/cu-tri/api/list',          [CuTriController::class, 'apiStudentList'])->name('cu-tri.api.list');
     Route::delete('cu-tri/{id}',                        [CuTriController::class, 'destroy'])->name('cu-tri.destroy');
     Route::delete('bau-cu/{id}/cu-tri',                [CuTriController::class, 'destroyAll'])->name('cu-tri.destroy-all');
 

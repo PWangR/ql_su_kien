@@ -16,10 +16,8 @@ class ThuVienDaPhuongTien extends Model
     protected static function booted()
     {
         static::deleting(function ($media) {
-            // Khi thực hiện hard delete (hoặc nếu bạn muốn xóa file ngay cả khi soft delete)
-            // Ở đây ta check nếu là force deleting hoặc không dùng soft delete
-            if (!$media->useSoftDeletes || $media->isForceDeleting()) {
-                if ($media->duong_dan_tep && Storage::disk('public')->exists($media->duong_dan_tep)) {
+            if (!$media->usesSoftDeletes() || $media->isForceDeleting()) {
+                if ($media->canDeletePhysicalFile() && $media->duong_dan_tep && Storage::disk('public')->exists($media->duong_dan_tep)) {
                     Storage::disk('public')->delete($media->duong_dan_tep);
                 }
             }
@@ -53,5 +51,27 @@ class ThuVienDaPhuongTien extends Model
             'tai_lieu'  => 'Tài liệu',
             default     => 'Khác',
         };
+    }
+
+    public function scopeLibraryItems($query)
+    {
+        return $query->whereNull('ma_su_kien');
+    }
+
+    protected function usesSoftDeletes(): bool
+    {
+        return in_array(SoftDeletes::class, class_uses_recursive(static::class), true);
+    }
+
+    public function canDeletePhysicalFile(): bool
+    {
+        if (!$this->duong_dan_tep) {
+            return false;
+        }
+
+        return !static::withTrashed()
+            ->where('duong_dan_tep', $this->duong_dan_tep)
+            ->where($this->getKeyName(), '!=', $this->getKey())
+            ->exists();
     }
 }

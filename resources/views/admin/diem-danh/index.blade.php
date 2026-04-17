@@ -42,6 +42,34 @@
     margin-top: var(--space-md);
     font-family: monospace;
 }
+
+.qr-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.qr-box.is-fullscreen {
+    width: min(88vw, 720px);
+    height: min(88vw, 720px);
+    max-width: 720px;
+    max-height: 720px;
+    border-radius: 24px;
+}
+
+.app-only-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-alt);
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
 </style>
 @endsection
 
@@ -62,12 +90,20 @@
     </div>
 
     <div id="qr-section" style="display: none;">
-        <p class="text-muted mt-4">Yêu cầu người dùng sử dụng ứng dụng di động để quét mã QR này.</p>
+        <div class="app-only-badge">
+            <i class="bi bi-phone"></i>
+            Người dùng có thể quét QR này bằng trang quét QR hoặc ứng dụng di động
+        </div>
         <div class="qr-box" id="qr-code">
             <img id="qr-image" alt="Mã QR" style="display:none; border: 1px solid #ccc; padding: 10px;">
             <div id="qr-placeholder" class="text-muted">Đang chờ tạo mã QR...</div>
         </div>
         <div class="timer">Tự động làm mới trong: <span id="countdown">5</span>s</div>
+        <div class="qr-actions">
+            <button type="button" class="btn btn-outline" onclick="toggleQrFullscreen()">
+                <i class="bi bi-arrows-fullscreen"></i> Phóng to QR
+            </button>
+        </div>
     </div>
     
     @if(count($danhSachSuKien) === 0)
@@ -117,7 +153,7 @@ function generateQR(eventId) {
     const qrData = JSON.stringify({
         action: 'diem_danh',
         ma_su_kien: parseInt(eventId),
-        t: Date.now() 
+        t: Date.now()
     });
     
     console.log("Payload QR (gửi về server):", qrData);
@@ -148,5 +184,38 @@ function generateQR(eventId) {
         document.getElementById('countdown').innerText = timeLeft;
     }, 1000);
 }
+
+function toggleQrFullscreen() {
+    const qrBox = document.getElementById('qr-code');
+
+    if (!document.fullscreenElement) {
+        if (!qrBox.requestFullscreen) {
+            qrBox.classList.toggle('is-fullscreen');
+            return;
+        }
+
+        const fullscreenRequest = qrBox.requestFullscreen();
+
+        fullscreenRequest.then(() => {
+            qrBox.classList.add('is-fullscreen');
+        }).catch(() => {
+            qrBox.classList.add('is-fullscreen');
+        });
+        return;
+    }
+
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else {
+        qrBox.classList.remove('is-fullscreen');
+    }
+}
+
+document.addEventListener('fullscreenchange', () => {
+    const qrBox = document.getElementById('qr-code');
+    if (!document.fullscreenElement) {
+        qrBox.classList.remove('is-fullscreen');
+    }
+});
 </script>
 @endsection

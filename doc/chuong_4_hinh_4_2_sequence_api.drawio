@@ -1,0 +1,136 @@
+<mxfile host="app.diagrams.net" modified="2026-04-18T00:10:00.000Z" agent="Codex" version="24.7.17" type="device"><diagram id="ch4-seq-register" name="Hinh 4.2 Sequence API">
+    <mxGraphModel dx="1800" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t2" value="Sequence đăng ký sự kiện qua API" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=22;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="Sinh viên /&#10;Mobile App" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="60" y="90" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="RegistrationApiController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="300" y="90" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="RegistrationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="560" y="90" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="SuKien" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="820" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="DangKy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="MySQL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sl1" style="shape=line;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="135" y="170" width="1" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="sl2" style="shape=line;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="385" y="170" width="1" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="sl3" style="shape=line;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="640" y="170" width="1" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="sl4" style="shape=line;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="880" y="170" width="1" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="sl5" style="shape=line;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="170" width="1" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="sl6" style="shape=line;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="170" width="1" height="700" as="geometry" />
+        </mxCell>
+
+        <mxCell id="se1" value="POST /api/registrations/{eventId}" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="sl1" target="sl2">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="135" y="230" as="sourcePoint" />
+            <mxPoint x="385" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se2" value="registerEvent(userId, eventId)" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="385" y="280" as="sourcePoint" />
+            <mxPoint x="640" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se3" value="Tìm sự kiện" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="330" as="sourcePoint" />
+            <mxPoint x="880" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se4" value="SELECT su_kien" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="880" y="380" as="sourcePoint" />
+            <mxPoint x="1320" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se5" value="Trả dữ liệu sự kiện" style="dashed=1;endArrow=open;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="430" as="sourcePoint" />
+            <mxPoint x="880" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se6" value="Kiểm tra đăng ký trùng" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="490" as="sourcePoint" />
+            <mxPoint x="1100" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se7" value="SELECT dang_ky" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1100" y="540" as="sourcePoint" />
+            <mxPoint x="1320" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se8" value="Trả kết quả" style="dashed=1;endArrow=open;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1320" y="590" as="sourcePoint" />
+            <mxPoint x="1100" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se9" value="INSERT đăng ký mới" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="650" as="sourcePoint" />
+            <mxPoint x="1100" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se10" value="INSERT dang_ky" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1100" y="700" as="sourcePoint" />
+            <mxPoint x="1320" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se11" value="Tăng so_luong_hien_tai" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="760" as="sourcePoint" />
+            <mxPoint x="880" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se12" value="UPDATE su_kien" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="880" y="810" as="sourcePoint" />
+            <mxPoint x="1320" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se13" value="success + registration" style="dashed=1;endArrow=open;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="640" y="870" as="sourcePoint" />
+            <mxPoint x="385" y="870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="se14" value="JSON 201 Created" style="dashed=1;endArrow=open;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="385" y="920" as="sourcePoint" />
+            <mxPoint x="135" y="920" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  </mxfile>

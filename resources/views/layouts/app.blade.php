@@ -52,6 +52,9 @@
             <a href="{{ route('history.index') }}" class="{{ request()->routeIs('history.*') ? 'active' : '' }}">
                 <i class="bi bi-clock-history"></i> Lịch sử
             </a>
+            <a href="{{ route('events.scanner') }}" class="{{ request()->routeIs('events.scanner') ? 'active' : '' }}">
+                <i class="bi bi-qr-code-scan"></i> Quét QR
+            </a>
             <a href="{{ route('notifications.index') }}" class="{{ request()->routeIs('notifications.*') ? 'active' : '' }}">
                 <i class="bi bi-bell"></i> Thông báo
                 @php

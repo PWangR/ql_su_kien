@@ -7,7 +7,7 @@ import useAuthStore from '../store/authStore';
 
 // Màn hình
 import LoginScreen from '../screens/LoginScreen';
-import HomeScreen from '../screens/HomeScreen';
+import EventListScreen from '../screens/EventListScreen';
 import EventDetailScreen from '../screens/EventDetailScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationScreen from '../screens/NotificationScreen';
@@ -24,7 +24,7 @@ const MainTabNavigator = () => {
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
-          if (route.name === 'Events') {
+          if (route.name === 'EventsList') {
             iconName = 'event';
           } else if (route.name === 'Notifications') {
             iconName = 'notifications';
@@ -36,10 +36,10 @@ const MainTabNavigator = () => {
         },
         tabBarActiveTintColor: '#007bff',
         tabBarInactiveTintColor: 'gray',
-        headerShown: true,
+        headerShown: false,
       })}
     >
-      <Tab.Screen name="Events" component={HomeScreen} options={{ title: 'Sự kiện' }} />
+      <Tab.Screen name="EventsList" component={EventListScreen} options={{ title: 'Sự kiện' }} />
       <Tab.Screen name="Notifications" component={NotificationScreen} options={{ title: 'Thông báo' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Cá nhân' }} />
     </Tab.Navigator>
@@ -74,12 +74,18 @@ const AppNavigator = () => {
             <Stack.Screen
               name="EventDetail"
               component={EventDetailScreen}
-              options={{ title: 'Chi tiết sự kiện' }}
+              options={{ 
+                title: 'Chi tiết sự kiện',
+                headerBackTitle: 'Quay lại'
+              }}
             />
             <Stack.Screen
               name="QRScanner"
               component={QRScannerScreen}
-              options={{ title: 'Quét QR Điểm Danh' }}
+              options={{ 
+                title: 'Quét QR Điểm Danh',
+                headerBackTitle: 'Quay lại'
+              }}
             />
           </>
         )}

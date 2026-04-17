@@ -1,140 +1,38 @@
-# ✅ Prompt hoàn chỉnh
+http://ql_su_kien.test/admin/su-kien/create
+	- Thư viện media bị trùng ảnh khi dùng lại ảnh cũ
+	- Các mô đun phụ trợ được thêm vào có thể điền nội dung khác thay vì copy mô dun đã có
+http://ql_su_kien.test/admin/nguoi-dung
+	- Thêm phương thức truy vấn dữ liệu nhanh theo tên. lớp, mssv
+	- Điều chỉnh bố cục các cột phù hợp
+	- trong phần thêm mới người dùng bắt buộc nhập đầy dủ thông tin như đăng ký tài khoản và có xác thực smtp
+	- Bỏ chức năng import file excel
+	- Hỗ trợ hiện ảnh đại điện người dùng
+http://ql_su_kien.test/admin/media
+	- Xử lý ảnh bị trùng lặp khi tái sử dụng 
+	- Căn giữa cho phần phân trang
+	- hiển thị 10 ảnh 1 trang 
+	- Tính năng upload cải thiện tự động phân loại 
+http://ql_su_kien.test/admin/templates
+	- Bỏ chức năng này thay bằng chức năng khác có ích hơn
+	- Đồng bộ thay đổi cho các trang liên quan
+http://ql_su_kien.test/admin/bau-cu/1/edit
+	- cập nhật giao diện trang này cho phù hợp với bố cục hiện tại
+http://ql_su_kien.test/admin/bau-cu/1
+	- cho phép chọn cử tri từ danh sách sinh viên
+http://ql_su_kien.test/admin/bao-cao
+	- Thêm hiệu ứng load trang khi xuất file
+	- Nếu file không có thông tin gì thì không cần xuất và thông báo cho người dùng
+http://ql_su_kien.test/admin/thong-ke
+	- Điều chỉnh lại các biểu đồ thống kê trực quan, chuyên nghiệp
+http://ql_su_kien.test/admin/diem-danh
+	- Khi chọn QR sự kiện -> phóng to màn hình để sinh viên dễ quét hơn
+	- QR chỉ được bởi ứng dụng
+http://ql_su_kien.test/admin/diem-danh/scanner
+	- sửa lỗi : Lỗi truy cập máy ảnh: Camera streaming not supported by the browser.
+http://ql_su_kien.test/admin/smtp
+	- Thêm hướng dẫn người dùng cách cài smtp
+http://ql_su_kien.test/admin/activity-logs?search=&action=&from=2026-04-13&to=2026-04-12
+	- sửa lại logic phần lọc thông tin cho đúng logic thực tế
+	- Chỉ ghi lại các log của Admin
 
-Bạn là một lập trình viên fullstack giàu kinh nghiệm, đang làm việc với một hệ thống web (Laravel/PHP + Blade + MySQL). Hãy đọc toàn bộ source code của dự án và thực hiện các yêu cầu sau một cách **chính xác, đồng bộ và không phá vỡ chức năng hiện có**.
-
----
-
-## 🔧 1. Thêm cấu hình SMTP trong trang Admin
-
-### Yêu cầu:
-
-* Tạo một mục **“Cấu hình SMTP”** trong trang quản trị (Admin Panel)
-* Cho phép admin:
-
-  * Nhập và chỉnh sửa các thông tin:
-
-    * SMTP Host
-    * Port
-    * Username (email)
-    * Password
-    * Encryption (TLS/SSL)
-    * From Address
-    * From Name
-* Lưu cấu hình vào:
-
-  * Database (bảng `settings` hoặc bảng riêng `smtp_settings`)
-* Khi gửi email trong hệ thống:
-
-  * Phải sử dụng cấu hình SMTP này (override `.env` nếu cần)
-
-### Yêu cầu kỹ thuật:
-
-* Tạo migration + model + controller + view (Blade)
-* Validate dữ liệu đầu vào
-* Bảo mật password (mã hóa nếu cần)
-* Có nút “Test gửi email” để kiểm tra cấu hình
-
----
-
-## 📊 2. Thêm hệ thống Log hoạt động tài khoản (Admin)
-
-### Yêu cầu:
-
-* Ghi lại các hành động quan trọng của user:
-
-  * Đăng nhập / đăng xuất
-  * Tạo / sửa / xóa dữ liệu
-  * Thao tác admin
-* Mỗi log cần có:
-
-  * User ID
-  * Hành động (action)
-  * Mô tả chi tiết
-  * IP address
-  * Thời gian
-
-### Admin UI:
-
-* Tạo trang **“Quản lý Log”**
-* Cho phép:
-
-  * Xem danh sách log (phân trang)
-  * Tìm kiếm theo user / hành động
-  * Lọc theo thời gian
-
-### Yêu cầu kỹ thuật:
-
-* Tạo bảng `activity_logs`
-* Middleware hoặc Observer để tự động ghi log
-* Không làm ảnh hưởng hiệu năng hệ thống
-
----
-
-## 🌐 3. Fix lỗi UI hiển thị tiếng Việt không dấu
-
-### Mục tiêu:
-
-* Đảm bảo toàn bộ hệ thống hiển thị tiếng Việt có dấu đúng
-
-### Kiểm tra và sửa:
-
-* Encoding:
-
-  * Đảm bảo tất cả file sử dụng UTF-8
-  * Thêm `<meta charset="UTF-8">` trong layout
-* Database:
-
-  * Charset: `utf8mb4`
-  * Collation: `utf8mb4_unicode_ci`
-* Laravel:
-
-  * Kiểm tra config database charset
-* Font:
-
-  * Sử dụng font hỗ trợ tiếng Việt (ví dụ: Roboto, Arial, sans-serif)
-
----
-
-## 🎨 4. Fix màu chữ UI
-
-### Mục tiêu:
-
-* Toàn bộ text hiển thị rõ ràng, dễ đọc
-
-### Yêu cầu:
-
-* Chuyển màu chữ từ màu nhạt sang:
-
-  * `#000000` (đen) hoặc màu tương phản tốt
-* Áp dụng cho:
-
-  * Text nội dung
-  * Form input
-  * Table
-  * Button (nếu cần)
-
-### Kỹ thuật:
-
-* Kiểm tra và chỉnh sửa:
-
-  * CSS global
-  * Tailwind / Bootstrap classes
-* Tránh override gây lỗi theme
-
----
-
-## ⚠️ Yêu cầu chung
-
-* Không phá vỡ các chức năng hiện tái
-* Code sạch, dễ maintain
-* Tuân theo chuẩn Laravel (MVC)
-* Comment rõ ràng các phần code mới
-* Nếu có nhiều cách làm → chọn cách tối ưu và phổ biến nhất
-
----
-
-## 📦 Kết quả mong muốn
-
-* Danh sách file đã chỉnh sửa/thêm mới
-* Code đầy đủ cho từng phần (Controller, Model, Migration, View)
-* Hướng dẫn cách tích hợp vào hệ thống hiện tại
+		

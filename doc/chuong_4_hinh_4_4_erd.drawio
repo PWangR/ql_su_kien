@@ -1,0 +1,41 @@
+<mxfile host="app.diagrams.net" modified="2026-04-18T00:10:00.000Z" agent="Codex" version="24.7.17" type="device"><diagram id="ch4-erd" name="Hinh 4.4 ERD">
+    <mxGraphModel dx="1800" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="te" value="ERD rút gọn của hệ thống quản lý sự kiện" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=22;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="430" y="20" width="780" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n1" value="NGUOI_DUNG&#10;PK: ma_sinh_vien&#10;vai_tro, ho_ten, lop, email" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="60" y="180" width="250" height="100" as="geometry" /></mxCell>
+        <mxCell id="n2" value="LOAI_SU_KIEN&#10;PK: ma_loai_su_kien&#10;ten_loai, mo_ta" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="520" y="70" width="240" height="90" as="geometry" /></mxCell>
+        <mxCell id="n3" value="SU_KIEN&#10;PK: ma_su_kien&#10;FK: ma_loai_su_kien&#10;ten, thoi_gian, dia_diem, diem_cong" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="510" y="220" width="280" height="120" as="geometry" /></mxCell>
+        <mxCell id="n4" value="DANG_KY&#10;PK: ma_dang_ky&#10;FK: ma_sinh_vien, ma_su_kien&#10;trang_thai_tham_gia" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="520" y="410" width="260" height="110" as="geometry" /></mxCell>
+        <mxCell id="n5" value="CHI_TIET_DIEM_DANH&#10;PK: ma_chi_tiet_diem_danh&#10;FK: ma_dang_ky, ma_su_kien, ma_sinh_vien&#10;loai_diem_danh, diem_danh_at" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="450" y="590" width="400" height="130" as="geometry" /></mxCell>
+        <mxCell id="n6" value="LICH_SU_DIEM&#10;PK: ma_lich_su_diem&#10;FK: ma_sinh_vien, ma_dang_ky&#10;diem, nguon, thoi_gian_ghi_nhan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="980" y="420" width="300" height="110" as="geometry" /></mxCell>
+        <mxCell id="n7" value="THONG_BAO&#10;PK: ma_thong_bao&#10;FK: ma_sinh_vien, ma_su_kien_lien_quan&#10;tieu_de, da_doc" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="980" y="240" width="300" height="100" as="geometry" /></mxCell>
+        <mxCell id="n8" value="THU_VIEN_DA_PHUONG_TIEN&#10;PK: ma_phuong_tien&#10;FK: ma_su_kien, ma_nguoi_tai_len&#10;duong_dan_tep, loai_tep" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="950" y="70" width="340" height="120" as="geometry" /></mxCell>
+        <mxCell id="n9" value="BAU_CU&#10;PK: ma_bau_cu&#10;tieu_de, thoi_gian, trang_thai" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0ff;strokeColor=#7f56d9;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="90" y="840" width="240" height="90" as="geometry" /></mxCell>
+        <mxCell id="n10" value="UNG_CU_VIEN&#10;PK: ma_ung_cu_vien&#10;FK: ma_bau_cu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0ff;strokeColor=#7f56d9;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="520" y="790" width="220" height="90" as="geometry" /></mxCell>
+        <mxCell id="n11" value="CU_TRI&#10;PK: ma_cu_tri&#10;FK: ma_bau_cu, ma_sinh_vien" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0ff;strokeColor=#7f56d9;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="500" y="920" width="250" height="90" as="geometry" /></mxCell>
+        <mxCell id="n12" value="PHIEU_BAU&#10;PK: ma_phieu_bau&#10;FK: ma_bau_cu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0ff;strokeColor=#7f56d9;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="980" y="830" width="220" height="90" as="geometry" /></mxCell>
+        <mxCell id="n13" value="CHI_TIET_PHIEU_BAU&#10;PK: ma_chi_tiet_phieu_bau&#10;FK: ma_phieu_bau, ma_ung_cu_vien" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f0ff;strokeColor=#7f56d9;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1"><mxGeometry x="950" y="960" width="320" height="100" as="geometry" /></mxCell>
+
+        <mxCell id="ee1" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n1" target="n3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee2" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n2" target="n3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee3" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n1" target="n4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee4" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n3" target="n4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee5" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n4" target="n5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee6" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n1" target="n6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee7" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n1" target="n7"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee8" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n3" target="n8"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee9" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n9" target="n10"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee10" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n9" target="n11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee11" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n9" target="n12"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee12" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n12" target="n13"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ee13" value="1 - N" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1" source="n10" target="n13"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  </mxfile>

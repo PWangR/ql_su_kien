@@ -18,15 +18,49 @@ class EventApiController extends Controller
     }
 
     /**
-     * Lấy danh sách sự kiện (phân trang)
+     * Lấy danh sách sự kiện (phân trang) với hỗ trợ lọc
      */
     public function index()
     {
         try {
-            $events = $this->eventService->getUpcomingEvents(
-                \request('limit', 12),
-                \request('page', 1)
-            );
+            $query = SuKien::with('loaiSuKien')
+                ->where('trang_thai', '!=', 'huy')
+                ->whereNull('deleted_at');
+
+            // Lọc theo loại
+            if (\request('loai')) {
+                $query->where('ma_loai_su_kien', \request('loai'));
+            }
+
+            // Tìm kiếm
+            if (\request('search')) {
+                $query->where(function ($q) {
+                    $q->where('ten_su_kien', 'like', '%' . \request('search') . '%')
+                        ->orWhere('dia_diem', 'like', '%' . \request('search') . '%')
+                        ->orWhere('mo_ta_chi_tiet', 'like', '%' . \request('search') . '%');
+                });
+            }
+
+            // Lọc trạng thái (dựa trên thời gian)
+            if (\request('trang_thai')) {
+                $now = now();
+                $status = \request('trang_thai');
+                if ($status === 'sap_to_chuc') {
+                    $query->where('thoi_gian_bat_dau', '>', $now);
+                } elseif ($status === 'dang_dien_ra') {
+                    $query->where('thoi_gian_bat_dau', '<=', $now)
+                        ->where('thoi_gian_ket_thuc', '>=', $now);
+                } elseif ($status === 'da_ket_thuc') {
+                    $query->where('thoi_gian_ket_thuc', '<', $now);
+                }
+            }
+
+            // Sắp xếp
+            $query->orderBy('created_at', 'desc');
+
+            $limit = \request('limit', 10);
+            $page = \request('page', 1);
+            $events = $query->paginate($limit, ['*'], 'page', $page);
 
             return response()->json([
                 'success' => true,
@@ -224,6 +258,27 @@ class EventApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi lấy thống kê dashboard',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Lấy danh sách loại sự kiện
+     */
+    public function getEventTypes()
+    {
+        try {
+            $types = \App\Models\LoaiSuKien::all();
+
+            return response()->json([
+                'success' => true,
+                'data' => $types
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy loại sự kiện',
                 'error' => $e->getMessage()
             ], 500);
         }

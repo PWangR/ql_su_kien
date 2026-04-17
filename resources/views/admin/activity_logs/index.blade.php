@@ -12,6 +12,11 @@
         </div>
     </div>
     <div class="card-body">
+        @if($filtersNormalized)
+        <div class="alert alert-warning" style="margin-bottom: var(--space-md);">
+            <i class="bi bi-arrow-left-right"></i> Khoảng ngày đã được tự động chuẩn hóa để đảm bảo "Từ ngày" không lớn hơn "Đến ngày".
+        </div>
+        @endif
         <form method="GET" action="{{ route('admin.activity-logs.index') }}">
             <div style="display: flex; gap: var(--space-md); flex-wrap: wrap; align-items: flex-end;">
                 {{-- Tìm kiếm --}}
@@ -39,14 +44,14 @@
                 <div class="form-group" style="min-width: 160px; margin-bottom: 0;">
                     <label class="form-label" for="from">Từ ngày</label>
                     <input type="date" class="form-control" id="from" name="from"
-                           value="{{ request('from') }}">
+                           value="{{ $from }}">
                 </div>
 
                 {{-- Đến ngày --}}
                 <div class="form-group" style="min-width: 160px; margin-bottom: 0;">
                     <label class="form-label" for="to">Đến ngày</label>
                     <input type="date" class="form-control" id="to" name="to"
-                           value="{{ request('to') }}">
+                           value="{{ $to }}">
                 </div>
 
                 {{-- Nút --}}
@@ -69,7 +74,7 @@
         <div class="card-title">
             <i class="bi bi-clock-history"></i> Nhật ký hoạt động
         </div>
-        <span class="badge badge-secondary">{{ $logs->total() }} bản ghi</span>
+        <span class="badge badge-secondary">{{ $logs->total() }} bản ghi admin</span>
     </div>
     <div class="card-body" style="padding: 0;">
         <div class="table-responsive">
@@ -140,4 +145,22 @@
     </div>
     @endif
 </div>
+@endsection
+
+@section('scripts')
+<script>
+const fromInput = document.getElementById('from');
+const toInput = document.getElementById('to');
+
+if (fromInput && toInput) {
+    const syncDateBounds = () => {
+        toInput.min = fromInput.value || '';
+        fromInput.max = toInput.value || '';
+    };
+
+    syncDateBounds();
+    fromInput.addEventListener('change', syncDateBounds);
+    toInput.addEventListener('change', syncDateBounds);
+}
+</script>
 @endsection

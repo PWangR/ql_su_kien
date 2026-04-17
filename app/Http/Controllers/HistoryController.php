@@ -11,7 +11,7 @@ class HistoryController extends Controller
     {
         $lichSu = DangKy::with('suKien')
             ->where('ma_sinh_vien', auth()->id())
-            ->orderByDesc('created_at')
+            ->orderByDesc('thoi_gian_dang_ky')
             ->paginate(15);
 
         // Tính tổng điểm từ các sự kiện đã tham gia

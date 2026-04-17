@@ -1,0 +1,57 @@
+<mxfile host="app.diagrams.net" modified="2026-04-18T00:10:00.000Z" agent="Codex" version="24.7.17" type="device"><diagram id="ch4-seq-qr" name="Hinh 4.3 Sequence QR">
+    <mxGraphModel dx="1800" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t3" value="Sequence điểm danh QR hai bước" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=22;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="480" y="20" width="650" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="q1" value="Sinh viên /&#10;Admin Scanner" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="30" y="90" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="q2" value="Controller" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="240" y="90" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="q3" value="RegistrationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="440" y="90" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="q4" value="DangKy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="700" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="q5" value="ChiTietDiemDanh" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="900" y="90" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="q6" value="LichSuDiem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="90" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="q7" value="MySQL" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef4ff;strokeColor=#2952a3;fontSize=13;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="90" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ql1" style="shape=line;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="110" y="170" width="1" height="760" as="geometry" /></mxCell>
+        <mxCell id="ql2" style="shape=line;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="305" y="170" width="1" height="760" as="geometry" /></mxCell>
+        <mxCell id="ql3" style="shape=line;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="525" y="170" width="1" height="760" as="geometry" /></mxCell>
+        <mxCell id="ql4" style="shape=line;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="760" y="170" width="1" height="760" as="geometry" /></mxCell>
+        <mxCell id="ql5" style="shape=line;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="980" y="170" width="1" height="760" as="geometry" /></mxCell>
+        <mxCell id="ql6" style="shape=line;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1215" y="170" width="1" height="760" as="geometry" /></mxCell>
+        <mxCell id="ql7" style="shape=line;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="1420" y="170" width="1" height="760" as="geometry" /></mxCell>
+
+        <mxCell id="qe1" value="Gửi ma_su_kien + diff + loai_diem_danh" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="110" y="230" as="sourcePoint" /><mxPoint x="305" y="230" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe2" value="Kiểm tra QR còn hiệu lực" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;loopDirection=90;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="305" y="280" as="sourcePoint" /><mxPoint x="360" y="280" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe3" value="checkInEvent(userId, eventId, loai)" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="305" y="340" as="sourcePoint" /><mxPoint x="525" y="340" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe4" value="Tìm hoặc tạo đăng ký" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="400" as="sourcePoint" /><mxPoint x="760" y="400" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe5" value="SELECT / INSERT dang_ky" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="760" y="450" as="sourcePoint" /><mxPoint x="1420" y="450" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe6" value="Kiểm tra đã điểm danh loại này chưa" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="520" as="sourcePoint" /><mxPoint x="980" y="520" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe7" value="SELECT chi_tiet_diem_danh" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="980" y="570" as="sourcePoint" /><mxPoint x="1420" y="570" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe8" value="INSERT chi_tiet_diem_danh" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="640" as="sourcePoint" /><mxPoint x="980" y="640" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe9" value="Lưu thời gian điểm danh" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="980" y="690" as="sourcePoint" /><mxPoint x="1420" y="690" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe10" value="Đếm số lần điểm danh" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="760" as="sourcePoint" /><mxPoint x="980" y="760" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe11" value="COUNT theo ma_dang_ky" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="980" y="810" as="sourcePoint" /><mxPoint x="1420" y="810" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe12" value="Nếu đủ 2 lần → tạo lịch sử điểm" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="525" y="880" as="sourcePoint" /><mxPoint x="1215" y="880" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="qe13" value="INSERT lich_su_diem" style="endArrow=block;html=1;fontSize=12;fontFamily=Times New Roman;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1215" y="930" as="sourcePoint" /><mxPoint x="1420" y="930" as="targetPoint" /></mxGeometry></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  </mxfile>

@@ -27,6 +27,7 @@ Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:s
 // Event endpoints (public)
 Route::get('/events', [EventApiController::class, 'index']);
 Route::get('/events/{id}', [EventApiController::class, 'show']);
+Route::get('/api/event-types', [EventApiController::class, 'getEventTypes']);
 // QR Code generation (public)
 Route::get('/generate-qr', [QrCodeApiController::class, 'generate'])->name('api.generate-qr');
 
@@ -46,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/registrations/app-scan-batch', [RegistrationApiController::class, 'appScanBatchQr']);
     Route::post('/registrations/{eventId}', [RegistrationApiController::class, 'store']);
     Route::delete('/registrations/{eventId}', [RegistrationApiController::class, 'destroy']);
+    Route::get('/registrations/check/{eventId}', [RegistrationApiController::class, 'checkRegistration']);
     Route::get('/registrations/history', [RegistrationApiController::class, 'userHistory']);
 
     // Notifications

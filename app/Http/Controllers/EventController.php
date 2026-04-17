@@ -6,9 +6,14 @@ use App\Models\SuKien;
 use App\Models\LoaiSuKien;
 use App\Models\DangKy;
 use Illuminate\Http\Request;
+use App\Services\RegistrationService;
 
 class EventController extends Controller
 {
+    public function __construct(
+        protected RegistrationService $registrationService
+    ) {}
+
     public function index(Request $request)
     {
         $query = SuKien::with('loaiSuKien')
@@ -28,12 +33,23 @@ class EventController extends Controller
             });
         }
 
-        // Lọc trạng thái
+        // Lọc trạng thái (dựa trên thời gian)
         if ($request->trang_thai) {
-            $query->where('trang_thai', $request->trang_thai);
+            $now = now();
+            if ($request->trang_thai === 'sap_to_chuc') {
+                $query->where('thoi_gian_bat_dau', '>', $now);
+            } elseif ($request->trang_thai === 'dang_dien_ra') {
+                $query->where('thoi_gian_bat_dau', '<=', $now)
+                    ->where('thoi_gian_ket_thuc', '>=', $now);
+            } elseif ($request->trang_thai === 'da_ket_thuc') {
+                $query->where('thoi_gian_ket_thuc', '<', $now);
+            }
         }
 
-        $suKien     = $query->orderBy('thoi_gian_bat_dau')->paginate(8)->withQueryString();
+        // Sắp xếp: mặc định là mới nhất
+        $query->orderBy('created_at', 'desc');
+
+        $suKien     = $query->paginate(8)->withQueryString();
         $loaiSuKien = LoaiSuKien::all();
 
         // IDs sự kiện đã đăng ký
@@ -71,6 +87,41 @@ class EventController extends Controller
             ->get();
 
         return view('events.show', compact('suKien', 'daDangKy', 'suKienLienQuan'));
+    }
+
+    public function scanner()
+    {
+        return view('events.scanner');
+    }
+
+    public function processScanner(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|string|in:diem_danh',
+            'ma_su_kien' => 'required|integer',
+            'diff' => 'required|numeric|min:0',
+            'loai_diem_danh' => 'nullable|string|in:dau_buoi,cuoi_buoi',
+        ]);
+
+        if ((float) $request->input('diff') > 10000) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Mã QR đã hết hạn, vui lòng quét mã mới nhất từ màn hình điểm danh.',
+            ], 400);
+        }
+
+        $loaiDiemDanh = $request->input('loai_diem_danh', 'dau_buoi');
+        $result = $this->registrationService->checkInEvent(
+            auth()->id(),
+            (int) $request->input('ma_su_kien'),
+            $loaiDiemDanh
+        );
+
+        return response()->json([
+            'success' => $result['success'],
+            'message' => $result['message'],
+            'data' => $result['data'] ?? null,
+        ], $result['status'] ?? ($result['success'] ? 200 : 400));
     }
 
     public function qrCheckin($token)
@@ -154,6 +205,13 @@ class EventController extends Controller
 
     public function huyDangKy($id)
     {
+        $suKien = SuKien::findOrFail($id);
+
+        // Kiểm tra sự kiện đã bắt đầu chưa
+        if ($suKien->thoi_gian_bat_dau <= now()) {
+            return back()->with('error', 'Sự kiện đã bắt đầu, không thể hủy đăng ký!');
+        }
+
         $dangKy = DangKy::where('ma_sinh_vien', auth()->id())
             ->where('ma_su_kien', $id)
             ->where('trang_thai_tham_gia', 'da_dang_ky')
@@ -164,7 +222,7 @@ class EventController extends Controller
         $dangKy->delete(); // soft delete
 
         // Giảm so_luong_hien_tai
-        SuKien::findOrFail($id)->decrement('so_luong_hien_tai');
+        $suKien->decrement('so_luong_hien_tai');
 
         return back()->with('success', 'Hủy đăng ký thành công!');
     }

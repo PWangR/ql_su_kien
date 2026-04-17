@@ -10,6 +10,11 @@
 .modal-card { background:var(--card); border:1px solid var(--border); border-radius:var(--border-radius-md); width:100%; max-width:480px; overflow:hidden; }
 .modal-card header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
 .modal-card .body { padding:20px; }
+.media-pagination {
+    margin-top: var(--space-xl);
+    display: flex;
+    justify-content: center;
+}
 </style>
 @endsection
 
@@ -23,6 +28,7 @@
     </div>
 
     <div class="card-body">
+        <p class="text-sm text-muted" style="margin-bottom:16px;">Thư viện này hiển thị các tệp gốc để tái sử dụng. Ảnh được gắn vào sự kiện sẽ không tạo thêm bản sao trong kho media.</p>
         @if($media->count())
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;">
             @foreach($media as $m)
@@ -52,7 +58,7 @@
         </div>
 
         @if($media->hasPages())
-        <div style="margin-top:var(--space-xl);">{{ $media->links() }}</div>
+        <div class="media-pagination">{{ $media->links() }}</div>
         @endif
         @else
         <div style="text-align:center;padding:var(--space-3xl);color:var(--text-muted);">
@@ -77,13 +83,15 @@
                 <input type="file" name="file" class="form-control" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Loại file *</label>
-                <select name="loai_tep" class="form-control" required>
+                <label class="form-label">Loại file</label>
+                <select name="loai_tep" class="form-control">
+                    <option value="">Tự động nhận diện</option>
                     <option value="hinh_anh">Hình ảnh</option>
                     <option value="video">Video</option>
                     <option value="tai_lieu">Tài liệu</option>
                     <option value="khac">Khác</option>
                 </select>
+                <div class="text-xs text-muted" style="margin-top:6px;">Nếu để trống, hệ thống sẽ tự phân loại theo định dạng tệp.</div>
             </div>
             <div class="form-group">
                 <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.875rem;">

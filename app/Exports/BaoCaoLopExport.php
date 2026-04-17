@@ -3,18 +3,16 @@
 namespace App\Exports;
 
 use App\Models\User;
-use App\Models\LichSuDiem;
-use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class BaoCaoLopExport implements FromQuery, WithHeadings, WithColumnWidths, WithStyles
+class BaoCaoLopExport implements FromQuery, WithHeadings, WithColumnWidths, WithStyles, WithMapping
 {
     /**
      * Thông số lọc
@@ -43,12 +41,11 @@ class BaoCaoLopExport implements FromQuery, WithHeadings, WithColumnWidths, With
             ->where('lop', $this->lop)
             ->where('vai_tro', 'sinh_vien')
             ->leftJoin('lich_su_diem', 'nguoi_dung.ma_sinh_vien', '=', 'lich_su_diem.ma_sinh_vien')
-            // Filter by date range nếu có
-            ->when($this->fromDate && $this->toDate, function ($query) {
-                $query->whereBetween('lich_su_diem.thoi_gian_ghi_nhan', [
-                    $this->fromDate . ' 00:00:00',
-                    $this->toDate . ' 23:59:59'
-                ]);
+            ->when($this->fromDate, function ($query) {
+                $query->where('lich_su_diem.thoi_gian_ghi_nhan', '>=', $this->fromDate . ' 00:00:00');
+            })
+            ->when($this->toDate, function ($query) {
+                $query->where('lich_su_diem.thoi_gian_ghi_nhan', '<=', $this->toDate . ' 23:59:59');
             })
             ->select(
                 'nguoi_dung.ma_sinh_vien as ma_sinh_vien',
@@ -157,10 +154,10 @@ class BaoCaoLopExport implements FromQuery, WithHeadings, WithColumnWidths, With
         $exportTime = now()->format('d/m/Y H:i:s');
 
         return [
-            $row['ma_sinh_vien'],
-            $row['ho_ten'],
-            $row['lop'],
-            (int)$row['tong_diem'],
+            $row->ma_sinh_vien,
+            $row->ho_ten,
+            $row->lop,
+            (int) $row->tong_diem,
             $fromDateFormatted,
             $toDateFormatted,
             $exportTime,

@@ -10,10 +10,10 @@ use App\Models\LoaiSuKien;
 use App\Models\ThuVienDaPhuongTien;
 use App\Models\LichSuDiem;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Traits\HasImageUpload;
 
@@ -42,7 +42,7 @@ class SuKienController extends Controller
                     $query->where('thoi_gian_bat_dau', '>', $now);
                 } elseif ($status === 'dang_dien_ra') {
                     $query->where('thoi_gian_bat_dau', '<=', $now)
-                          ->where('thoi_gian_ket_thuc', '>=', $now);
+                        ->where('thoi_gian_ket_thuc', '>=', $now);
                 } elseif ($status === 'da_ket_thuc') {
                     $query->where('thoi_gian_ket_thuc', '<', $now);
                 }
@@ -73,7 +73,10 @@ class SuKienController extends Controller
     {
         $loai = LoaiSuKien::all();
         $templates = \App\Models\SuKien::where('la_mau_bai_dang', true)->get();
-        $mediaKho = \App\Models\ThuVienDaPhuongTien::where('loai_tep', 'hinh_anh')->latest('created_at')->get();
+        $mediaKho = \App\Models\ThuVienDaPhuongTien::libraryItems()
+            ->where('loai_tep', 'hinh_anh')
+            ->latest('created_at')
+            ->get();
         return view('admin.su_kien.create', compact('loai', 'templates', 'mediaKho'));
     }
 
@@ -94,8 +97,30 @@ class SuKienController extends Controller
         $this->_uploadGallery($suKien, $request->file('gallery'));
         $this->_attachLibraryGallery($suKien, $request->input('selected_media_ids', []));
 
+        // Gửi thông báo cho tất cả sinh viên về sự kiện mới
+        try {
+            $notificationService = new NotificationService();
+            $studentIds = User::where('vai_tro', 'sinh_vien')
+                ->where('trang_thai', 'hoat_dong')
+                ->pluck('ma_sinh_vien')
+                ->toArray();
+
+            if (!empty($studentIds)) {
+                $notificationService->createBulkNotification(
+                    $studentIds,
+                    'Sự kiện mới: ' . $suKien->ten_su_kien,
+                    'Có một sự kiện mới ' . $suKien->ten_su_kien . ' sắp diễn ra. Hãy đăng ký tham gia!',
+                    'nhac_nho_su_kien',
+                    $suKien->ma_su_kien
+                );
+            }
+        } catch (\Exception $e) {
+            // Log lỗi nhưng không dừng tạo sự kiện
+            \Log::error('Failed to send notification for event: ' . $e->getMessage());
+        }
+
         return redirect()->route('admin.su-kien.index')
-            ->with('success', 'Tạo sự kiện thành công!');
+            ->with('success', 'Tạo sự kiện thành công và gửi thông báo cho sinh viên!');
     }
     public function show($id)
     {
@@ -107,7 +132,10 @@ class SuKienController extends Controller
         $suKien = SuKien::findOrFail($id);
         $loai   = LoaiSuKien::all();
         $templates = \App\Models\SuKien::where('la_mau_bai_dang', true)->get();
-        $mediaKho = \App\Models\ThuVienDaPhuongTien::where('loai_tep', 'hinh_anh')->latest('created_at')->get();
+        $mediaKho = \App\Models\ThuVienDaPhuongTien::libraryItems()
+            ->where('loai_tep', 'hinh_anh')
+            ->latest('created_at')
+            ->get();
         return view('admin.su_kien.edit', compact('suKien', 'loai', 'templates', 'mediaKho'));
     }
 
@@ -158,7 +186,7 @@ class SuKienController extends Controller
     {
         $mediaIds = collect($mediaIds)
             ->filter()
-            ->map(fn ($id) => (int) $id)
+            ->map(fn($id) => (int) $id)
             ->unique()
             ->values();
 
@@ -166,7 +194,13 @@ class SuKienController extends Controller
             return;
         }
 
+        $existingPaths = ThuVienDaPhuongTien::where('ma_su_kien', $suKien->ma_su_kien)
+            ->pluck('duong_dan_tep')
+            ->filter()
+            ->all();
+
         $libraryItems = ThuVienDaPhuongTien::whereIn('ma_phuong_tien', $mediaIds)
+            ->libraryItems()
             ->where('loai_tep', 'hinh_anh')
             ->get();
 
@@ -175,10 +209,7 @@ class SuKienController extends Controller
                 continue;
             }
 
-            $extension = pathinfo($item->duong_dan_tep, PATHINFO_EXTENSION) ?: 'jpg';
-            $copiedPath = 'su_kien/gallery/' . Str::uuid() . '.' . $extension;
-
-            if (!Storage::disk('public')->copy($item->duong_dan_tep, $copiedPath)) {
+            if (in_array($item->duong_dan_tep, $existingPaths, true)) {
                 continue;
             }
 
@@ -186,11 +217,13 @@ class SuKienController extends Controller
                 'ma_su_kien' => $suKien->ma_su_kien,
                 'ma_nguoi_tai_len' => auth()->id(),
                 'ten_tep' => $item->ten_tep,
-                'duong_dan_tep' => $copiedPath,
+                'duong_dan_tep' => $item->duong_dan_tep,
                 'loai_tep' => 'hinh_anh',
-                'kich_thuoc' => Storage::disk('public')->size($copiedPath),
+                'kich_thuoc' => $item->kich_thuoc ?: Storage::disk('public')->size($item->duong_dan_tep),
                 'la_cong_khai' => true,
             ]);
+
+            $existingPaths[] = $item->duong_dan_tep;
         }
     }
 
@@ -199,7 +232,7 @@ class SuKienController extends Controller
         $allowedModules = ['banner', 'header', 'info', 'description', 'gallery'];
 
         $layout = collect($request->input('bo_cuc', $fallback ?? $allowedModules))
-            ->filter(fn ($module) => in_array($module, $allowedModules, true))
+            ->filter(fn($module) => in_array($module, $allowedModules, true))
             ->values()
             ->all();
 
@@ -321,7 +354,7 @@ class SuKienController extends Controller
             })
             ->where('trang_thai', '!=', 'da_huy')
             ->select('ma_su_kien', 'ten_su_kien', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem')
-            ->when($boQuaId, fn ($query) => $query->where('ma_su_kien', '!=', $boQuaId))
+            ->when($boQuaId, fn($query) => $query->where('ma_su_kien', '!=', $boQuaId))
             ->get();
 
         return response()->json([

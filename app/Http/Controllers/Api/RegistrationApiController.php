@@ -184,7 +184,7 @@ class RegistrationApiController extends Controller
 
         $diff = $request->input('diff');
         $maSuKien = $request->input('ma_su_kien');
-        
+
         // 1. Kiểm tra diff an toàn <= 10000ms (10 giây)
         if ($diff > 10000) {
             return response()->json([
@@ -273,7 +273,7 @@ class RegistrationApiController extends Controller
             foreach ($events as $event) {
                 $maSuKien = $event['ma_su_kien'];
                 $action = $event['action'] ?? 'diem_danh';
-                
+
                 if ($action === 'student_checkin' && isset($event['ma_sinh_vien'])) {
                     $targetUser = \App\Models\User::where('ma_sinh_vien', $event['ma_sinh_vien'])->first();
                     if (!$targetUser) continue;
@@ -322,6 +322,34 @@ class RegistrationApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi đồng bộ hàng chờ',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Kiểm tra trạng thái đăng ký của người dùng cho sự kiện
+     */
+    public function checkRegistration($eventId)
+    {
+        try {
+            $registration = DangKy::where('ma_sinh_vien', auth()->id())
+                ->where('ma_su_kien', $eventId)
+                ->whereIn('trang_thai_tham_gia', ['da_dang_ky', 'da_tham_gia'])
+                ->whereNull('deleted_at')
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'is_registered' => $registration ? true : false,
+                    'registration' => $registration
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi kiểm tra trạng thái đăng ký',
                 'error' => $e->getMessage()
             ], 500);
         }

@@ -6,10 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SuKien;
 use App\Models\User;
-use App\Models\DangKy;
+use App\Services\RegistrationService;
 
 class DiemDanhController extends Controller
 {
+    public function __construct(
+        protected RegistrationService $registrationService
+    ) {}
+
     /**
      * Màn hình chọn sự kiện để sinh QR Code điểm danh (Admin -> User quét)
      */
@@ -42,11 +46,13 @@ class DiemDanhController extends Controller
     {
         $request->validate([
             'mssv' => 'required|digits:8',
-            'ma_su_kien' => 'required|integer'
+            'ma_su_kien' => 'required|integer',
+            'loai_diem_danh' => 'nullable|string|in:dau_buoi,cuoi_buoi',
         ]);
 
         $mssv = $request->input('mssv');
         $maSuKien = $request->input('ma_su_kien');
+        $loaiDiemDanh = $request->input('loai_diem_danh', 'dau_buoi');
 
         $user = User::where('ma_sinh_vien', $mssv)->first();
         if (!$user) {
@@ -71,50 +77,28 @@ class DiemDanhController extends Controller
             ], 400);
         }
 
-        $dangKy = DangKy::withTrashed()
-            ->where('ma_sinh_vien', $user->ma_sinh_vien)
-            ->where('ma_su_kien', $maSuKien)
-            ->first();
+        $result = $this->registrationService->checkInEvent($user->ma_sinh_vien, $maSuKien, $loaiDiemDanh);
 
-        if (!$dangKy) {
-            // Xem sự kiện có chỗ trống không
-            if ($suKien->so_luong_toi_da > 0 && $suKien->so_luong_hien_tai >= $suKien->so_luong_toi_da) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sự kiện đã đủ số lượng, không thể điểm danh thêm.'
-                ], 400);
+        if (!$result['success']) {
+            $message = $result['message'] ?? 'Không thể điểm danh sinh viên này.';
+
+            if (str_contains($message, 'Bạn đã được điểm danh')) {
+                $message = "Sinh viên này đã được điểm danh {$loaiDiemDanh} trước đó!";
             }
 
-            // Tạo mới & Điểm danh luôn
-            DangKy::create([
-                'ma_sinh_vien' => $user->ma_sinh_vien,
-                'ma_su_kien' => $maSuKien,
-                'trang_thai_tham_gia' => 'da_tham_gia'
-            ]);
-            $suKien->increment('so_luong_hien_tai');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Điểm danh thẻ sinh viên thành công!'
-            ]);
-        }
-
-        if ($dangKy->trashed()) {
-            $dangKy->restore();
-        }
-
-        if ($dangKy->trang_thai_tham_gia === 'da_tham_gia') {
             return response()->json([
                 'success' => false,
-                'message' => 'Sinh viên này đã được điểm danh trước đó!'
-            ], 400);
+                'message' => $message,
+            ], $result['status'] ?? 400);
         }
 
-        $dangKy->update(['trang_thai_tham_gia' => 'da_tham_gia']);
+        $label = $loaiDiemDanh === 'dau_buoi' ? 'đầu buổi' : 'cuối buổi';
+        $message = "Điểm danh {$label} thẻ sinh viên thành công!";
 
         return response()->json([
             'success' => true,
-            'message' => 'Cập nhật điểm danh thành công!'
+            'message' => $message,
+            'data' => $result['data'] ?? null,
         ]);
     }
 }

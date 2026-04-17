@@ -36,6 +36,14 @@ class SmtpSettingController extends Controller
             'mail_encryption'   => 'nullable|string|in:tls,ssl,null',
             'mail_from_address' => 'nullable|email|max:255',
             'mail_from_name'    => 'nullable|string|max:255',
+            'mail_header'       => 'nullable|string',
+            'mail_body_template' => 'nullable|string',
+            'mail_footer'       => 'nullable|string',
+            'mail_signature'    => 'nullable|string',
+            'subject_welcome'   => 'nullable|string|max:255',
+            'subject_event_confirm' => 'nullable|string|max:255',
+            'subject_event_cancel'  => 'nullable|string|max:255',
+            'subject_event_update'  => 'nullable|string|max:255',
         ], [
             'mail_host.required'      => 'Vui lòng nhập SMTP Host.',
             'mail_port.required'      => 'Vui lòng nhập cổng SMTP.',
@@ -46,8 +54,20 @@ class SmtpSettingController extends Controller
         $smtp = SmtpSetting::getOrCreate();
 
         $data = $request->only([
-            'mail_host', 'mail_port', 'mail_username',
-            'mail_encryption', 'mail_from_address', 'mail_from_name',
+            'mail_host',
+            'mail_port',
+            'mail_username',
+            'mail_encryption',
+            'mail_from_address',
+            'mail_from_name',
+            'mail_header',
+            'mail_body_template',
+            'mail_footer',
+            'mail_signature',
+            'subject_welcome',
+            'subject_event_confirm',
+            'subject_event_cancel',
+            'subject_event_update',
         ]);
 
         // Chỉ cập nhật password nếu admin nhập mới
@@ -107,7 +127,7 @@ class SmtpSettingController extends Controller
                 'Đây là email test từ hệ thống Quản Lý Sự Kiện. Nếu bạn nhận được email này, cấu hình SMTP đã hoạt động đúng!',
                 function ($message) use ($request, $smtp) {
                     $message->to($request->test_email)
-                            ->subject('🔧 Test SMTP — Quản Lý Sự Kiện');
+                        ->subject('🔧 Test SMTP — Quản Lý Sự Kiện');
 
                     if ($smtp->mail_from_address) {
                         $message->from($smtp->mail_from_address, $smtp->mail_from_name ?? 'Quản Lý Sự Kiện');
@@ -127,7 +147,6 @@ class SmtpSettingController extends Controller
                 'success' => true,
                 'message' => "Email test đã được gửi thành công tới {$request->test_email}!",
             ]);
-
         } catch (\Exception $e) {
             $errorMessage = $e->getMessage();
             $friendlyMessage = 'Gửi email thất bại: Vui lòng kiểm tra lại cấu hình SMTP.';

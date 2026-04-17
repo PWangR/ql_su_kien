@@ -28,13 +28,13 @@
             @endif
 
             <!-- Form -->
-            <form method="POST" action="{{ route('admin.bao-cao.export') }}" data-skip-loading="true" style="background:var(--bg-alt);padding:var(--space-xl);border-radius:var(--border-radius-md);margin-bottom:var(--space-xl);">
+            <form method="POST" action="{{ route('admin.bao-cao.export') }}" id="baoCaoForm" style="background:var(--bg-alt);padding:var(--space-xl);border-radius:var(--border-radius-md);margin-bottom:var(--space-xl);">
                 @csrf
 
                 <!-- Lớp (required) -->
                 <div class="form-group">
                     <label class="form-label">Chọn Lớp <span style="color:#8B0000;">*</span></label>
-                    <select name="lop" class="form-control @error('lop') is-invalid @enderror" required>
+                    <select name="lop" class="form-control @error('lop') is-invalid @enderror" required id="lopSelect">
                         <option value="">-- Chọn lớp --</option>
                         @foreach($danhSachLop as $l)
                         <option value="{{ $l }}" @selected(old('lop')===$l)>{{ $l }}</option>
@@ -80,7 +80,7 @@
 
                 <!-- Submit Button -->
                 <div style="display:flex;gap:var(--space-md);margin-top:var(--space-xl);">
-                    <button type="submit" class="btn btn-primary" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;">
+                    <button type="submit" class="btn btn-primary" id="exportButton" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;">
                         <i class="bi bi-download"></i>Xuất Excel
                     </button>
                     <a href="{{ route('home') }}" class="btn btn-secondary" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;">
@@ -137,16 +137,46 @@
 
 @section('scripts')
 <script>
-    // Hide loading overlay khi form submit hoàn tất
-    // (Form submit → traditional POST → browser download file → hide loading)
-    document.querySelector('form').addEventListener('submit', function() {
-        // Loading đã auto-kích hoạt từ form submit listener ở loading.js
-        // File download xong sau ~100ms → force-hide
+    const baoCaoForm = document.getElementById('baoCaoForm');
+    const exportButton = document.getElementById('exportButton');
+    const lopSelect = document.getElementById('lopSelect');
+
+    // Cập nhật trạng thái nút export
+    function updateExportButtonState() {
+        const hasSelectedClass = lopSelect.value !== '';
+        exportButton.disabled = !hasSelectedClass;
+        exportButton.style.opacity = hasSelectedClass ? '1' : '0.6';
+        exportButton.style.cursor = hasSelectedClass ? 'pointer' : 'not-allowed';
+        if (!hasSelectedClass) {
+            exportButton.title = 'Vui lòng chọn lớp trước khi xuất báo cáo';
+        } else {
+            exportButton.title = '';
+        }
+    }
+
+    // Gọi khi load trang
+    updateExportButtonState();
+    lopSelect.addEventListener('change', updateExportButtonState);
+
+    // Xử lý submit form - dùng form submit truyền thống (tránh blob HTTPS warning)
+    baoCaoForm.addEventListener('submit', function(e) {
+        // Kiểm tra nếu chưa chọn lớp
+        if (lopSelect.value === '') {
+            e.preventDefault();
+            alert('Vui lòng chọn lớp trước khi xuất báo cáo');
+            return false;
+        }
+
+        // Tắt loading overlay sau khi form submit (download hoàn thành)
+        // Download thường hoàn thành sau 1-2 giây
         setTimeout(() => {
             if (window.LoadingStore) {
-                window.LoadingStore.forceHide();
+                window.LoadingStore.hideLoading();
             }
-        }, 100); // 100ms - đủ thời gian form submit + file download kịp
+        }, 2000);
+
+        // Giữ nguyên button, không hiển thị loading
+        // Form sẽ submit bình thường, browser xử lý download
     });
 </script>
 @endsection

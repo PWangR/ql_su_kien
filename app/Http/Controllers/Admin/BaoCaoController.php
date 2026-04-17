@@ -7,7 +7,6 @@ use App\Exports\BaoCaoLopExport;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use Carbon\Carbon;
 
 class BaoCaoController extends Controller
 {
@@ -58,8 +57,11 @@ class BaoCaoController extends Controller
             ]);
 
             // Kiểm tra date range logic
-            if ($validated['from_date'] && $validated['to_date']) {
-                if (strtotime($validated['from_date']) > strtotime($validated['to_date'])) {
+            $fromDate = $validated['from_date'] ?? null;
+            $toDate = $validated['to_date'] ?? null;
+
+            if ($fromDate && $toDate) {
+                if (strtotime($fromDate) > strtotime($toDate)) {
                     return back()
                         ->withErrors(['date_range' => 'Ngày bắt đầu phải trước ngày kết thúc'])
                         ->withInput();
@@ -68,8 +70,13 @@ class BaoCaoController extends Controller
 
             // Lấy thông tin lớp
             $lop = $validated['lop'];
-            $fromDate = $validated['from_date'] ?? null;
-            $toDate = $validated['to_date'] ?? null;
+            $export = new BaoCaoLopExport($lop, $fromDate, $toDate);
+
+            if (!$export->query()->exists()) {
+                return back()
+                    ->with('error', 'Không có dữ liệu phù hợp để xuất báo cáo cho bộ lọc đã chọn.')
+                    ->withInput();
+            }
 
             // Tạo filename
             $now = now()->format('Y-m-d_H-i-s');
@@ -77,7 +84,7 @@ class BaoCaoController extends Controller
 
             // Return Excel download
             return Excel::download(
-                new BaoCaoLopExport($lop, $fromDate, $toDate),
+                $export,
                 $filename
             );
         } catch (\Exception $e) {

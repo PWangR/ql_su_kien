@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 /**
@@ -17,7 +16,18 @@ class ActivityLogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = ActivityLog::query()->orderBy('created_at', 'desc');
+        $filtersNormalized = false;
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        if ($from && $to && $from > $to) {
+            [$from, $to] = [$to, $from];
+            $filtersNormalized = true;
+        }
+
+        $query = ActivityLog::query()
+            ->adminOnly()
+            ->orderBy('created_at', 'desc');
 
         // Tìm kiếm theo user name / ID / mô tả
         if ($request->filled('search')) {
@@ -30,11 +40,16 @@ class ActivityLogController extends Controller
         }
 
         // Lọc theo khoảng thời gian
-        if ($request->filled('from') || $request->filled('to')) {
-            $query->betweenDates($request->from, $request->to);
+        if ($from || $to) {
+            $query->betweenDates($from, $to);
         }
 
-        $logs = $query->paginate(10)->appends($request->query());
+        $logs = $query->paginate(10)->appends([
+            'search' => $request->search,
+            'action' => $request->action,
+            'from' => $from,
+            'to' => $to,
+        ]);
 
         // Danh sách actions cho dropdown filter
         $actions = [
@@ -45,6 +60,6 @@ class ActivityLogController extends Controller
             'delete' => 'Xóa',
         ];
 
-        return view('admin.activity_logs.index', compact('logs', 'actions'));
+        return view('admin.activity_logs.index', compact('logs', 'actions', 'from', 'to', 'filtersNormalized'));
     }
 }
