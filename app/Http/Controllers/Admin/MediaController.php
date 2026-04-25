@@ -17,9 +17,12 @@ class MediaController extends Controller
 
         // Lọc theo tag nếu có
         if ($request = request()) {
+            if ($request->has('tu_khoa') && $request->tu_khoa) {
+                $query->where('ten_tep', 'like', '%' . $request->tu_khoa . '%');
+            }
             if ($request->has('the_anh') && $request->the_anh) {
                 $query->whereHas('theAnh', function ($q) use ($request) {
-                    $q->where('ma_the_anh', $request->the_anh);
+                    $q->where('the_anh.ma_the_anh', $request->the_anh);
                 });
             }
             if ($request->has('loai_tep') && $request->loai_tep) {

@@ -513,18 +513,30 @@
             }
 
             return `
-                <div style="border:1px solid var(--border);border-radius:var(--border-radius);padding:14px;background:var(--bg);">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+                <div class="lei-item"
+                    data-layout-index="${index}"
+                    style="border:1px solid var(--border);border-radius:var(--border-radius);padding:14px;background:var(--bg);user-select:none;transition:box-shadow .15s;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;">
                         <div style="display:flex;align-items:center;gap:10px;font-weight:600;">
+                            <span class="lei-handle"
+                                title="Kéo để sắp xếp"
+                                style="cursor:grab;color:var(--text-muted);line-height:1;padding:2px 3px;border-radius:4px;touch-action:none;">
+                                <svg width="12" height="18" viewBox="0 0 12 18" fill="currentColor">
+                                    <circle cx="3" cy="3"  r="1.6"/>
+                                    <circle cx="9" cy="3"  r="1.6"/>
+                                    <circle cx="3" cy="9"  r="1.6"/>
+                                    <circle cx="9" cy="9"  r="1.6"/>
+                                    <circle cx="3" cy="15" r="1.6"/>
+                                    <circle cx="9" cy="15" r="1.6"/>
+                                </svg>
+                            </span>
                             <i class="bi ${meta.icon}"></i>
                             <span>${meta.label}</span>
                             <span class="text-muted text-sm">#${index + 1}</span>
                         </div>
-                        <div style="display:flex;gap:8px;">
-                            <button type="button" class="btn btn-outline btn-sm" data-move-module="up" data-module-index="${index}"><i class="bi bi-arrow-up"></i></button>
-                            <button type="button" class="btn btn-outline btn-sm" data-move-module="down" data-module-index="${index}"><i class="bi bi-arrow-down"></i></button>
-                            <button type="button" class="btn btn-danger btn-sm" data-remove-module="${index}"><i class="bi bi-trash"></i></button>
-                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" data-remove-module="${index}">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
                     <div class="form-group" style="margin-bottom:12px;">
                         <label class="form-label">Tên hiển thị của module</label>
@@ -535,28 +547,154 @@
             `;
         }).join('');
 
+        initSortable();
         syncSchema();
     }
 
-    function moveCard(moduleId, direction) {
-        const card = moduleCardsContainer.querySelector(`[data-module-card="${moduleId}"]`);
-        if (!card) {
-            return;
+    // ── Smooth pointer-based sortable ────────────────────────────────────────
+    let sortDrag = null; // { el, clone, fromIndex, startY, currentY, itemH, offY }
+    const GAP = 12;
+
+    function initSortable() {
+        layoutEditorList.querySelectorAll('.lei-handle').forEach(handle => {
+            handle.addEventListener('pointerdown', onSortStart, { passive: false });
+        });
+    }
+
+    function onSortStart(e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+
+        const item  = e.currentTarget.closest('.lei-item');
+        const index = Number(item.dataset.layoutIndex);
+        const rect  = item.getBoundingClientRect();
+        const listRect = layoutEditorList.getBoundingClientRect();
+
+        // Snapshot item heights + tops before anything changes
+        const items = [...layoutEditorList.querySelectorAll('.lei-item')];
+        const snapshots = items.map(el => {
+            const r = el.getBoundingClientRect();
+            return { el, top: r.top - listRect.top, height: r.height };
+        });
+
+        // Create floating clone
+        const clone = item.cloneNode(true);
+        Object.assign(clone.style, {
+            position:      'fixed',
+            left:          rect.left + 'px',
+            top:           rect.top  + 'px',
+            width:         rect.width + 'px',
+            zIndex:        '9999',
+            pointerEvents: 'none',
+            boxShadow:     '0 8px 24px rgba(0,0,0,.18)',
+            borderRadius:  'var(--border-radius)',
+            opacity:       '1',
+            transition:    'box-shadow .1s',
+        });
+        document.body.appendChild(clone);
+
+        // Dim original
+        item.style.opacity = '0.25';
+
+        sortDrag = {
+            item, clone, index,
+            fromIndex: index,
+            snapshots,
+            listRect,
+            startClientY: e.clientY,
+            startTop:     rect.top,
+            offY:         e.clientY - rect.top,
+            currentIndex: index,
+        };
+
+        document.addEventListener('pointermove', onSortMove, { passive: false });
+        document.addEventListener('pointerup',   onSortEnd);
+        document.addEventListener('pointercancel', onSortEnd);
+    }
+
+    function onSortMove(e) {
+        if (!sortDrag) return;
+        e.preventDefault();
+
+        const { clone, offY, snapshots, listRect } = sortDrag;
+
+        // Move clone
+        const cloneTop = e.clientY - offY;
+        clone.style.top = cloneTop + 'px';
+
+        // Figure out new insertion index based on pointer Y relative to list
+        const relY = e.clientY - listRect.top;
+        let newIndex = snapshots.length - 1;
+        for (let i = 0; i < snapshots.length; i++) {
+            const mid = snapshots[i].top + snapshots[i].height / 2;
+            if (relY < mid) { newIndex = i; break; }
         }
 
-        if (direction === 'up') {
-            const previous = card.previousElementSibling;
-            if (previous) {
-                moduleCardsContainer.insertBefore(card, previous);
-            }
-        }
+        if (newIndex === sortDrag.currentIndex) return;
+        sortDrag.currentIndex = newIndex;
 
-        if (direction === 'down') {
-            const next = card.nextElementSibling;
-            if (next) {
-                moduleCardsContainer.insertBefore(next, card);
+        // Animate siblings with translateY
+        const from = sortDrag.fromIndex;
+        snapshots.forEach(({ el }, i) => {
+            if (el === sortDrag.item) return;
+            let shift = 0;
+            const draggedH = snapshots[from].height + GAP;
+            if (from < newIndex) {
+                // dragging down: items between from+1..newIndex shift up
+                if (i > from && i <= newIndex) shift = -draggedH;
+            } else {
+                // dragging up: items between newIndex..from-1 shift down
+                if (i >= newIndex && i < from) shift = draggedH;
             }
-        }
+            el.style.transition = 'transform .2s cubic-bezier(.25,.8,.25,1)';
+            el.style.transform  = shift ? `translateY(${shift}px)` : '';
+        });
+    }
+
+    function onSortEnd(e) {
+        if (!sortDrag) return;
+        document.removeEventListener('pointermove', onSortMove);
+        document.removeEventListener('pointerup',   onSortEnd);
+        document.removeEventListener('pointercancel', onSortEnd);
+
+        const { item, clone, fromIndex, currentIndex } = sortDrag;
+        sortDrag = null;
+
+        // Animate clone to destination then commit
+        const destSnap = (() => {
+            // rebuild rects because siblings may have shifted
+            const items = [...layoutEditorList.querySelectorAll('.lei-item')];
+            const dest  = items[currentIndex === fromIndex ? fromIndex : currentIndex];
+            return dest ? dest.getBoundingClientRect() : null;
+        })();
+
+        clone.style.transition = 'top .2s cubic-bezier(.25,.8,.25,1), left .2s';
+        if (destSnap) clone.style.top = destSnap.top + 'px';
+
+        setTimeout(() => {
+            clone.remove();
+            item.style.opacity  = '';
+            item.style.transform = '';
+
+            if (fromIndex !== currentIndex) {
+                // Reorder state
+                const [moved] = moduleState.splice(fromIndex, 1);
+                moduleState.splice(currentIndex, 0, moved);
+
+                // Reorder module cards
+                const movedCard = moduleCardsContainer.querySelector(`[data-module-card="${moved.id}"]`);
+                if (movedCard) {
+                    const after = moduleState[currentIndex + 1];
+                    const afterCard = after
+                        ? moduleCardsContainer.querySelector(`[data-module-card="${after.id}"]`)
+                        : null;
+                    if (afterCard) moduleCardsContainer.insertBefore(movedCard, afterCard);
+                    else           moduleCardsContainer.appendChild(movedCard);
+                }
+            }
+
+            renderLayoutEditor();
+        }, 210);
     }
 
     function updateCardLabels(module) {
@@ -648,21 +786,6 @@
             }
             renderLayoutEditor();
             return;
-        }
-
-        const moveButton = event.target.closest('[data-move-module]');
-        if (moveButton) {
-            const index = Number(moveButton.dataset.moduleIndex);
-            const direction = moveButton.dataset.moveModule;
-            const swapIndex = direction === 'up' ? index - 1 : index + 1;
-
-            if (swapIndex < 0 || swapIndex >= moduleState.length) {
-                return;
-            }
-
-            [moduleState[index], moduleState[swapIndex]] = [moduleState[swapIndex], moduleState[index]];
-            moveCard(moduleState[swapIndex].id, direction);
-            renderLayoutEditor();
         }
     });
 
