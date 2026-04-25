@@ -3,377 +3,199 @@
 @section('title', 'Chi tiết sự kiện')
 @section('page-title', 'Chi tiết sự kiện')
 
+@php
+    $modules = \App\Support\EventTemplateSupport::normalizeTemplateModules($suKien->bo_cuc);
+@endphp
+
 @section('styles')
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-
 <style>
+    .event-admin-grid {
+        display: grid;
+        grid-template-columns: 1.6fr .9fr;
+        gap: var(--space-lg);
+    }
 
-.event-banner{
-    width:100%;
-    height:320px;
-    object-fit:cover;
-    border-radius:14px;
-}
+    .module-card {
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius-md);
+        background: var(--card);
+        padding: var(--space-lg);
+        margin-bottom: var(--space-md);
+    }
 
-.event-title{
-    font-size:28px;
-    font-weight:800;
-    margin-top:10px;
-}
+    .module-card img {
+        width: 100%;
+        max-height: 360px;
+        object-fit: cover;
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius);
+    }
 
-.section-title{
-    font-size:13px;
-    font-weight:700;
-    letter-spacing:.6px;
-    text-transform:uppercase;
-    color:#64748b;
-    margin-bottom:15px;
-}
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
 
-.info-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:18px;
-}
+    .gallery-grid img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border);
+    }
 
-.info-box{
-    background:#f8fafc;
-    border-radius:10px;
-    padding:14px;
-}
-
-.info-label{
-    font-size:11px;
-    text-transform:uppercase;
-    color:#94a3b8;
-    font-weight:700;
-}
-
-.info-value{
-    font-size:14px;
-    font-weight:600;
-    margin-top:4px;
-}
-
-.gallery-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-    gap:14px;
-}
-
-.gallery-grid img{
-    width:100%;
-    height:140px;
-    object-fit:cover;
-    border-radius:10px;
-    transition:.25s;
-}
-
-.gallery-grid img:hover{
-    transform:scale(1.06);
-}
-
-.participant-table td{
-    font-size:13px;
-}
-
+    @media (max-width: 991.98px) {
+        .event-admin-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @endsection
 
-
 @section('content')
-
-<div class="d-flex justify-content-between mb-3">
-    <div></div>
-
-    <div class="d-flex gap-2">
-        <a href="{{ route('admin.su-kien.edit',$suKien->ma_su_kien) }}"
-           class="btn btn-warning">
+<div style="display:flex;justify-content:space-between;gap:var(--space-md);margin-bottom:var(--space-lg);flex-wrap:wrap;">
+    <div>
+        <h2 style="margin-bottom:8px;">{{ $suKien->ten_su_kien }}</h2>
+        <div class="text-muted">Bố cục bài đăng hiện tại được render theo module đã lưu trong sự kiện.</div>
+    </div>
+    <div style="display:flex;gap:var(--space-sm);">
+        <a href="{{ route('admin.su-kien.edit', $suKien->ma_su_kien) }}" class="btn btn-primary">
             <i class="bi bi-pencil"></i> Chỉnh sửa
         </a>
-
-        <a href="{{ route('admin.su-kien.index') }}"
-           class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Quay lại
-        </a>
+        <a href="{{ route('admin.su-kien.index') }}" class="btn btn-outline">Quay lại</a>
     </div>
 </div>
 
+<div class="event-admin-grid">
+    <div>
+        @foreach($modules as $module)
+            @php
+                $type = $module['type'] ?? null;
+                $content = $module['content'] ?? [];
+                $title = $module['title'] ?? '';
+            @endphp
 
-<div class="row g-4">
+            @if($type === 'banner')
+                @php $bannerPath = $content['image_path'] ?? $suKien->anh_su_kien; @endphp
+                @if($bannerPath)
+                    <div class="module-card">
+                        <div style="font-weight:700;margin-bottom:10px;">{{ $title ?: 'Banner' }}</div>
+                        <img src="{{ asset('storage/' . $bannerPath) }}" alt="{{ $suKien->ten_su_kien }}">
+                        @if(!empty($content['caption']))
+                            <div class="text-muted" style="margin-top:10px;">{{ $content['caption'] }}</div>
+                        @endif
+                    </div>
+                @endif
+            @endif
 
-{{-- LEFT CONTENT --}}
-<div class="col-lg-8">
+            @if($type === 'header')
+                <div class="module-card">
+                    <div style="font-weight:700;margin-bottom:10px;">{{ $title ?: 'Header' }}</div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+                        <span class="badge bg-primary">{{ $suKien->loaiSuKien->ten_loai ?? 'Sự kiện' }}</span>
+                        <span class="badge bg-{{ $suKien->trang_thai_color }}">{{ $suKien->trang_thai_label }}</span>
+                        @if(!empty($content['badge']))
+                            <span class="badge bg-secondary">{{ $content['badge'] }}</span>
+                        @endif
+                    </div>
+                    <h3 style="margin-bottom:8px;">{{ $content['title'] ?? $suKien->ten_su_kien }}</h3>
+                    @if(!empty($content['subtitle']))
+                        <div class="text-muted">{!! nl2br(e($content['subtitle'])) !!}</div>
+                    @endif
+                </div>
+            @endif
 
-@php
-$layout = $suKien->bo_cuc ?? ['banner','header','info','description','gallery'];
-@endphp
+            @if($type === 'info')
+                @php $items = $content['items'] ?? ['time', 'location', 'capacity', 'points']; @endphp
+                <div class="module-card">
+                    <div style="font-weight:700;margin-bottom:10px;">{{ $title ?: 'Thông tin' }}</div>
+                    <div style="display:grid;gap:10px;">
+                        @if(in_array('time', $items, true))
+                            <div><strong>Thời gian:</strong> {{ $suKien->thoi_gian_bat_dau?->format('H:i d/m/Y') }} - {{ $suKien->thoi_gian_ket_thuc?->format('H:i d/m/Y') }}</div>
+                        @endif
+                        @if(in_array('location', $items, true))
+                            <div><strong>Địa điểm:</strong> {{ $suKien->dia_diem ?: 'Chưa cập nhật' }}</div>
+                        @endif
+                        @if(in_array('capacity', $items, true))
+                            <div><strong>Số lượng:</strong> {{ $suKien->so_luong_hien_tai }}/{{ $suKien->so_luong_toi_da ?: 'Không giới hạn' }}</div>
+                        @endif
+                        @if(in_array('points', $items, true))
+                            <div><strong>Điểm cộng:</strong> +{{ $suKien->diem_cong }}</div>
+                        @endif
+                    </div>
+                    @if(!empty($content['custom_note']))
+                        <div class="text-muted" style="margin-top:10px;">{!! nl2br(e($content['custom_note'])) !!}</div>
+                    @endif
+                </div>
+            @endif
 
-@foreach($layout as $component)
+            @if($type === 'description')
+                @php $body = $content['body'] ?? null; @endphp
+                @if($body || $suKien->mo_ta_chi_tiet)
+                    <div class="module-card">
+                        <div style="font-weight:700;margin-bottom:10px;">{{ $content['heading'] ?? $title ?: 'Nội dung' }}</div>
+                        <div style="line-height:1.8;">
+                            @if($body)
+                                {!! nl2br(e($body)) !!}
+                            @else
+                                {!! $suKien->mo_ta_chi_tiet !!}
+                            @endif
+                        </div>
+                    </div>
+                @endif
+            @endif
 
-@switch($component)
+            @if($type === 'gallery')
+                @php
+                    $galleryImages = $content['images'] ?? [];
+                    if (empty($galleryImages)) {
+                        $galleryImages = $suKien->media->where('loai_tep', 'hinh_anh')->pluck('duong_dan_tep')->values()->all();
+                    }
+                @endphp
+                @if(!empty($galleryImages))
+                    <div class="module-card">
+                        <div style="font-weight:700;margin-bottom:10px;">{{ $title ?: 'Gallery' }}</div>
+                        <div class="gallery-grid">
+                            @foreach($galleryImages as $imagePath)
+                                <a href="{{ asset('storage/' . $imagePath) }}" target="_blank">
+                                    <img src="{{ asset('storage/' . $imagePath) }}" alt="Ảnh sự kiện">
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @endif
+        @endforeach
+    </div>
 
-{{-- BANNER --}}
-@case('banner')
-@if($suKien->anh_su_kien)
-<div class="card border-0 shadow-sm mb-3">
-<div class="card-body p-2">
+    <div>
+        <div class="module-card">
+            <div style="font-weight:700;margin-bottom:12px;">Thông tin hệ thống</div>
+            <div style="display:grid;gap:10px;">
+                <div><strong>ID:</strong> #{{ $suKien->ma_su_kien }}</div>
+                <div><strong>Loại:</strong> {{ $suKien->loaiSuKien->ten_loai ?? 'Chưa phân loại' }}</div>
+                <div><strong>Trạng thái:</strong> {{ $suKien->trang_thai_label }}</div>
+                <div><strong>Bắt đầu:</strong> {{ $suKien->thoi_gian_bat_dau?->format('H:i d/m/Y') }}</div>
+                <div><strong>Kết thúc:</strong> {{ $suKien->thoi_gian_ket_thuc?->format('H:i d/m/Y') }}</div>
+                <div><strong>Địa điểm:</strong> {{ $suKien->dia_diem ?: 'Chưa cập nhật' }}</div>
+                <div><strong>Số lượng hiện tại:</strong> {{ $suKien->so_luong_hien_tai }}/{{ $suKien->so_luong_toi_da ?: 'Không giới hạn' }}</div>
+                <div><strong>Điểm cộng:</strong> +{{ $suKien->diem_cong }}</div>
+            </div>
+        </div>
 
-<img class="event-banner"
-     src="{{ asset('storage/'.$suKien->anh_su_kien) }}">
-
+        <div class="module-card">
+            <div style="font-weight:700;margin-bottom:12px;">Người tham gia</div>
+            <div class="text-muted" style="margin-bottom:10px;">Tổng đăng ký: {{ $suKien->dangKy->count() }}</div>
+            @forelse($suKien->dangKy as $dangKy)
+                <div style="padding:10px 0;border-bottom:1px solid var(--border-light);">
+                    <div style="font-weight:600;">{{ $dangKy->nguoiDung->ho_ten ?? $dangKy->ma_sinh_vien }}</div>
+                    <div class="text-muted text-sm">{{ $dangKy->ma_sinh_vien }} - {{ $dangKy->trang_thai_label }}</div>
+                </div>
+            @empty
+                <div class="text-muted">Chưa có người tham gia.</div>
+            @endforelse
+        </div>
+    </div>
 </div>
-</div>
-@endif
-@break
-
-
-{{-- HEADER --}}
-@case('header')
-
-<div class="card shadow-sm border-0 mb-3">
-<div class="card-body">
-
-<div class="d-flex gap-2 mb-2">
-
-<span class="badge bg-primary">
-{{ $suKien->loaiSuKien->ten_loai ?? 'Sự kiện' }}
-</span>
-
-<span class="badge bg-{{ $suKien->trang_thai_color }}">
-{{ $suKien->trang_thai_label }}
-</span>
-
-</div>
-
-<div class="event-title">
-{{ $suKien->ten_su_kien }}
-</div>
-
-</div>
-</div>
-
-@break
-
-
-{{-- INFO --}}
-@case('info')
-
-<div class="card shadow-sm border-0 mb-3">
-<div class="card-body">
-
-<div class="section-title">Thông tin sự kiện</div>
-
-<div class="info-grid">
-
-<div class="info-box">
-<div class="info-label">Địa điểm</div>
-<div class="info-value">
-<i class="bi bi-geo-alt text-danger"></i>
-{{ $suKien->dia_diem ?: '—' }}
-</div>
-</div>
-
-<div class="info-box">
-<div class="info-label">Bắt đầu</div>
-<div class="info-value">
-<i class="bi bi-calendar-event text-primary"></i>
-{{ $suKien->thoi_gian_bat_dau?->format('H:i d/m/Y') }}
-</div>
-</div>
-
-<div class="info-box">
-<div class="info-label">Kết thúc</div>
-<div class="info-value">
-<i class="bi bi-calendar-check text-success"></i>
-{{ $suKien->thoi_gian_ket_thuc?->format('H:i d/m/Y') }}
-</div>
-</div>
-
-<div class="info-box">
-<div class="info-label">Quy mô</div>
-<div class="info-value">
-<i class="bi bi-people text-info"></i>
-{{ $suKien->so_luong_hien_tai }}/{{ $suKien->so_luong_toi_da ?: '∞' }}
-</div>
-</div>
-
-<div class="info-box">
-<div class="info-label">Điểm cộng</div>
-<div class="info-value">
-<i class="bi bi-star text-warning"></i>
-+{{ $suKien->diem_cong ?: 0 }}
-</div>
-</div>
-
-</div>
-
-</div>
-</div>
-
-@break
-
-
-{{-- DESCRIPTION --}}
-@case('description')
-
-@if($suKien->mo_ta_chi_tiet)
-
-<div class="card shadow-sm border-0 mb-3">
-
-<div class="card-body">
-
-<div class="section-title">
-Nội dung chi tiết
-</div>
-
-<div class="ql-snow">
-<div class="ql-editor" style="padding:0">
-{!! $suKien->mo_ta_chi_tiet !!}
-</div>
-</div>
-
-</div>
-</div>
-
-@endif
-
-@break
-
-
-{{-- GALLERY --}}
-@case('gallery')
-
-@if($suKien->media->where('loai_tep','hinh_anh')->count())
-
-<div class="card shadow-sm border-0 mb-3">
-
-<div class="card-body">
-
-<div class="section-title">
-Hình ảnh sự kiện
-</div>
-
-<div class="gallery-grid">
-
-@foreach($suKien->media->where('loai_tep','hinh_anh') as $img)
-
-<a href="{{ asset('storage/'.$img->duong_dan_tep) }}" target="_blank">
-
-<img src="{{ asset('storage/'.$img->duong_dan_tep) }}">
-
-</a>
-
-@endforeach
-
-</div>
-
-</div>
-</div>
-
-@endif
-
-@break
-
-@endswitch
-
-@endforeach
-
-</div>
-
-
-{{-- SIDEBAR --}}
-<div class="col-lg-4">
-
-
-<div class="card shadow-sm">
-
-<div class="card-header d-flex justify-content-between align-items-center">
-
-<div>
-<i class="bi bi-people"></i>
-Danh sách đăng ký
-</div>
-
-<span class="badge bg-primary">
-{{ $suKien->dangKy->count() }}
-</span>
-
-</div>
-
-
-<div style="max-height:420px;overflow:auto">
-
-<table class="table table-hover participant-table mb-0">
-
-<thead>
-<tr>
-<th>Họ tên</th>
-<th>Trạng thái</th>
-</tr>
-</thead>
-
-<tbody>
-
-@forelse($suKien->dangKy as $dk)
-
-@php
-$statMap=[
-'da_dang_ky'=>['bg'=>'#dbeafe','t'=>'#1d4ed8','l'=>'Đã đăng ký'],
-'da_tham_gia'=>['bg'=>'#dcfce7','t'=>'#15803d','l'=>'Đã tham gia'],
-'vang_mat'=>['bg'=>'#fef3c7','t'=>'#92400e','l'=>'Vắng mặt'],
-'huy'=>['bg'=>'#fee2e2','t'=>'#b91c1c','l'=>'Đã hủy']
-];
-$s=$statMap[$dk->trang_thai_tham_gia] ?? $statMap['da_dang_ky'];
-@endphp
-
-<tr>
-
-<td>
-
-{{ $dk->nguoiDung->ho_ten ?? '—' }}
-
-<br>
-
-<small class="text-muted">
-{{ $dk->nguoiDung->ma_sinh_vien ?? '' }}
-</small>
-
-</td>
-
-<td>
-
-<span class="badge"
-style="background:{{ $s['bg'] }};color:{{ $s['t'] }}">
-
-{{ $s['l'] }}
-
-</span>
-
-</td>
-
-</tr>
-
-@empty
-
-<tr>
-<td colspan="2" class="text-center p-4 text-muted">
-Chưa có người đăng ký
-</td>
-</tr>
-
-@endforelse
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 @endsection

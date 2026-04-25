@@ -5,25 +5,27 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSuKienRequest;
 use App\Http\Requests\Admin\UpdateSuKienRequest;
-use App\Models\SuKien;
-use App\Models\LoaiSuKien;
-use App\Models\ThuVienDaPhuongTien;
 use App\Models\LichSuDiem;
+use App\Models\LoaiSuKien;
+use App\Models\MauBaiDang;
+use App\Models\SuKien;
+use App\Models\ThuVienDaPhuongTien;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Support\EventTemplateSupport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Traits\HasImageUpload;
 
 class SuKienController extends Controller
 {
-    use HasImageUpload;
     public function __construct() {}
+
     public function index(Request $request)
     {
-        $query = SuKien::with('loaiSuKien');
+        $query = SuKien::with('loaiSuKien')
+            ->where('la_mau_bai_dang', false);
 
         if ($request->filled('search')) {
             $query->where('ten_su_kien', 'like', '%' . $request->search . '%');
@@ -57,7 +59,7 @@ class SuKienController extends Controller
         $sortDir = $request->input('sort_dir', 'desc');
         $allowedSorts = ['ten_su_kien', 'created_at'];
 
-        if (in_array($sortCol, $allowedSorts)) {
+        if (in_array($sortCol, $allowedSorts, true)) {
             $query->orderBy($sortCol, $sortDir === 'asc' ? 'asc' : 'desc');
         } else {
             $query->latest();
@@ -69,35 +71,54 @@ class SuKienController extends Controller
         return view('admin.su_kien.index', compact('suKien', 'loaiSuKien'));
     }
 
-    public function create()
+    public function selectTemplate()
     {
+        $templates = MauBaiDang::with('loaiSuKien')
+            ->latest()
+            ->get()
+            ->map(function (MauBaiDang $template) {
+                $template->normalized_modules = EventTemplateSupport::normalizeTemplateModules($template->bo_cuc);
+                return $template;
+            });
+
+        return view('admin.su_kien.select-template', compact('templates'));
+    }
+
+    public function create(Request $request)
+    {
+        if (!$request->filled('template_id') && !$request->boolean('custom')) {
+            return redirect()->route('admin.su-kien.select-template');
+        }
+
         $loai = LoaiSuKien::all();
-        $templates = \App\Models\SuKien::where('la_mau_bai_dang', true)->get();
-        $mediaKho = \App\Models\ThuVienDaPhuongTien::libraryItems()
-            ->where('loai_tep', 'hinh_anh')
-            ->latest('created_at')
-            ->get();
-        return view('admin.su_kien.create', compact('loai', 'templates', 'mediaKho'));
+        $selectedTemplate = $request->filled('template_id')
+            ? MauBaiDang::findOrFail($request->integer('template_id'))
+            : null;
+
+        $moduleCatalog = EventTemplateSupport::moduleCatalog();
+        $moduleSchema = $selectedTemplate
+            ? EventTemplateSupport::normalizeTemplateModules($selectedTemplate->bo_cuc)
+            : EventTemplateSupport::defaultTemplateModules();
+
+        return view('admin.su_kien.create', compact('loai', 'selectedTemplate', 'moduleCatalog', 'moduleSchema'));
     }
 
     public function store(StoreSuKienRequest $request)
     {
         $data = $request->validated();
         $data['ma_nguoi_tao'] = auth()->id();
-        $data['trang_thai']   = 'sap_to_chuc';
-        $data['bo_cuc'] = $this->resolveLayout($request);
+        $data['trang_thai'] = 'sap_to_chuc';
+        $data['la_mau_bai_dang'] = false;
+
+        $modules = $this->buildEventModulesFromRequest($request);
+        $data['bo_cuc'] = $modules;
+        $data['anh_su_kien'] = $this->extractPrimaryBannerPath($modules);
+        $data['mo_ta_chi_tiet'] = $this->extractPrimaryDescription($modules);
         $data['so_luong_toi_da'] = $data['so_luong_toi_da'] ?? 0;
         $data['diem_cong'] = $data['diem_cong'] ?? 0;
 
-        $data['anh_su_kien'] = $this->handleImageUpload($request, null);
-
         $suKien = SuKien::create($data);
 
-        // Upload gallery images if any
-        $this->_uploadGallery($suKien, $request->file('gallery'));
-        $this->_attachLibraryGallery($suKien, $request->input('selected_media_ids', []));
-
-        // Gửi thông báo cho tất cả sinh viên về sự kiện mới
         try {
             $notificationService = new NotificationService();
             $studentIds = User::where('vai_tro', 'sinh_vien')
@@ -114,135 +135,235 @@ class SuKienController extends Controller
                     $suKien->ma_su_kien
                 );
             }
-        } catch (\Exception $e) {
-            // Log lỗi nhưng không dừng tạo sự kiện
+        } catch (\Throwable $e) {
             \Log::error('Failed to send notification for event: ' . $e->getMessage());
         }
 
         return redirect()->route('admin.su-kien.index')
-            ->with('success', 'Tạo sự kiện thành công và gửi thông báo cho sinh viên!');
+            ->with('success', 'Tạo sự kiện thành công theo mẫu đã chọn.');
     }
+
     public function show($id)
     {
-        $suKien = SuKien::with(['loaiSuKien', 'dangKy.nguoiDung'])->findOrFail($id);
+        $suKien = SuKien::with(['loaiSuKien', 'dangKy.nguoiDung'])
+            ->where('la_mau_bai_dang', false)
+            ->findOrFail($id);
+
         return view('admin.su_kien.show', compact('suKien'));
     }
+
     public function edit($id)
     {
-        $suKien = SuKien::findOrFail($id);
-        $loai   = LoaiSuKien::all();
-        $templates = \App\Models\SuKien::where('la_mau_bai_dang', true)->get();
-        $mediaKho = \App\Models\ThuVienDaPhuongTien::libraryItems()
-            ->where('loai_tep', 'hinh_anh')
-            ->latest('created_at')
-            ->get();
-        return view('admin.su_kien.edit', compact('suKien', 'loai', 'templates', 'mediaKho'));
+        $suKien = SuKien::where('la_mau_bai_dang', false)->findOrFail($id);
+        $loai = LoaiSuKien::all();
+        $moduleCatalog = EventTemplateSupport::moduleCatalog();
+        $moduleSchema = EventTemplateSupport::normalizeTemplateModules($suKien->bo_cuc);
+
+        return view('admin.su_kien.edit', compact('suKien', 'loai', 'moduleCatalog', 'moduleSchema'));
     }
 
     public function update(UpdateSuKienRequest $request, $id)
     {
-        $suKien = SuKien::findOrFail($id);
+        $suKien = SuKien::where('la_mau_bai_dang', false)->findOrFail($id);
         $data = $request->validated();
-        $data['trang_thai'] = $request->trang_thai;
-        $data['mo_ta_chi_tiet'] = $request->mo_ta_chi_tiet;
-        $data['dia_diem'] = $request->dia_diem;
-        $data['bo_cuc'] = $this->resolveLayout($request, $suKien->bo_cuc);
+        $data['trang_thai'] = $request->input('trang_thai', $suKien->trang_thai);
+
+        $modules = $this->buildEventModulesFromRequest($request, $suKien);
+        $data['bo_cuc'] = $modules;
+        $data['anh_su_kien'] = $this->extractPrimaryBannerPath($modules);
+        $data['mo_ta_chi_tiet'] = $this->extractPrimaryDescription($modules);
         $data['so_luong_toi_da'] = $data['so_luong_toi_da'] ?? 0;
         $data['diem_cong'] = $data['diem_cong'] ?? 0;
 
-        $data['anh_su_kien'] = $this->handleImageUpload($request, $suKien);
-
         $suKien->update($data);
 
-        // Xử lý upload thêm ảnh vào Gallery
-        $this->_uploadGallery($suKien, $request->file('gallery'));
-        $this->_attachLibraryGallery($suKien, $request->input('selected_media_ids', []));
-
         return redirect()->route('admin.su-kien.index')
-            ->with('success', 'Cập nhật sự kiện thành công!');
+            ->with('success', 'Cập nhật sự kiện thành công.');
     }
 
-    private function _uploadGallery(SuKien $suKien, $files)
+    protected function buildEventModulesFromRequest(Request $request, ?SuKien $suKien = null): array
     {
-        if ($files) {
-            foreach ($files as $file) {
-                if ($file->isValid()) {
-                    $path = $file->store('su_kien/gallery', 'public');
-                    \App\Models\ThuVienDaPhuongTien::create([
-                        'ma_su_kien'       => $suKien->ma_su_kien,
-                        'ma_nguoi_tai_len' => auth()->id(),
-                        'ten_tep'          => $file->getClientOriginalName(),
-                        'duong_dan_tep'    => $path,
-                        'loai_tep'         => 'hinh_anh',
-                        'kich_thuoc'       => $file->getSize(),
-                        'la_cong_khai'     => true
-                    ]);
+        $schema = EventTemplateSupport::normalizeTemplateModules($request->input('module_schema_json'));
+        $existing = collect(EventTemplateSupport::normalizeTemplateModules($suKien?->bo_cuc))
+            ->keyBy('id');
+        $contentInput = $request->input('module_content', []);
+        $bannerFiles = $request->file('module_banner', []);
+        $galleryFiles = $request->file('module_gallery', []);
+        $builtModules = [];
+
+        foreach ($schema as $module) {
+            $moduleId = $module['id'];
+            $existingContent = Arr::get($existing->get($moduleId, []), 'content', []);
+            $postedContent = Arr::get($contentInput, $moduleId, []);
+
+            $module['content'] = match ($module['type']) {
+                'banner' => $this->buildBannerContent(
+                    $postedContent,
+                    $existingContent,
+                    $bannerFiles[$moduleId] ?? null
+                ),
+                'header' => [
+                    'title' => trim((string) Arr::get($postedContent, 'title', Arr::get($existingContent, 'title', ''))),
+                    'subtitle' => trim((string) Arr::get($postedContent, 'subtitle', Arr::get($existingContent, 'subtitle', ''))),
+                    'badge' => trim((string) Arr::get($postedContent, 'badge', Arr::get($existingContent, 'badge', ''))),
+                ],
+                'info' => [
+                    'items' => collect(Arr::get($postedContent, 'items', Arr::get($existingContent, 'items', Arr::get($module, 'settings.items', []))))
+                        ->filter(fn($item) => array_key_exists($item, EventTemplateSupport::infoFieldCatalog()))
+                        ->values()
+                        ->all(),
+                    'custom_note' => trim((string) Arr::get($postedContent, 'custom_note', Arr::get($existingContent, 'custom_note', ''))),
+                ],
+                'description' => [
+                    'heading' => trim((string) Arr::get($postedContent, 'heading', Arr::get($existingContent, 'heading', Arr::get($module, 'title', '')))),
+                    'body' => trim((string) Arr::get($postedContent, 'body', Arr::get($existingContent, 'body', ''))),
+                ],
+                'gallery' => $this->buildGalleryContent(
+                    $postedContent,
+                    $existingContent,
+                    $galleryFiles[$moduleId] ?? []
+                ),
+                default => Arr::get($existing->get($moduleId, []), 'content', []),
+            };
+
+            $builtModules[] = $module;
+        }
+
+        $this->cleanupRemovedAssets($existing->all(), $builtModules);
+
+        return $builtModules;
+    }
+
+    protected function buildBannerContent(array $posted, array $existing, $file): array
+    {
+        $imagePath = Arr::get($existing, 'image_path');
+        $keepExisting = (bool) Arr::get($posted, 'keep_existing', $imagePath ? 1 : 0);
+
+        if ($file) {
+            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
+            $imagePath = $file->store('su_kien/modules/banner', 'public');
+        } elseif (!$keepExisting && $imagePath) {
+            if (Storage::disk('public')->exists($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
+            $imagePath = null;
+        }
+
+        return [
+            'caption' => trim((string) Arr::get($posted, 'caption', Arr::get($existing, 'caption', ''))),
+            'image_path' => $imagePath,
+        ];
+    }
+
+    protected function buildGalleryContent(array $posted, array $existing, array $files): array
+    {
+        $currentImages = collect(Arr::get($existing, 'images', []))
+            ->filter()
+            ->values()
+            ->all();
+
+        $keptImages = collect(Arr::get($posted, 'existing_images', $currentImages))
+            ->filter()
+            ->values()
+            ->all();
+
+        $removedImages = array_diff($currentImages, $keptImages);
+
+        foreach ($removedImages as $path) {
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+        }
+
+        $newImages = collect($files)
+            ->filter()
+            ->map(fn($file) => $file->store('su_kien/modules/gallery', 'public'))
+            ->values()
+            ->all();
+
+        return [
+            'images' => array_values(array_unique(array_merge($keptImages, $newImages))),
+        ];
+    }
+
+    protected function cleanupRemovedAssets(array $existingModules, array $newModules): void
+    {
+        $newIds = collect($newModules)->pluck('id')->all();
+
+        foreach ($existingModules as $module) {
+            if (in_array($module['id'] ?? null, $newIds, true)) {
+                continue;
+            }
+
+            $content = Arr::get($module, 'content', []);
+
+            if (!empty($content['image_path']) && Storage::disk('public')->exists($content['image_path'])) {
+                Storage::disk('public')->delete($content['image_path']);
+            }
+
+            foreach (Arr::get($content, 'images', []) as $path) {
+                if ($path && Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
                 }
             }
         }
     }
 
-    private function _attachLibraryGallery(SuKien $suKien, array $mediaIds): void
+    protected function extractPrimaryBannerPath(array $modules): ?string
     {
-        $mediaIds = collect($mediaIds)
-            ->filter()
-            ->map(fn($id) => (int) $id)
-            ->unique()
-            ->values();
-
-        if ($mediaIds->isEmpty()) {
-            return;
-        }
-
-        $existingPaths = ThuVienDaPhuongTien::where('ma_su_kien', $suKien->ma_su_kien)
-            ->pluck('duong_dan_tep')
-            ->filter()
-            ->all();
-
-        $libraryItems = ThuVienDaPhuongTien::whereIn('ma_phuong_tien', $mediaIds)
-            ->libraryItems()
-            ->where('loai_tep', 'hinh_anh')
-            ->get();
-
-        foreach ($libraryItems as $item) {
-            if (!$item->duong_dan_tep || !Storage::disk('public')->exists($item->duong_dan_tep)) {
+        foreach ($modules as $module) {
+            if (($module['type'] ?? null) !== 'banner') {
                 continue;
             }
 
-            if (in_array($item->duong_dan_tep, $existingPaths, true)) {
-                continue;
+            $path = Arr::get($module, 'content.image_path');
+
+            if ($path) {
+                return $path;
             }
-
-            ThuVienDaPhuongTien::create([
-                'ma_su_kien' => $suKien->ma_su_kien,
-                'ma_nguoi_tai_len' => auth()->id(),
-                'ten_tep' => $item->ten_tep,
-                'duong_dan_tep' => $item->duong_dan_tep,
-                'loai_tep' => 'hinh_anh',
-                'kich_thuoc' => $item->kich_thuoc ?: Storage::disk('public')->size($item->duong_dan_tep),
-                'la_cong_khai' => true,
-            ]);
-
-            $existingPaths[] = $item->duong_dan_tep;
         }
+
+        return null;
     }
 
-    private function resolveLayout(Request $request, ?array $fallback = null): array
+    protected function extractPrimaryDescription(array $modules): ?string
     {
-        $allowedModules = ['banner', 'header', 'info', 'description', 'gallery'];
+        foreach ($modules as $module) {
+            if (($module['type'] ?? null) !== 'description') {
+                continue;
+            }
 
-        $layout = collect($request->input('bo_cuc', $fallback ?? $allowedModules))
-            ->filter(fn($module) => in_array($module, $allowedModules, true))
-            ->values()
-            ->all();
+            $body = trim((string) Arr::get($module, 'content.body'));
 
-        return $layout !== [] ? $layout : $allowedModules;
+            if ($body !== '') {
+                return $body;
+            }
+        }
+
+        foreach ($modules as $module) {
+            if (($module['type'] ?? null) !== 'header') {
+                continue;
+            }
+
+            $subtitle = trim((string) Arr::get($module, 'content.subtitle'));
+
+            if ($subtitle !== '') {
+                return $subtitle;
+            }
+        }
+
+        return null;
     }
 
     public function destroy($id)
     {
-        SuKien::findOrFail($id)->delete();
-        return back()->with('success', 'Đã xóa sự kiện!');
+        SuKien::where('la_mau_bai_dang', false)->findOrFail($id)->delete();
+
+        return back()->with('success', 'Đã xóa sự kiện.');
     }
 
     public function thongKeDiem()
@@ -265,29 +386,29 @@ class SuKienController extends Controller
 
         $loai = LoaiSuKien::create([
             'ten_loai' => $request->ten_loai,
-            'mo_ta'    => $request->mo_ta,
+            'mo_ta' => $request->mo_ta,
         ]);
 
         return response()->json([
             'success' => true,
-            'loai'    => $loai
+            'loai' => $loai,
         ]);
     }
 
     public function kiemTraTrungLich(Request $request)
     {
         $dia_diem = $request->input('dia_diem');
-        $bat_dau  = $request->input('thoi_gian_bat_dau');
+        $bat_dau = $request->input('thoi_gian_bat_dau');
         $ket_thuc = $request->input('thoi_gian_ket_thuc');
-        $bo_qua_id = $request->input('bo_qua_id'); // Äá»ƒ dÃ¹ng khi edit, bá» qua sá»± kiá»‡n hiá»‡n táº¡i
+        $bo_qua_id = $request->input('bo_qua_id');
 
         if (empty($dia_diem) || empty($bat_dau) || empty($ket_thuc)) {
             return response()->json(['trung' => false]);
         }
 
-        $query = SuKien::where('dia_diem', $dia_diem)
+        $query = SuKien::where('la_mau_bai_dang', false)
+            ->where('dia_diem', $dia_diem)
             ->where(function ($q) use ($bat_dau, $ket_thuc) {
-                // Äiá»u kiá»‡n trÃ¹ng: Báº¯t Ä‘áº§u sá»± kiá»‡n má»›i náº±m trong khoáº£ng sá»± kiá»‡n cÅ©, hoáº·c káº¿t thÃºc náº±m trong khoáº£ng, hoáº·c bao trÃ¹m khoáº£ng cá»§a sá»± kiá»‡n cÅ©
                 $q->whereBetween('thoi_gian_bat_dau', [$bat_dau, $ket_thuc])
                     ->orWhereBetween('thoi_gian_ket_thuc', [$bat_dau, $ket_thuc])
                     ->orWhere(function ($q2) use ($bat_dau, $ket_thuc) {
@@ -306,7 +427,7 @@ class SuKienController extends Controller
         if ($suKienTrung) {
             return response()->json([
                 'trung' => true,
-                'thong_bao' => 'ÄÃ£ cÃ³ sá»± kiá»‡n "' . $suKienTrung->ten_su_kien . '" diá»…n ra tá»« ' . date('H:i d/m', strtotime($suKienTrung->thoi_gian_bat_dau)) . ' Ä‘áº¿n ' . date('H:i d/m', strtotime($suKienTrung->thoi_gian_ket_thuc)) . ' táº¡i Ä‘á»‹a Ä‘iá»ƒm nÃ y!'
+                'thong_bao' => 'Đã có sự kiện "' . $suKienTrung->ten_su_kien . '" diễn ra tại địa điểm này trong khoảng thời gian đã chọn.',
             ]);
         }
 
@@ -315,18 +436,17 @@ class SuKienController extends Controller
 
     public function xoaHinhAnh($id)
     {
-        $media = \App\Models\ThuVienDaPhuongTien::find($id);
-        if (!$media) return response()->json(['success' => false, 'message' => 'Không tìm thấy ảnh.'], 404);
+        $media = ThuVienDaPhuongTien::find($id);
 
-        // Logic xóa file đã được xử lý tự động trong model event
+        if (!$media) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy ảnh.'], 404);
+        }
+
         $media->forceDelete();
 
         return response()->json(['success' => true]);
     }
 
-    /**
-     * Kiểm tra xung đột sự kiện (cùng thời gian và địa điểm)
-     */
     public function checkCollision(Request $request)
     {
         $request->validate([
@@ -341,10 +461,9 @@ class SuKienController extends Controller
         $diaDiem = $request->input('dia_diem');
         $boQuaId = $request->input('bo_qua_id');
 
-        // Tìm các sự kiện trùng lịch và địa điểm
-        $conflicts = SuKien::where('dia_diem', 'like', '%' . $diaDiem . '%')
+        $conflicts = SuKien::where('la_mau_bai_dang', false)
+            ->where('dia_diem', 'like', '%' . $diaDiem . '%')
             ->where(function ($query) use ($batDau, $ketThuc) {
-                // Kiểm tra xung đột thời gian
                 $query->whereBetween('thoi_gian_bat_dau', [$batDau, $ketThuc])
                     ->orWhereBetween('thoi_gian_ket_thuc', [$batDau, $ketThuc])
                     ->orWhere(function ($q) use ($batDau, $ketThuc) {
@@ -352,7 +471,7 @@ class SuKienController extends Controller
                             ->where('thoi_gian_ket_thuc', '>=', $ketThuc);
                     });
             })
-            ->where('trang_thai', '!=', 'da_huy')
+            ->where('trang_thai', '!=', 'huy')
             ->select('ma_su_kien', 'ten_su_kien', 'thoi_gian_bat_dau', 'thoi_gian_ket_thuc', 'dia_diem')
             ->when($boQuaId, fn($query) => $query->where('ma_su_kien', '!=', $boQuaId))
             ->get();
@@ -362,7 +481,7 @@ class SuKienController extends Controller
             'conflicts' => $conflicts,
             'message' => count($conflicts) > 0
                 ? 'Có ' . count($conflicts) . ' sự kiện khác cùng thời gian và địa điểm'
-                : 'Không có sự kiện nào trùng lịch'
+                : 'Không có sự kiện nào trùng lịch',
         ]);
     }
 }

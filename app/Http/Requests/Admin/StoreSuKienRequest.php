@@ -15,20 +15,20 @@ class StoreSuKienRequest extends FormRequest
     {
         return [
             'ten_su_kien' => 'required|max:200',
-            'mo_ta_chi_tiet' => 'required|string|max:5000',
+            'mo_ta_chi_tiet' => 'nullable|string|max:5000',
             'dia_diem' => 'required|string|max:255',
             'ma_loai_su_kien' => 'required|exists:loai_su_kien,ma_loai_su_kien',
             'thoi_gian_bat_dau' => 'required|date',
             'thoi_gian_ket_thuc' => 'required|date|after:thoi_gian_bat_dau',
             'so_luong_toi_da' => 'required|integer|min:1',
             'diem_cong' => 'required|integer|min:0',
-            'anh_su_kien' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'gallery' => 'nullable|array',
-            'gallery.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'selected_media_ids' => 'nullable|array',
-            'selected_media_ids.*' => 'integer|exists:thu_vien_da_phuong_tien,ma_phuong_tien',
-            'bo_cuc' => 'nullable|array',
-            'bo_cuc.*' => 'in:banner,header,info,description,gallery',
+            'module_schema_json' => 'required|string',
+            'module_content' => 'nullable|array',
+            'module_banner' => 'nullable|array',
+            'module_banner.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'module_gallery' => 'nullable|array',
+            'module_gallery.*' => 'nullable|array',
+            'module_gallery.*.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ];
     }
 
@@ -50,7 +50,7 @@ class StoreSuKienRequest extends FormRequest
                                   ->where('thoi_gian_ket_thuc', '>=', $ketThuc);
                             });
                     })
-                    ->where('trang_thai', '!=', 'da_huy')
+                    ->where('trang_thai', '!=', 'huy')
                     ->first();
 
                 if ($conflict && $this->input('force_create') !== '1') {
@@ -65,7 +65,6 @@ class StoreSuKienRequest extends FormRequest
         return [
             'ten_su_kien.required' => 'Vui lòng nhập tên sự kiện.',
             'ten_su_kien.max' => 'Tên sự kiện không được vượt quá 200 ký tự.',
-            'mo_ta_chi_tiet.required' => 'Vui lòng nhập nội dung mô tả chi tiết.',
             'mo_ta_chi_tiet.string' => 'Nội dung mô tả chi tiết phải là dạng chuỗi văn bản.',
             'mo_ta_chi_tiet.max' => 'Nội dung mô tả chi tiết không được vượt quá 5000 ký tự.',
             'dia_diem.required' => 'Vui lòng nhập địa điểm tổ chức.',
@@ -84,18 +83,15 @@ class StoreSuKienRequest extends FormRequest
             'diem_cong.required' => 'Vui lòng nhập điểm cộng rèn luyện.',
             'diem_cong.integer' => 'Điểm cộng rèn luyện phải là một số nguyên dương.',
             'diem_cong.min' => 'Điểm cộng rèn luyện không được là số âm.',
-            'anh_su_kien.image' => 'Tệp được chọn làm ảnh bìa phải là định dạng hình ảnh.',
-            'anh_su_kien.mimes' => 'Ảnh bìa chỉ hỗ trợ các định dạng: jpeg, png, jpg, gif, webp.',
-            'anh_su_kien.max' => 'Dung lượng ảnh bìa không được vượt quá 5MB.',
-            'gallery.array' => 'Danh sách dữ liệu hình ảnh tải lên không đúng định dạng.',
-            'gallery.*.image' => 'Tất cả các tệp trong bộ sưu tập (gallery) phải là định dạng hình ảnh.',
-            'gallery.*.mimes' => 'Hình ảnh gallery phải thuộc các định dạng: jpeg, png, jpg, gif, webp.',
-            'gallery.*.max' => 'Dung lượng mỗi ảnh trong gallery không được vượt quá 5MB.',
-            'selected_media_ids.array' => 'Danh sách hình ảnh từ thư viện không hợp lệ.',
-            'selected_media_ids.*.integer' => 'Mã định danh của tệp phương tiện phải là số nguyên.',
-            'selected_media_ids.*.exists' => 'Một hoặc nhiều hình ảnh chọn từ thư viện không còn tồn tại trên hệ thống.',
-            'bo_cuc.array' => 'Dữ liệu bố cục không hợp lệ. Vui lòng kiểm tra lại.',
-            'bo_cuc.*.in' => 'Một trong số các mô-đun bố cục được chọn không tồn tại (hỗ trợ: banner, header, info, description, gallery).',
+            'module_schema_json.required' => 'Thiếu cấu trúc module của mẫu bài đăng.',
+            'module_banner.array' => 'Dữ liệu ảnh banner không hợp lệ.',
+            'module_banner.*.image' => 'Ảnh banner phải là tệp hình ảnh hợp lệ.',
+            'module_banner.*.mimes' => 'Ảnh banner chỉ hỗ trợ jpeg, png, jpg, gif, webp.',
+            'module_banner.*.max' => 'Dung lượng mỗi ảnh banner không được vượt quá 5MB.',
+            'module_gallery.array' => 'Dữ liệu gallery theo module không hợp lệ.',
+            'module_gallery.*.*.image' => 'Ảnh trong gallery module phải là tệp hình ảnh hợp lệ.',
+            'module_gallery.*.*.mimes' => 'Ảnh trong gallery module chỉ hỗ trợ jpeg, png, jpg, gif, webp.',
+            'module_gallery.*.*.max' => 'Dung lượng mỗi ảnh trong gallery module không được vượt quá 5MB.',
         ];
     }
 }

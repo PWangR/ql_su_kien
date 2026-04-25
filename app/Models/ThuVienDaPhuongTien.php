@@ -25,8 +25,13 @@ class ThuVienDaPhuongTien extends Model
     }
 
     protected $fillable = [
-        'ma_su_kien', 'ma_nguoi_tai_len', 'ten_tep',
-        'duong_dan_tep', 'loai_tep', 'kich_thuoc', 'la_cong_khai'
+        'ma_su_kien',
+        'ma_nguoi_tai_len',
+        'ten_tep',
+        'duong_dan_tep',
+        'loai_tep',
+        'kich_thuoc',
+        'la_cong_khai'
     ];
 
     protected $casts = [
@@ -43,9 +48,21 @@ class ThuVienDaPhuongTien extends Model
         return $this->belongsTo(User::class, 'ma_nguoi_tai_len', 'ma_sinh_vien');
     }
 
+    public function theAnh()
+    {
+        return $this->belongsToMany(
+            TheAnh::class,
+            'the_anh_thu_vien',
+            'ma_phuong_tien',
+            'ma_the_anh',
+            'ma_phuong_tien',
+            'ma_the_anh'
+        );
+    }
+
     public function getLoaiTepLabelAttribute()
     {
-        return match($this->loai_tep) {
+        return match ($this->loai_tep) {
             'hinh_anh'  => 'Hình ảnh',
             'video'     => 'Video',
             'tai_lieu'  => 'Tài liệu',

@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CuTriController;
 use App\Http\Controllers\Admin\KetQuaBauCuController;
 use App\Http\Controllers\Admin\DiemDanhController;
 use App\Http\Controllers\Admin\BaoCaoController;
+use App\Http\Controllers\Admin\GeminiSettingController;
 use App\Http\Controllers\Admin\SmtpSettingController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\AuthController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\BauCuFrontController;
 use App\Http\Controllers\BoPhieuController;
+use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -81,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications',                   [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read',        [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all',         [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/chatbot/ask',                    [ChatbotController::class, 'ask'])->name('chatbot.ask');
 
     // Bầu cử (user)
     Route::get('/bau-cu',                    [BauCuFrontController::class, 'index'])->name('bau-cu.index');
@@ -117,6 +120,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('diem-danh/scanner', [DiemDanhController::class, 'processScanner'])->name('diem-danh.process-scanner');
 
     // Quản lý sự kiện
+    Route::get('su-kien/chon-mau', [SuKienController::class, 'selectTemplate'])->name('su-kien.select-template');
     Route::post('su-kien/loai-su-kien', [SuKienController::class, 'storeLoaiSuKien'])->name('su-kien.store-loai');
     Route::post('su-kien/kiem-tra-trung-lich', [SuKienController::class, 'kiemTraTrungLich'])->name('su-kien.kiem-tra-trung-lich');
     Route::post('su-kien/check-collision', [SuKienController::class, 'checkCollision'])->name('su-kien.check-collision');
@@ -131,6 +135,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('media',         [MediaController::class, 'index'])->name('media.index');
     Route::post('media/upload', [MediaController::class, 'upload'])->name('media.upload');
     Route::delete('media/{id}', [MediaController::class, 'destroy'])->name('media.destroy');
+    Route::get('media/tags/json', [MediaController::class, 'tagsJson'])->name('media.tags.json');
+    Route::post('media/tags/create', [MediaController::class, 'tagsCreate'])->name('media.tags.create');
 
     // Template bài đăng
     Route::resource('templates', TemplateController::class);
@@ -172,6 +178,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('smtp',          [SmtpSettingController::class, 'index'])->name('smtp.index');
     Route::post('smtp',         [SmtpSettingController::class, 'update'])->name('smtp.update');
     Route::post('smtp/test',    [SmtpSettingController::class, 'testEmail'])->name('smtp.test');
+    Route::get('gemini',        [GeminiSettingController::class, 'index'])->name('gemini.index');
+    Route::post('gemini',       [GeminiSettingController::class, 'update'])->name('gemini.update');
+    Route::post('gemini/test',  [GeminiSettingController::class, 'test'])->name('gemini.test');
 
     // Log hoạt động
     Route::get('activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

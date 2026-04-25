@@ -17,6 +17,7 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $query = SuKien::with('loaiSuKien')
+            ->where('la_mau_bai_dang', false)
             ->where('trang_thai', '!=', 'huy')
             ->whereNull('deleted_at');
 
@@ -67,7 +68,9 @@ class EventController extends Controller
 
     public function show($id)
     {
-        $suKien = SuKien::with(['loaiSuKien', 'media', 'nguoiTao'])->findOrFail($id);
+        $suKien = SuKien::with(['loaiSuKien', 'media', 'nguoiTao'])
+            ->where('la_mau_bai_dang', false)
+            ->findOrFail($id);
 
         $daDangKy = false;
         if (auth()->check()) {
@@ -80,6 +83,7 @@ class EventController extends Controller
 
         // Sự kiện liên quan
         $suKienLienQuan = SuKien::where('ma_loai_su_kien', $suKien->ma_loai_su_kien)
+            ->where('la_mau_bai_dang', false)
             ->where('ma_su_kien', '!=', $id)
             ->where('trang_thai', '!=', 'huy')
             ->whereNull('deleted_at')

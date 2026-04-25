@@ -275,7 +275,7 @@ const mist     = '#CBD5E0';
 const cream    = '#E8E4DC';
 
 // Chart defaults
-Chart.defaults.font.family = "'Source Sans 3', sans-serif";
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
 Chart.defaults.font.size = 12;
 Chart.defaults.color = '#6B6B6B';
 

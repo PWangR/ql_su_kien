@@ -72,6 +72,9 @@
         <a href="{{ route('admin.smtp.index') }}" class="{{ request()->routeIs('admin.smtp*') ? 'active' : '' }}">
             <i class="bi bi-envelope-gear"></i> Cấu hình SMTP
         </a>
+        <a href="{{ route('admin.gemini.index') }}" class="{{ request()->routeIs('admin.gemini*') ? 'active' : '' }}">
+            <i class="bi bi-robot"></i> Gemini AI chatbot
+        </a>
         <a href="{{ route('admin.activity-logs.index') }}" class="{{ request()->routeIs('admin.activity-logs*') ? 'active' : '' }}">
             <i class="bi bi-clock-history"></i> Log hoạt động
         </a>

@@ -4,7 +4,7 @@
    ================================================================ */
 
 /* ── Google Fonts Import ── */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Source+Code+Pro:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* ── Loading Overlay CSS ── */
 @import './loading.css';
@@ -58,8 +58,8 @@
 
     /* Typography */
     --font-serif: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
-    --font-sans: 'Source Sans 3', 'Helvetica Neue', 'Arial', sans-serif;
-    --font-mono: 'Source Code Pro', 'Consolas', monospace;
+    --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 
     /* Spacing */
     --space-xs: 4px;
@@ -579,10 +579,10 @@ small,
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--border-radius-md);
-    padding: 20px;
+    padding: 16px 18px;
     display: flex;
     align-items: center;
-    gap: var(--space-md);
+    gap: 12px;
     transition: border-color 0.2s;
 }
 
@@ -590,34 +590,46 @@ small,
     border-color: var(--accent);
 }
 
+.stat-card>div:last-child {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
 .stat-icon {
-    width: 50px;
-    height: 50px;
+    width: 42px;
+    height: 42px;
     border: 1.5px solid var(--border);
     border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     color: var(--accent);
     flex-shrink: 0;
     background: var(--bg-alt);
 }
 
 .stat-value {
-    font-family: var(--font-serif);
-    font-size: 1.75rem;
+    font-family: var(--font-sans);
+    font-size: 1.95rem;
     font-weight: 700;
     color: var(--text);
     line-height: 1;
+    letter-spacing: -0.03em;
 }
 
 .stat-label {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-top: 4px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    margin-top: 0;
+    word-break: break-word;
 }
 
 /* ── Tables ── */
@@ -1500,6 +1512,12 @@ select.form-control {
     border: 1px solid var(--border-light);
 }
 
+.chat-msg.user {
+    background: var(--accent);
+    color: #FFFFFF;
+    align-self: flex-end;
+}
+
 .chatbot-quick {
     padding: 10px var(--space-md) 14px;
     display: flex;
@@ -1524,6 +1542,59 @@ select.form-control {
 .quick-btn:hover {
     background: var(--accent);
     color: #FFFFFF;
+}
+
+.chatbot-input-wrap {
+    border-top: 1px solid var(--border-light);
+    padding: 12px var(--space-md) var(--space-md);
+}
+
+.chatbot-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chatbot-input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    padding: 10px 12px;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: var(--text);
+    background: var(--card);
+}
+
+.chatbot-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.chatbot-send {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: var(--border-radius);
+    background: var(--accent);
+    color: #FFFFFF;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.chatbot-send:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.chatbot-status {
+    min-height: 18px;
+    margin-top: 6px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
 }
 
 /* ══════════════════════════════════════════════
@@ -2089,13 +2160,13 @@ select.form-control {
     --radius-md: 10px;
     --radius-lg: 16px;
     --radius-pill: 9999px;
-    
+
     /* Shadows (Depth) */
     --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
     --shadow-sm: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
     --shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
     --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
-    
+
     /* Transitions */
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -2103,16 +2174,26 @@ select.form-control {
 }
 
 /* ── 10. Micro-interactions Global ── */
-a, button, .card, .btn, .sidebar-nav a, input, select {
-    transition: background var(--transition-base), 
-                color var(--transition-base), 
-                border-color var(--transition-base), 
-                box-shadow var(--transition-base), 
-                transform var(--transition-base);
+a,
+button,
+.card,
+.btn,
+.sidebar-nav a,
+input,
+select {
+    transition: background var(--transition-base),
+        color var(--transition-base),
+        border-color var(--transition-base),
+        box-shadow var(--transition-base),
+        transform var(--transition-base);
 }
 
 /* ── 1. Card & 11. Event Card ── */
-.card, .panel, .stat-card, .event-card, .info-card {
+.card,
+.panel,
+.stat-card,
+.event-card,
+.info-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
@@ -2120,14 +2201,17 @@ a, button, .card, .btn, .sidebar-nav a, input, select {
 }
 
 /* Hover effect cho các card clickable */
-a.card:hover, a.event-card:hover, .clickable-card:hover {
+a.card:hover,
+a.event-card:hover,
+.clickable-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
     border-color: var(--border-light);
 }
 
 /* ── 9. Card Header ── */
-.card-header, .panel-head {
+.card-header,
+.panel-head {
     background: transparent;
     border-bottom: 1px solid var(--border-light);
     padding: var(--space-md) var(--space-lg);
@@ -2145,20 +2229,20 @@ a.card:hover, a.event-card:hover, .clickable-card:hover {
     background: linear-gradient(180deg, var(--accent-light) 0%, var(--accent) 100%);
     color: #FFF;
     border: 1px solid transparent;
-    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
-    box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255,255,255,0.15);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.2);
+    box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.2);
     color: #FFF;
 }
 
 /* ── 3. Sidebar (Dashboard feel) ── */
 .sidebar {
     background: var(--bg-dark);
-    border-right: 1px solid rgba(255,255,255,0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     color: #94A3B8;
     display: flex;
     flex-direction: column;
@@ -2178,6 +2262,7 @@ a.card:hover, a.event-card:hover, .clickable-card:hover {
 .sidebar-nav::-webkit-scrollbar {
     width: 4px;
 }
+
 .sidebar-nav::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
@@ -2194,7 +2279,7 @@ a.card:hover, a.event-card:hover, .clickable-card:hover {
 }
 
 /* Fix margin cho label đầu tiên */
-.sidebar-nav > .sidebar-label:first-child {
+.sidebar-nav>.sidebar-label:first-child {
     margin-top: 0;
 }
 
@@ -2205,13 +2290,14 @@ a.card:hover, a.event-card:hover, .clickable-card:hover {
     margin-bottom: 2px;
 }
 
-.sidebar-nav a:hover, .sidebar-nav a:focus {
-    background: rgba(255,255,255,0.05);
+.sidebar-nav a:hover,
+.sidebar-nav a:focus {
+    background: rgba(255, 255, 255, 0.05);
     color: #F8FAFC;
 }
 
 .sidebar-nav a.active {
-    background: linear-gradient(90deg, rgba(37,99,235,0.15) 0%, transparent 100%);
+    background: linear-gradient(90deg, rgba(37, 99, 235, 0.15) 0%, transparent 100%);
     color: #60A5FA;
     border-left: 3px solid var(--accent-light);
 }
@@ -2220,6 +2306,7 @@ a.card:hover, a.event-card:hover, .clickable-card:hover {
     color: inherit;
     opacity: 0.7;
 }
+
 .sidebar-nav a.active i {
     opacity: 1;
 }
@@ -2268,7 +2355,11 @@ table tbody tr:last-child td {
 }
 
 /* ── 6. Form ── */
-.form-control, .form-select, input, select, textarea {
+.form-control,
+.form-select,
+input,
+select,
+textarea {
     border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     background: var(--card);
@@ -2277,14 +2368,19 @@ table tbody tr:last-child td {
     color: var(--text);
 }
 
-.form-control:focus, .form-select:focus, input:focus, textarea:focus {
+.form-control:focus,
+.form-select:focus,
+input:focus,
+textarea:focus {
     outline: none;
     border-color: var(--accent-light);
     box-shadow: 0 0 0 4px var(--accent-bg);
 }
 
 /* ── 7. Badge ── */
-.badge, .status-badge, .pill-badge {
+.badge,
+.status-badge,
+.pill-badge {
     border-radius: var(--radius-pill);
     padding: 4px 12px;
     font-size: 0.75rem;
@@ -2300,7 +2396,11 @@ body {
     color: var(--text);
 }
 
-h1, h2, h3, h4, .panel-title {
+h1,
+h2,
+h3,
+h4,
+.panel-title {
     color: var(--text-light);
     font-weight: 700;
     letter-spacing: -0.01em;
@@ -2311,7 +2411,8 @@ h1, h2, h3, h4, .panel-title {
 }
 
 /* ── 12. Chatbot UI (Modern Float) ── */
-.chatbot-float, .chat-window {
+.chatbot-float,
+.chat-window {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
 }
@@ -2351,6 +2452,39 @@ h1, h2, h3, h4, .panel-title {
 }
 
 @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ================================================================
+   NUMERIC CLARITY OVERRIDES
+   Chi lam ro so 0, khong doi tong the giao dien
+   ================================================================ */
+
+:root {
+    --font-numeric: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.stat-value,
+.badge,
+.notif-badge,
+.pagination a,
+.pagination span,
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[name*="ma_"],
+input[name*="so_"],
+input[id*="ma_"],
+input[id*="so_"],
+.mono {
+    font-family: var(--font-numeric);
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "zero" 1, "tnum" 1, "lnum" 1;
 }
