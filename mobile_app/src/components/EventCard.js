@@ -1,20 +1,22 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Colors from '../constants/Colors';
+import Typography from '../constants/Typography';
+import { BASE_URL } from '../services/api';
 
-const EventCard = ({ event, onPress }) => {
-  // Determine status badge color and label
+const EventCard = memo(({ event, onPress }) => {
   const getStatusConfig = (status) => {
     const config = {
-      sap_to_chuc: { label: 'Sắp tổ chức', color: '#007bff' },
-      dang_dien_ra: { label: 'Đang diễn ra', color: '#28a745' },
-      da_ket_thuc: { label: 'Đã kết thúc', color: '#6c757d' },
+      sap_to_chuc: { label: 'Sắp tổ chức', color: Colors.primary, bgColor: Colors.primaryBg },
+      dang_dien_ra: { label: 'Đang diễn ra', color: Colors.success, bgColor: Colors.successBg },
+      da_ket_thuc: { label: 'Đã kết thúc', color: Colors.danger, bgColor: Colors.dangerBg },
     };
-    return config[status] || { label: 'Không xác định', color: '#6c757d' };
+    return config[status] || { label: 'Không xác định', color: Colors.textMuted, bgColor: Colors.background };
   };
 
   const statusConfig = getStatusConfig(event.trang_thai_thuc_te);
-  const imageUrl = event.anh_su_kien ? `http://192.168.1.211:8000/storage/${event.anh_su_kien}` : null;
+  const imageUrl = event.anh_su_kien ? `${BASE_URL}/storage/${event.anh_su_kien}` : null;
 
   const formatDateTime = (dateString) => {
     if (!dateString) return '';
@@ -28,103 +30,84 @@ const EventCard = ({ event, onPress }) => {
     });
   };
 
-  const truncateText = (text, maxLength = 50) => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  };
-
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-      {/* Image Container */}
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.imageContainer}>
         {imageUrl ? (
-          <Image
-            source={{ uri: imageUrl }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
         ) : (
           <View style={[styles.image, styles.placeholderImage]}>
-            <MaterialIcons name="calendar-today" size={48} color="#ccc" />
+            <MaterialIcons name="calendar-today" size={40} color={Colors.border} />
           </View>
         )}
-
-        {/* Status Badge */}
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: statusConfig.color },
-          ]}
-        >
-          <Text style={styles.statusText}>{statusConfig.label}</Text>
+        <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor, borderColor: statusConfig.color }]}>
+          <Text style={[styles.statusText, { color: statusConfig.color }]}>{statusConfig.label}</Text>
         </View>
       </View>
 
-      {/* Card Body */}
       <View style={styles.cardBody}>
-        <Text style={styles.cardTitle} numberOfLines={2}>
-          {truncateText(event.ten_su_kien, 55)}
+        {event.loai_su_kien && (
+          <Text style={[Typography.label, { color: Colors.primary, marginBottom: 4 }]}>
+            {event.loai_su_kien.ten_loai}
+          </Text>
+        )}
+        <Text style={[Typography.h3, styles.cardTitle]} numberOfLines={2}>
+          {event.ten_su_kien}
         </Text>
 
-        {/* Meta Information */}
         <View style={styles.cardMeta}>
           {event.thoi_gian_bat_dau && (
             <View style={styles.metaItem}>
-              <MaterialIcons name="access-time" size={12} color="#666" />
-              <Text style={styles.metaText} numberOfLines={1}>
+              <MaterialIcons name="access-time" size={14} color={Colors.textMuted} />
+              <Text style={[Typography.caption, styles.metaText]} numberOfLines={1}>
                 {formatDateTime(event.thoi_gian_bat_dau)}
               </Text>
             </View>
           )}
-
           {event.dia_diem && (
             <View style={styles.metaItem}>
-              <MaterialIcons name="location-on" size={12} color="#666" />
-              <Text style={styles.metaText} numberOfLines={1}>
-                {event.dia_diem.length > 35 ? event.dia_diem.substring(0, 35) + '...' : event.dia_diem}
+              <MaterialIcons name="location-on" size={14} color={Colors.textMuted} />
+              <Text style={[Typography.caption, styles.metaText]} numberOfLines={1}>
+                {event.dia_diem}
               </Text>
             </View>
           )}
-
-          {event.diem_cong > 0 && (
-            <View style={styles.metaItem}>
-              <MaterialIcons name="star" size={12} color="#ffc107" />
-              <Text style={styles.metaText}>+{event.diem_cong} điểm</Text>
-            </View>
-          )}
         </View>
       </View>
 
-      {/* Card Footer */}
       <View style={styles.cardFooter}>
-        <View style={styles.participantInfo}>
-          <MaterialIcons name="people" size={14} color="#666" />
-          <Text style={styles.participantText}>
+        <View style={styles.participantCount}>
+          <MaterialIcons name="group" size={14} color={Colors.textMuted} />
+          <Text style={[Typography.caption, { marginLeft: 4 }]}>
             {event.so_luong_hien_tai}/{event.so_luong_toi_da || '∞'}
           </Text>
         </View>
-        <MaterialIcons name="arrow-forward" size={16} color="#007bff" />
+        <View style={styles.actionLink}>
+          <Text style={[Typography.label, { color: Colors.primary, textTransform: 'none' }]}>Xem chi tiết</Text>
+          <MaterialIcons name="arrow-forward" size={14} color={Colors.primary} />
+        </View>
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
     overflow: 'hidden',
-    marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    elevation: 2,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
   },
   imageContainer: {
-    position: 'relative',
+    height: 160,
     width: '100%',
-    height: 180,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#F8FAFC',
   },
   image: {
     width: '100%',
@@ -133,67 +116,58 @@ const styles = StyleSheet.create({
   placeholderImage: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e9ecef',
   },
   statusBadge: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 12,
+    right: 12,
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
+    paddingVertical: 4,
+    borderRadius: 4,
+    borderWidth: 1,
   },
   statusText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
   cardBody: {
-    padding: 12,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#212529',
-    marginBottom: 10,
-    lineHeight: 20,
+    color: Colors.text,
+    marginBottom: 12,
   },
   cardMeta: {
-    gap: 8,
+    gap: 6,
   },
   metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   metaText: {
-    fontSize: 12,
-    color: '#666',
+    color: Colors.textMuted,
     flex: 1,
   },
   cardFooter: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#e9ecef',
+    backgroundColor: '#FCFDFF',
   },
-  participantInfo: {
+  participantCount: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
   },
-  participantText: {
-    fontSize: 12,
-    color: '#666',
-    fontWeight: '500',
+  actionLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
 });
 

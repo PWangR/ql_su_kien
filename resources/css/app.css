@@ -13,8 +13,8 @@
 /* ── CSS Custom Properties ── */
 :root {
     /* ===== CORE BACKGROUND ===== */
-    --bg: #F8FAFC;
-    /* nền chính (sáng hơn, sạch hơn) */
+    --bg: #EEF2F6;
+    /* nền chính (đậm hơn một chút để nổi bật card trắng) */
     --bg-alt: #F1F5F9;
     /* nền phụ */
     --bg-dark: #0F172A;
@@ -523,11 +523,13 @@ small,
     border: 1px solid var(--border);
     border-radius: var(--border-radius-md);
     overflow: hidden;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .card:hover {
-    border-color: var(--border);
+    border-color: var(--accent);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
@@ -956,8 +958,9 @@ select.form-control {
     top: 0;
     z-index: 1000;
     height: var(--header-h);
-    background: var(--bg);
+    background: #FFFFFF;
     border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .header-inner {

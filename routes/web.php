@@ -132,11 +132,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('nguoi-dung/{id}/toggle-status', [NguoiDungController::class, 'toggleStatus'])->name('nguoi-dung.toggle-status');
 
     // Thư viện media
-    Route::get('media',         [MediaController::class, 'index'])->name('media.index');
-    Route::post('media/upload', [MediaController::class, 'upload'])->name('media.upload');
-    Route::delete('media/{id}', [MediaController::class, 'destroy'])->name('media.destroy');
-    Route::get('media/tags/json', [MediaController::class, 'tagsJson'])->name('media.tags.json');
+    Route::get('media',              [MediaController::class, 'index'])->name('media.index');
+    Route::post('media/upload',      [MediaController::class, 'upload'])->name('media.upload');
+    Route::get('media/api/list',     [MediaController::class, 'apiList'])->name('media.api.list');
+    Route::get('media/tags/json',    [MediaController::class, 'tagsJson'])->name('media.tags.json');
     Route::post('media/tags/create', [MediaController::class, 'tagsCreate'])->name('media.tags.create');
+    Route::delete('media/{id}',      [MediaController::class, 'destroy'])->name('media.destroy');
 
     // Template bài đăng
     Route::resource('templates', TemplateController::class);

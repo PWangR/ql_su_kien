@@ -7,6 +7,7 @@ import {
   Text,
   RefreshControl,
   SectionList,
+  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
@@ -15,6 +16,7 @@ import useAuthStore from '../store/authStore';
 import EventCard from '../components/EventCard';
 import SearchBar from '../components/SearchBar';
 import EventFilters from '../components/EventFilters';
+import Colors from '../constants/Colors';
 
 const EventListScreen = ({ navigation }) => {
   const [events, setEvents] = useState([]);
@@ -147,7 +149,7 @@ const EventListScreen = ({ navigation }) => {
       <View style={styles.headerContent}>
         <Text style={styles.headerTitle}>Sự kiện</Text>
         <Text style={styles.headerSubtitle}>
-          Khám phá và đăng ký tham gia các sự kiện
+          Khám phá và đăng ký tham gia các sự kiện mới nhất
         </Text>
       </View>
     </View>
@@ -161,7 +163,7 @@ const EventListScreen = ({ navigation }) => {
     return (
       <View style={styles.footerContainer}>
         {loading && pagination.current_page > 1 && (
-          <ActivityIndicator size="small" color="#007bff" />
+          <ActivityIndicator size="small" color={Colors.primary} />
         )}
       </View>
     );
@@ -171,8 +173,8 @@ const EventListScreen = ({ navigation }) => {
     <View style={styles.emptyContainer}>
       <MaterialIcons
         name="event-busy"
-        size={64}
-        color="#ccc"
+        size={80}
+        color={Colors.border}
         style={styles.emptyIcon}
       />
       <Text style={styles.emptyText}>Không tìm thấy sự kiện nào.</Text>
@@ -207,6 +209,9 @@ const EventListScreen = ({ navigation }) => {
               onCategoryChange={handleCategoryChange}
               onClearFilters={handleClearFilters}
             />
+            <View style={styles.listSectionHeader}>
+              <Text style={styles.listSectionTitle}>Danh sách sự kiện</Text>
+            </View>
           </>
         }
         ListEmptyComponent={!loading && renderEmpty()}
@@ -217,17 +222,21 @@ const EventListScreen = ({ navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={['#007bff']}
-            tintColor="#007bff"
+            colors={[Colors.primary]}
+            tintColor={Colors.primary}
           />
         }
         scrollEventThrottle={16}
-        removeClippedSubviews={true}
+        removeClippedSubviews={Platform.OS === 'android'}
+        initialNumToRender={6}
+        maxToRenderPerBatch={10}
+        windowSize={10}
+        updateCellsBatchingPeriod={50}
       />
 
       {loading && events.length === 0 && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007bff" />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       )}
     </View>
@@ -237,63 +246,75 @@ const EventListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: Colors.background,
   },
   listContent: {
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   header: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    backgroundColor: Colors.white,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 16,
   },
   headerContent: {
-    marginBottom: 8,
-  },
-  headerTitle: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#212529',
     marginBottom: 4,
   },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: Colors.text,
+    marginBottom: 6,
+    letterSpacing: -0.5,
+  },
   headerSubtitle: {
-    fontSize: 13,
-    color: '#6c757d',
-    lineHeight: 18,
+    fontSize: 14,
+    color: Colors.textMuted,
+    lineHeight: 20,
+  },
+  listSectionHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 12,
+  },
+  listSectionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.text,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   footerContainer: {
-    paddingVertical: 16,
+    paddingVertical: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 80,
-    paddingHorizontal: 16,
+    paddingVertical: 100,
+    paddingHorizontal: 32,
   },
   emptyIcon: {
-    marginBottom: 16,
+    marginBottom: 20,
     opacity: 0.5,
   },
   emptyText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#6c757d',
-    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    marginBottom: 10,
     textAlign: 'center',
   },
   emptySubtext: {
-    fontSize: 13,
-    color: '#adb5bd',
+    fontSize: 14,
+    color: Colors.textMuted,
     textAlign: 'center',
+    lineHeight: 20,
   },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgba(238, 242, 246, 0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
@@ -301,3 +322,4 @@ const styles = StyleSheet.create({
 });
 
 export default EventListScreen;
+

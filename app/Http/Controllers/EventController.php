@@ -12,7 +12,8 @@ class EventController extends Controller
 {
     public function __construct(
         protected RegistrationService $registrationService
-    ) {}
+    ) {
+    }
 
     public function index(Request $request)
     {
@@ -50,7 +51,7 @@ class EventController extends Controller
         // Sắp xếp: mặc định là mới nhất
         $query->orderBy('created_at', 'desc');
 
-        $suKien     = $query->paginate(8)->withQueryString();
+        $suKien = $query->paginate(9)->withQueryString();
         $loaiSuKien = LoaiSuKien::all();
 
         // IDs sự kiện đã đăng ký
@@ -149,8 +150,8 @@ class EventController extends Controller
             }
 
             $dangKy = DangKy::create([
-                'ma_sinh_vien'        => auth()->id(),
-                'ma_su_kien'          => $suKien->ma_su_kien,
+                'ma_sinh_vien' => auth()->id(),
+                'ma_su_kien' => $suKien->ma_su_kien,
                 'trang_thai_tham_gia' => 'da_tham_gia',
             ]);
             $wasCreated = true;
@@ -196,8 +197,8 @@ class EventController extends Controller
         }
 
         DangKy::create([
-            'ma_sinh_vien'       => auth()->id(),
-            'ma_su_kien'         => $id,
+            'ma_sinh_vien' => auth()->id(),
+            'ma_su_kien' => $id,
             'trang_thai_tham_gia' => 'da_dang_ky',
         ]);
 

@@ -62,7 +62,6 @@ class MediaApiController extends Controller
                 'duong_dan_tep' => $filePath,
                 'loai_tep' => $loaiTep,
                 'kich_thuoc' => $file->getSize(),
-                'la_cong_khai' => $request->boolean('la_cong_khai', false),
             ]);
 
             return response()->json([

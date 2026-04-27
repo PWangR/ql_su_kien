@@ -1,11 +1,11 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// 10.0.2.2 là địa chỉ trỏ về localhost của máy chủ thông qua máy ảo Android
-const BASE_URL = 'https://forty-wolves-give.loca.lt/api';
+// Đường dẫn cơ sở của máy chủ (có thể thay đổi tùy theo môi trường test)
+export const BASE_URL = 'http://192.168.1.211:8000';
 
 const api = axios.create({
-  baseURL: BASE_URL,
+  baseURL: `${BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
@@ -27,3 +27,4 @@ api.interceptors.request.use(
 );
 
 export default api;
+

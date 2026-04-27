@@ -31,12 +31,9 @@ class ThuVienDaPhuongTien extends Model
         'duong_dan_tep',
         'loai_tep',
         'kich_thuoc',
-        'la_cong_khai'
     ];
 
-    protected $casts = [
-        'la_cong_khai'   => 'boolean',
-    ];
+    protected $casts = [];
 
     public function suKien()
     {

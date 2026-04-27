@@ -21,7 +21,7 @@ class HomeController extends Controller
             ->where('trang_thai', '!=', 'huy')
             ->whereNull('deleted_at')
             ->latest()
-            ->take(8)
+            ->take(9)
             ->get();
 
         $loaiSuKien = LoaiSuKien::withCount('suKien')->get();

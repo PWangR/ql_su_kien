@@ -50,7 +50,23 @@
                     <?php endif; ?>
                     <div class="form-group">
                         <label class="form-label">Ảnh cho module này</label>
-                        <input class="form-control" type="file" name="<?= e("module_banner[{$module['id']}]") ?>" accept="image/*">
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <input class="form-control" type="file" name="<?= e("module_banner[{$module['id']}]") ?>" accept="image/*" style="flex:1;min-width:0;">
+                            <button type="button" class="btn btn-outline btn-sm" style="white-space:nowrap;flex-shrink:0;"
+                                onclick="openMediaPicker('banner','<?= e($module['id']) ?>','single')">
+                                <i class="bi bi-images"></i> Chọn từ thư viện
+                            </button>
+                        </div>
+                        <input type="hidden" name="<?= e("module_banner_media_path[{$module['id']}]") ?>" id="banner-media-path-<?= e($module['id']) ?>">
+                        <div id="banner-media-preview-<?= e($module['id']) ?>" style="margin-top:8px;display:none;">
+                            <div style="position:relative;display:inline-block;">
+                                <img id="banner-media-img-<?= e($module['id']) ?>" src="" alt="preview" style="max-width:220px;border:1px solid var(--border);border-radius:var(--border-radius);">
+                                <button type="button" onclick="clearBannerMedia('<?= e($module['id']) ?>')"
+                                    style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:0.8rem;line-height:1;display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 <?php endif; ?>
 
@@ -142,7 +158,42 @@
                     <?php endif; ?>
                     <div class="form-group">
                         <label class="form-label">Tải thêm ảnh cho khối này</label>
-                        <input class="form-control" type="file" name="<?= e("module_gallery[{$module['id']}][]") ?>" accept="image/*" multiple>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <input class="form-control" type="file" name="<?= e("module_gallery[{$module['id']}][]") ?>" accept="image/*" multiple style="flex:1;min-width:0;">
+                            <button type="button" class="btn btn-outline btn-sm" style="white-space:nowrap;flex-shrink:0;"
+                                onclick="openMediaPicker('gallery','<?= e($module['id']) ?>','multi')">
+                                <i class="bi bi-images"></i> Chọn từ thư viện
+                            </button>
+                        </div>
+                        <div id="gallery-media-preview-<?= e($module['id']) ?>" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($module['type'] === 'documents'): ?>
+                    <?php $existingDocs = $moduleContent['items'] ?? []; ?>
+                    <div class="form-group">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+                            <label class="form-label" style="margin:0;">Đính kèm tài liệu</label>
+                            <button type="button" class="btn btn-outline btn-sm"
+                                onclick="openMediaPicker('documents','<?= e($module['id']) ?>','multi')">
+                                <i class="bi bi-paperclip"></i> Chọn từ thư viện
+                            </button>
+                        </div>
+                        <div id="docs-list-<?= e($module['id']) ?>" style="display:flex;flex-direction:column;gap:6px;">
+                            <?php foreach($existingDocs as $doc): ?>
+                                <div class="doc-item" data-doc-id="<?= e($doc['ma_phuong_tien']) ?>" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--border-radius);background:var(--bg);">
+                                    <i class="bi bi-file-earmark-text" style="color:var(--text-muted);flex-shrink:0;"></i>
+                                    <span style="flex:1;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= e($doc['ten_tep']) ?></span>
+                                    <input type="hidden" name="<?= e("module_content[{$module['id']}][media_ids][]") ?>" value="<?= e($doc['ma_phuong_tien']) ?>">
+                                    <button type="button" onclick="this.closest('.doc-item').remove()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;flex-shrink:0;font-size:1rem;" title="Xóa">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php if(empty($existingDocs)): ?>
+                        <div class="text-muted" style="font-size:.8rem;margin-top:4px;">Chưa có tài liệu nào được đính kèm.</div>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -332,7 +383,23 @@
         </div>
         <div class="form-group">
             <label class="form-label">Ảnh cho module này</label>
-            <input class="form-control" type="file" name="module_banner[__ID__]" accept="image/*">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input class="form-control" type="file" name="module_banner[__ID__]" accept="image/*" style="flex:1;min-width:0;">
+                <button type="button" class="btn btn-outline btn-sm" style="white-space:nowrap;flex-shrink:0;"
+                    onclick="openMediaPicker('banner','__ID__','single')">
+                    <i class="bi bi-images"></i> Chọn từ thư viện
+                </button>
+            </div>
+            <input type="hidden" name="module_banner_media_path[__ID__]" id="banner-media-path-__ID__">
+            <div id="banner-media-preview-__ID__" style="margin-top:8px;display:none;">
+                <div style="position:relative;display:inline-block;">
+                    <img id="banner-media-img-__ID__" src="" alt="preview" style="max-width:220px;border:1px solid var(--border);border-radius:var(--border-radius);">
+                    <button type="button" onclick="clearBannerMedia('__ID__')"
+                        style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:0.8rem;line-height:1;display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -428,7 +495,40 @@
         <div class="text-muted" data-module-label="hint" style="margin-bottom:var(--space-sm);">__HINT__</div>
         <div class="form-group">
             <label class="form-label">Tải thêm ảnh cho khối này</label>
-            <input class="form-control" type="file" name="module_gallery[__ID__][]" accept="image/*" multiple>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input class="form-control" type="file" name="module_gallery[__ID__][]" accept="image/*" multiple style="flex:1;min-width:0;">
+                <button type="button" class="btn btn-outline btn-sm" style="white-space:nowrap;flex-shrink:0;"
+                    onclick="openMediaPicker('gallery','__ID__','multi')">
+                    <i class="bi bi-images"></i> Chọn từ thư viện
+                </button>
+            </div>
+            <div id="gallery-media-preview-__ID__" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+        </div>
+    </div>
+</div>
+</script>
+
+<script type="text/template" id="module-card-template-documents">
+<div class="card mb-lg module-card-editor" data-module-card="__ID__" data-module-id="__ID__" data-module-type="documents">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-sm);">
+        <div class="card-title">
+            <i class="bi bi-paperclip"></i>
+            <span data-module-card-title>__TITLE__</span>
+        </div>
+        <div class="text-muted text-sm">Tài liệu đính kèm</div>
+    </div>
+    <div class="card-body">
+        <div class="form-group">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+                <label class="form-label" style="margin:0;">Đính kèm tài liệu</label>
+                <button type="button" class="btn btn-outline btn-sm"
+                    onclick="openMediaPicker('documents','__ID__','multi')">
+                    <i class="bi bi-paperclip"></i> Chọn từ thư viện
+                </button>
+            </div>
+            <div id="docs-list-__ID__" style="display:flex;flex-direction:column;gap:6px;">
+                <div class="text-muted" style="font-size:.8rem;">Chưa có tài liệu nào được đính kèm.</div>
+            </div>
         </div>
     </div>
 </div>
@@ -508,6 +608,13 @@
                     <div class="form-group" style="margin:0;">
                         <label class="form-label">Gợi ý cho người nhập ảnh</label>
                         <input class="form-control" data-schema-setting="hint" data-module-index="${index}" value="${escapeHtmlAttr(settings.hint || 'Tải nhiều ảnh cho riêng khối này')}">
+                    </div>
+                `;
+            } else if (module.type === 'documents') {
+                settingsHtml = `
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">Nhãn danh sách tài liệu</label>
+                        <input class="form-control" data-schema-setting="label" data-module-index="${index}" value="${escapeHtmlAttr(settings.label || 'Tài liệu')}">
                     </div>
                 `;
             }
@@ -729,6 +836,11 @@
             const hint = card.querySelector('[data-module-label="hint"]');
             if (hint) hint.textContent = module.settings?.hint || 'Tải nhiều ảnh cho riêng khối này';
         }
+
+        if (module.type === 'documents') {
+            const lbl = card.querySelector('[data-module-label="label"]');
+            if (lbl) lbl.textContent = module.settings?.label || 'Tài liệu';
+        }
     }
 
     function buildModuleCardHtml(module) {
@@ -746,7 +858,8 @@
             .replaceAll('__BADGE_LABEL__', escapeHtmlAttr(settings.badge_label || 'Badge'))
             .replaceAll('__SUBTITLE_LABEL__', escapeHtmlAttr(settings.subtitle_label || 'Phụ đề'))
             .replaceAll('__BODY_LABEL__', escapeHtmlAttr(settings.body_label || 'Nội dung'))
-            .replaceAll('__HINT__', escapeHtmlAttr(settings.hint || 'Tải nhiều ảnh cho riêng khối này'));
+            .replaceAll('__HINT__', escapeHtmlAttr(settings.hint || 'Tải nhiều ảnh cho riêng khối này'))
+            .replaceAll('__DOC_LABEL__', escapeHtmlAttr(settings.label || 'Tài liệu'));
     }
 
     function appendModuleCard(module) {
@@ -884,4 +997,249 @@
             .replaceAll('>', '&gt;');
     }
 })();
+</script>
+
+{{-- ===== MEDIA PICKER MODAL ===== --}}
+<div id="mediaPickerModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:16px;">
+    <div style="background:var(--card);border-radius:12px;width:100%;max-width:860px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+        {{-- Header --}}
+        <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;">
+            <div style="font-size:.95rem;font-weight:600;color:var(--text);">Chọn từ thư viện media</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <input type="text" id="mpSearch" placeholder="Tìm theo tên..." oninput="mpDoSearch()"
+                    style="height:30px;padding:0 10px;font-size:.8rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);width:180px;">
+                <select id="mpFilter" onchange="mpDoSearch()" style="height:30px;font-size:.8rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);padding:0 8px;">
+                    <option value="">Tất cả</option>
+                    <option value="hinh_anh">Hình ảnh</option>
+                    <option value="tai_lieu">Tài liệu</option>
+                    <option value="video">Video</option>
+                    <option value="khac">Khác</option>
+                </select>
+                <button type="button" onclick="closeMediaPicker()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.4rem;line-height:1;padding:0 4px;">&#215;</button>
+            </div>
+        </div>
+        {{-- Grid --}}
+        <div id="mpGrid" style="flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;min-height:200px;"></div>
+        {{-- Footer --}}
+        <div style="padding:12px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-shrink:0;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button type="button" id="mpPrev" onclick="mpChangePage(-1)" style="padding:4px 10px;font-size:.8rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;" disabled>&lsaquo; Trước</button>
+                <span id="mpPageInfo" style="font-size:.8rem;color:var(--text-muted);">Trang 1</span>
+                <button type="button" id="mpNext" onclick="mpChangePage(1)" style="padding:4px 10px;font-size:.8rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;">Sau &rsaquo;</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span id="mpSelectedCount" style="font-size:.8rem;color:var(--text-muted);font-weight:600;"></span>
+                <button type="button" onclick="closeMediaPicker()" style="padding:6px 14px;font-size:.8rem;border:1px solid var(--border);border-radius:7px;background:var(--bg);cursor:pointer;">Hủy</button>
+                <button type="button" id="mpConfirmBtn" onclick="confirmPickerSelection()" style="padding:6px 16px;font-size:.8rem;border:none;border-radius:7px;background:#185FA5;color:#fff;font-weight:600;cursor:pointer;">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== MEDIA PICKER STATE =====
+let _mp = {
+    type: '',       // 'banner' | 'gallery' | 'documents'
+    moduleId: '',
+    mode: 'single', // 'single' | 'multi'
+    page: 1,
+    lastPage: 1,
+    selected: {},   // { ma_phuong_tien: itemObj }
+    searchTimer: null,
+};
+
+const _mpApiUrl = '{{ route("admin.media.api.list") }}';
+
+function openMediaPicker(type, moduleId, mode) {
+    _mp.type     = type;
+    _mp.moduleId = moduleId;
+    _mp.mode     = mode;
+    _mp.page     = 1;
+    _mp.selected = {};
+
+    // Auto-filter theo loại module
+    const filter = document.getElementById('mpFilter');
+    if (type === 'banner' || type === 'gallery') {
+        filter.value = 'hinh_anh';
+    } else if (type === 'documents') {
+        filter.value = 'tai_lieu';
+    } else {
+        filter.value = '';
+    }
+    document.getElementById('mpSearch').value = '';
+
+    const modal = document.getElementById('mediaPickerModal');
+    modal.style.display = 'flex';
+    mpLoadPage(1);
+}
+
+function closeMediaPicker() {
+    document.getElementById('mediaPickerModal').style.display = 'none';
+}
+
+function mpDoSearch() {
+    clearTimeout(_mp.searchTimer);
+    _mp.searchTimer = setTimeout(() => { _mp.page = 1; mpLoadPage(1); }, 350);
+}
+
+function mpChangePage(delta) {
+    const next = _mp.page + delta;
+    if (next < 1 || next > _mp.lastPage) return;
+    mpLoadPage(next);
+}
+
+function mpLoadPage(page) {
+    const search  = document.getElementById('mpSearch').value.trim();
+    const loaiTep = document.getElementById('mpFilter').value;
+    const grid    = document.getElementById('mpGrid');
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text-muted);">Đang tải...</div>';
+
+    const params = new URLSearchParams({ page });
+    if (loaiTep) params.set('loai_tep', loaiTep);
+    if (search)  params.set('tu_khoa', search);
+
+    fetch(`${_mpApiUrl}?${params}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(json => {
+            _mp.page     = json.current_page;
+            _mp.lastPage = json.last_page;
+            document.getElementById('mpPageInfo').textContent = `Trang ${_mp.page} / ${_mp.lastPage}`;
+            document.getElementById('mpPrev').disabled = _mp.page <= 1;
+            document.getElementById('mpNext').disabled = _mp.page >= _mp.lastPage;
+            mpRenderGrid(json.data);
+        })
+        .catch(() => {
+            grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#c0392b;">Lỗi tải dữ liệu.</div>';
+        });
+}
+
+function mpRenderGrid(items) {
+    const grid = document.getElementById('mpGrid');
+    if (!items.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text-muted);">Không có file nào.</div>';
+        return;
+    }
+    grid.innerHTML = items.map(item => {
+        const isImg      = item.loai_tep === 'hinh_anh';
+        const isSelected = !!_mp.selected[item.ma_phuong_tien];
+        const border     = isSelected ? '2px solid #185FA5' : '2px solid var(--border)';
+        const checkIcon  = isSelected ? '<div style="position:absolute;inset:0;background:rgba(24,95,165,.18);border-radius:5px;display:flex;align-items:center;justify-content:center;"><i class="bi bi-check-circle-fill" style="font-size:1.5rem;color:#185FA5;"></i></div>' : '';
+        const thumb      = isImg
+            ? `<img src="${item.url}" alt="" style="width:100%;height:90px;object-fit:cover;border-radius:5px;">`
+            : `<div style="height:90px;display:flex;align-items:center;justify-content:center;background:var(--bg-alt);border-radius:5px;"><i class="bi bi-file-earmark-text" style="font-size:2rem;color:var(--text-muted);"></i></div>`;
+        const safeItem   = JSON.stringify(item).replace(/'/g, "&#39;");
+        return `
+            <div onclick="mpToggleItem(${item.ma_phuong_tien},this)" data-item='${safeItem}'
+                style="cursor:pointer;border-radius:7px;padding:6px;border:${border};transition:border-color .12s;position:relative;" title="${item.ten_tep}">
+                <div style="position:relative;">${thumb}${checkIcon}</div>
+                <div style="font-size:.68rem;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);">${item.ten_tep}</div>
+            </div>`;
+    }).join('');
+    mpUpdateCount();
+}
+
+function mpToggleItem(id, el) {
+    const item = JSON.parse(el.dataset.item.replace(/&#39;/g, "'"));
+    if (_mp.mode === 'single') {
+        _mp.selected = {};
+        document.querySelectorAll('#mpGrid [data-item]').forEach(e => {
+            e.style.border = '2px solid var(--border)';
+            e.querySelector('div [style*="rgba"]')?.remove();
+        });
+    }
+    if (_mp.selected[id]) {
+        delete _mp.selected[id];
+        el.style.border = '2px solid var(--border)';
+        el.querySelector('div [style*="rgba"]')?.remove();
+    } else {
+        _mp.selected[id] = item;
+        el.style.border = '2px solid #185FA5';
+        const thumbWrap = el.querySelector('div[style*="position:relative"]');
+        if (thumbWrap && !thumbWrap.querySelector('[style*="rgba"]')) {
+            thumbWrap.insertAdjacentHTML('beforeend',
+                '<div style="position:absolute;inset:0;background:rgba(24,95,165,.18);border-radius:5px;display:flex;align-items:center;justify-content:center;"><i class="bi bi-check-circle-fill" style="font-size:1.5rem;color:#185FA5;"></i></div>');
+        }
+    }
+    mpUpdateCount();
+}
+
+function mpUpdateCount() {
+    const n = Object.keys(_mp.selected).length;
+    document.getElementById('mpSelectedCount').textContent = n ? `Đã chọn: ${n}` : '';
+}
+
+function confirmPickerSelection() {
+    const items = Object.values(_mp.selected);
+    if (!items.length) { closeMediaPicker(); return; }
+
+    if (_mp.type === 'banner') {
+        const item = items[0];
+        const inp  = document.getElementById(`banner-media-path-${_mp.moduleId}`);
+        if (inp) inp.value = item.duong_dan_tep;
+        const preview = document.getElementById(`banner-media-preview-${_mp.moduleId}`);
+        const img     = document.getElementById(`banner-media-img-${_mp.moduleId}`);
+        if (preview && img) { img.src = item.url; preview.style.display = 'block'; }
+    }
+
+    if (_mp.type === 'gallery') {
+        items.forEach(item => addGalleryMedia(_mp.moduleId, item));
+    }
+
+    if (_mp.type === 'documents') {
+        items.forEach(item => addDocumentItem(_mp.moduleId, item));
+    }
+
+    closeMediaPicker();
+}
+
+function clearBannerMedia(moduleId) {
+    const inp = document.getElementById(`banner-media-path-${moduleId}`);
+    if (inp) inp.value = '';
+    const preview = document.getElementById(`banner-media-preview-${moduleId}`);
+    if (preview) preview.style.display = 'none';
+}
+
+function addGalleryMedia(moduleId, item) {
+    const container = document.getElementById(`gallery-media-preview-${moduleId}`);
+    if (!container) return;
+    if (container.querySelector(`[data-media-id="${item.ma_phuong_tien}"]`)) return;
+    const div = document.createElement('div');
+    div.dataset.mediaId = item.ma_phuong_tien;
+    div.style.position = 'relative';
+    div.innerHTML = `
+        <img src="${item.url}" alt="${item.ten_tep}" title="${item.ten_tep}"
+            style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+        <input type="hidden" name="module_gallery_media_ids[${moduleId}][]" value="${item.ma_phuong_tien}">
+        <button type="button" onclick="this.parentElement.remove()" title="Bỏ chọn"
+            style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:.65rem;display:flex;align-items:center;justify-content:center;">
+            <i class="bi bi-x"></i>
+        </button>`;
+    container.appendChild(div);
+}
+
+function addDocumentItem(moduleId, item) {
+    const container = document.getElementById(`docs-list-${moduleId}`);
+    if (!container) return;
+    if (container.querySelector(`[data-doc-id="${item.ma_phuong_tien}"]`)) return;
+    // Xóa placeholder text
+    container.querySelectorAll('.text-muted').forEach(el => el.remove());
+    const div = document.createElement('div');
+    div.className = 'doc-item';
+    div.dataset.docId = item.ma_phuong_tien;
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--border-radius);background:var(--bg);';
+    div.innerHTML = `
+        <i class="bi bi-file-earmark-text" style="color:var(--text-muted);flex-shrink:0;"></i>
+        <span style="flex:1;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.ten_tep}">${item.ten_tep}</span>
+        <input type="hidden" name="module_content[${moduleId}][media_ids][]" value="${item.ma_phuong_tien}">
+        <button type="button" onclick="this.closest('.doc-item').remove()" title="Xóa"
+            style="background:none;border:none;color:var(--text-muted);cursor:pointer;flex-shrink:0;font-size:1rem;">
+            <i class="bi bi-x-circle"></i>
+        </button>`;
+    container.appendChild(div);
+}
+
+// Đóng picker khi click nền
+document.getElementById('mediaPickerModal').addEventListener('click', function(e) {
+    if (e.target === this) closeMediaPicker();
+});
 </script>

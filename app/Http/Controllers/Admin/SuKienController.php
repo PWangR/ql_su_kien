@@ -186,10 +186,12 @@ class SuKienController extends Controller
         $schema = EventTemplateSupport::normalizeTemplateModules($request->input('module_schema_json'));
         $existing = collect(EventTemplateSupport::normalizeTemplateModules($suKien?->bo_cuc))
             ->keyBy('id');
-        $contentInput = $request->input('module_content', []);
-        $bannerFiles = $request->file('module_banner', []);
-        $galleryFiles = $request->file('module_gallery', []);
-        $builtModules = [];
+        $contentInput   = $request->input('module_content', []);
+        $bannerFiles    = $request->file('module_banner', []);
+        $galleryFiles   = $request->file('module_gallery', []);
+        $bannerPaths    = $request->input('module_banner_media_path', []);  // path chọn từ thư viện
+        $galleryMediaIds = $request->input('module_gallery_media_ids', []); // IDs ảnh chọn từ thư viện
+        $builtModules   = [];
 
         foreach ($schema as $module) {
             $moduleId = $module['id'];
@@ -200,12 +202,13 @@ class SuKienController extends Controller
                 'banner' => $this->buildBannerContent(
                     $postedContent,
                     $existingContent,
-                    $bannerFiles[$moduleId] ?? null
+                    $bannerFiles[$moduleId] ?? null,
+                    $bannerPaths[$moduleId] ?? null
                 ),
                 'header' => [
-                    'title' => trim((string) Arr::get($postedContent, 'title', Arr::get($existingContent, 'title', ''))),
+                    'title'    => trim((string) Arr::get($postedContent, 'title',    Arr::get($existingContent, 'title', ''))),
                     'subtitle' => trim((string) Arr::get($postedContent, 'subtitle', Arr::get($existingContent, 'subtitle', ''))),
-                    'badge' => trim((string) Arr::get($postedContent, 'badge', Arr::get($existingContent, 'badge', ''))),
+                    'badge'    => trim((string) Arr::get($postedContent, 'badge',    Arr::get($existingContent, 'badge', ''))),
                 ],
                 'info' => [
                     'items' => collect(Arr::get($postedContent, 'items', Arr::get($existingContent, 'items', Arr::get($module, 'settings.items', []))))
@@ -216,12 +219,17 @@ class SuKienController extends Controller
                 ],
                 'description' => [
                     'heading' => trim((string) Arr::get($postedContent, 'heading', Arr::get($existingContent, 'heading', Arr::get($module, 'title', '')))),
-                    'body' => trim((string) Arr::get($postedContent, 'body', Arr::get($existingContent, 'body', ''))),
+                    'body'    => trim((string) Arr::get($postedContent, 'body',    Arr::get($existingContent, 'body', ''))),
                 ],
                 'gallery' => $this->buildGalleryContent(
                     $postedContent,
                     $existingContent,
-                    $galleryFiles[$moduleId] ?? []
+                    $galleryFiles[$moduleId] ?? [],
+                    array_filter((array) ($galleryMediaIds[$moduleId] ?? []))
+                ),
+                'documents' => $this->buildDocumentsContent(
+                    $postedContent,
+                    $existingContent
                 ),
                 default => Arr::get($existing->get($moduleId, []), 'content', []),
             };
@@ -234,47 +242,42 @@ class SuKienController extends Controller
         return $builtModules;
     }
 
-    protected function buildBannerContent(array $posted, array $existing, $file): array
+    protected function buildBannerContent(array $posted, array $existing, $file, ?string $mediaPath = null): array
     {
-        $imagePath = Arr::get($existing, 'image_path');
+        $imagePath   = Arr::get($existing, 'image_path');
         $keepExisting = (bool) Arr::get($posted, 'keep_existing', $imagePath ? 1 : 0);
 
         if ($file) {
-            if ($imagePath && Storage::disk('public')->exists($imagePath)) {
+            // Upload file mới ưu tiên hơn chọn từ thư viện
+            if ($imagePath && !str_starts_with($imagePath, 'media/') && Storage::disk('public')->exists($imagePath)) {
                 Storage::disk('public')->delete($imagePath);
             }
-
             $imagePath = $file->store('su_kien/modules/banner', 'public');
+        } elseif ($mediaPath) {
+            // Chọn ảnh từ thư viện media (dùng lại path, không copy file)
+            $imagePath = $mediaPath;
         } elseif (!$keepExisting && $imagePath) {
-            if (Storage::disk('public')->exists($imagePath)) {
+            if (!str_starts_with($imagePath, 'media/') && Storage::disk('public')->exists($imagePath)) {
                 Storage::disk('public')->delete($imagePath);
             }
-
             $imagePath = null;
         }
 
         return [
-            'caption' => trim((string) Arr::get($posted, 'caption', Arr::get($existing, 'caption', ''))),
+            'caption'    => trim((string) Arr::get($posted, 'caption', Arr::get($existing, 'caption', ''))),
             'image_path' => $imagePath,
         ];
     }
 
-    protected function buildGalleryContent(array $posted, array $existing, array $files): array
+    protected function buildGalleryContent(array $posted, array $existing, array $files, array $mediaIds = []): array
     {
-        $currentImages = collect(Arr::get($existing, 'images', []))
-            ->filter()
-            ->values()
-            ->all();
-
-        $keptImages = collect(Arr::get($posted, 'existing_images', $currentImages))
-            ->filter()
-            ->values()
-            ->all();
-
+        $currentImages = collect(Arr::get($existing, 'images', []))->filter()->values()->all();
+        $keptImages    = collect(Arr::get($posted, 'existing_images', $currentImages))->filter()->values()->all();
         $removedImages = array_diff($currentImages, $keptImages);
 
         foreach ($removedImages as $path) {
-            if ($path && Storage::disk('public')->exists($path)) {
+            // Không xóa file nếu được lấy từ thư viện media (prefix media/)
+            if ($path && !str_starts_with($path, 'media/') && Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
             }
         }
@@ -285,9 +288,44 @@ class SuKienController extends Controller
             ->values()
             ->all();
 
+        // Ảnh chọn từ thư viện: lấy duong_dan_tep theo ma_phuong_tien
+        $mediaImages = [];
+        if (!empty($mediaIds)) {
+            $mediaImages = ThuVienDaPhuongTien::whereIn('ma_phuong_tien', $mediaIds)
+                ->where('loai_tep', 'hinh_anh')
+                ->pluck('duong_dan_tep')
+                ->all();
+        }
+
         return [
-            'images' => array_values(array_unique(array_merge($keptImages, $newImages))),
+            'images' => array_values(array_unique(array_merge($keptImages, $newImages, $mediaImages))),
         ];
+    }
+
+    protected function buildDocumentsContent(array $posted, array $existing): array
+    {
+        // Lấy danh sách ID tài liệu từ form
+        $mediaIds = array_filter((array) Arr::get($posted, 'media_ids', []));
+
+        if (empty($mediaIds)) {
+            // Giữ lại nội dung cũ nếu không có thay đổi
+            return $existing ?: ['items' => []];
+        }
+
+        $docs = ThuVienDaPhuongTien::whereIn('ma_phuong_tien', $mediaIds)
+            ->whereIn('loai_tep', ['tai_lieu', 'khac'])
+            ->get()
+            ->map(fn($m) => [
+                'ma_phuong_tien' => $m->ma_phuong_tien,
+                'ten_tep'        => $m->ten_tep,
+                'duong_dan_tep'  => $m->duong_dan_tep,
+                'loai_tep'       => $m->loai_tep,
+                'kich_thuoc'     => $m->kich_thuoc,
+            ])
+            ->values()
+            ->all();
+
+        return ['items' => $docs];
     }
 
     protected function cleanupRemovedAssets(array $existingModules, array $newModules): void

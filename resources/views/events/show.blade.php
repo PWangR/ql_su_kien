@@ -109,6 +109,11 @@ $infoCatalog = \App\Support\EventTemplateSupport::infoFieldCatalog();
         display: block;
     }
 
+    .doc-link:hover {
+        background-color: var(--bg-alt);
+        border-color: var(--accent);
+    }
+
     .sidebar-box h3 {
         font-size: .95rem;
         margin-bottom: 14px;
@@ -260,6 +265,35 @@ $infoCatalog = \App\Support\EventTemplateSupport::infoFieldCatalog();
                 @foreach($galleryImages as $imagePath)
                 <a href="{{ asset('storage/' . $imagePath) }}" target="_blank">
                     <img src="{{ asset('storage/' . $imagePath) }}" alt="Ảnh sự kiện">
+                </a>
+                @endforeach
+            </div>
+        </div>
+        @endif
+        @endif
+
+        @if($type === 'documents')
+        @php $docs = $content['items'] ?? []; @endphp
+        @if(!empty($docs))
+        <div class="module-box">
+            <div class="module-title"><i class="bi bi-paperclip"></i> {{ $title ?: 'Tài liệu đính kèm' }}</div>
+            <div class="docs-list">
+                @foreach($docs as $doc)
+                <a href="{{ asset('storage/' . $doc['duong_dan_tep']) }}" class="doc-link" target="_blank" style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:var(--border-radius);margin-bottom:10px;text-decoration:none;color:inherit;transition:all .2s;">
+                    <i class="bi bi-file-earmark-text" style="font-size:1.6rem;color:var(--text-muted);"></i>
+                    <div style="flex:1;">
+                        <div style="font-weight:600;font-size:.9rem;">{{ $doc['ten_tep'] }}</div>
+                        <div class="text-muted" style="font-size:.7rem;">
+                            @php
+                            $size = $doc['kich_thuoc'] ?? 0;
+                            if ($size >= 1048576) $sizeText = number_format($size / 1048576, 1) . ' MB';
+                            elseif ($size >= 1024) $sizeText = number_format($size / 1024, 0) . ' KB';
+                            else $sizeText = $size . ' B';
+                            @endphp
+                            {{ $sizeText }} • {{ strtoupper($doc['loai_tep'] ?? 'FILE') }}
+                        </div>
+                    </div>
+                    <i class="bi bi-download" style="color:var(--text-muted);"></i>
                 </a>
                 @endforeach
             </div>

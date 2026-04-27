@@ -1,9 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  FlatList, 
+  ActivityIndicator, 
+  TouchableOpacity, 
+  SafeAreaView,
+  StatusBar 
+} from 'react-native';
 import api from '../services/api';
 import { MaterialIcons } from '@expo/vector-icons';
+import Colors from '../constants/Colors';
+import Typography from '../constants/Typography';
 
-const NotificationScreen = () => {
+const NotificationScreen = ({ navigation }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,26 +34,49 @@ const NotificationScreen = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={[styles.card, !item.read_at && styles.unreadCard]}>
-      <View style={styles.iconContainer}>
+    <TouchableOpacity 
+      style={[styles.card, !item.read_at && styles.unreadCard]}
+      activeOpacity={0.7}
+    >
+      <View style={[styles.iconContainer, !item.read_at && styles.unreadIconContainer]}>
         <MaterialIcons 
           name={item.read_at ? "notifications-none" : "notifications-active"} 
-          size={24} 
-          color={item.read_at ? "#999" : "#007bff"} 
+          size={22} 
+          color={item.read_at ? Colors.textMuted : Colors.primary} 
         />
       </View>
       <View style={styles.content}>
-        <Text style={[styles.title, !item.read_at && styles.unreadTitle]}>{item.data.title || 'Thông báo mới'}</Text>
-        <Text style={styles.body}>{item.data.message || item.data.content}</Text>
-        <Text style={styles.time}>{new Date(item.created_at).toLocaleString()}</Text>
+        <View style={styles.contentHeader}>
+          <Text style={[Typography.bodyBold, !item.read_at && { color: Colors.primary }]}>
+            {item.data.title || 'Thông báo mới'}
+          </Text>
+          {!item.read_at && <View style={styles.unreadDot} />}
+        </View>
+        <Text style={[Typography.body, { color: Colors.textLight }]} numberOfLines={3}>
+          {item.data.message || item.data.content}
+        </Text>
+        <Text style={[Typography.caption, { color: Colors.textMuted, marginTop: 8 }]}>
+          {new Date(item.created_at).toLocaleString('vi-VN')}
+        </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
+        </TouchableOpacity>
+        <Text style={Typography.h3}>Thông báo</Text>
+        <MaterialIcons name="done-all" size={24} color={Colors.primary} />
+      </View>
+
       {loading ? (
-        <ActivityIndicator size="large" color="#007bff" style={{ marginTop: 50 }} />
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
       ) : (
         <FlatList
           data={notifications}
@@ -51,71 +85,52 @@ const NotificationScreen = () => {
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <MaterialIcons name="notifications-off" size={60} color="#ccc" />
-              <Text style={styles.emptyText}>Bạn không có thông báo nào.</Text>
+              <MaterialIcons name="notifications-off" size={64} color={Colors.border} />
+              <Text style={[Typography.bodySemiBold, { color: Colors.textMuted, marginTop: 16 }]}>
+                Bạn không có thông báo nào.
+              </Text>
             </View>
           }
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f9fa',
+  container: { flex: 1, backgroundColor: Colors.background },
+  header: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between',
+    padding: 16, 
+    backgroundColor: Colors.white, 
+    borderBottomWidth: 1, 
+    borderBottomColor: Colors.border 
   },
-  list: {
-    padding: 10,
-  },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  list: { padding: 16 },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    elevation: 1,
+    backgroundColor: Colors.white,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
-  unreadCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#007bff',
-  },
+  unreadCard: { backgroundColor: Colors.primaryBg, borderColor: Colors.primary },
   iconContainer: {
-    marginRight: 15,
-    justifyContent: 'center',
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: Colors.background,
+    justifyContent: 'center', alignItems: 'center',
+    marginRight: 16
   },
-  content: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-  },
-  unreadTitle: {
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  body: {
-    fontSize: 14,
-    color: '#444',
-    lineHeight: 20,
-  },
-  time: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 8,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    marginTop: 100,
-  },
-  emptyText: {
-    marginTop: 10,
-    color: '#999',
-    fontSize: 16,
-  },
+  unreadIconContainer: { backgroundColor: Colors.white },
+  content: { flex: 1 },
+  contentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary },
+  emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 100 },
 });
 
 export default NotificationScreen;

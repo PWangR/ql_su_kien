@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\PointApiController;
 use App\Http\Controllers\Api\MediaApiController;
 use App\Http\Controllers\Api\QrCodeApiController;
+use App\Http\Controllers\Api\BauCuApiController;
+use App\Http\Controllers\ChatbotController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +20,7 @@ use App\Http\Controllers\Api\QrCodeApiController;
 |
 | Public routes
 |
-*/
+|*/
 
 // Auth endpoints (public)
 Route::post('/login', [AuthApiController::class, 'login']);
@@ -26,6 +28,7 @@ Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:s
 
 // Event endpoints (public)
 Route::get('/events', [EventApiController::class, 'index']);
+Route::get('/home', [EventApiController::class, 'homeData']);
 Route::get('/events/{id}', [EventApiController::class, 'show']);
 Route::get('/api/event-types', [EventApiController::class, 'getEventTypes']);
 // QR Code generation (public)
@@ -49,6 +52,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/registrations/{eventId}', [RegistrationApiController::class, 'destroy']);
     Route::get('/registrations/check/{eventId}', [RegistrationApiController::class, 'checkRegistration']);
     Route::get('/registrations/history', [RegistrationApiController::class, 'userHistory']);
+
+    // Bầu cử (Voting)
+    Route::get('/voting', [BauCuApiController::class, 'index']);
+    Route::get('/voting/{id}', [BauCuApiController::class, 'show']);
+    Route::post('/voting/{id}/vote', [BauCuApiController::class, 'vote']);
+    Route::get('/voting/{id}/results', [BauCuApiController::class, 'results']);
+
+    // Chatbot
+    Route::post('/chatbot/ask', [ChatbotController::class, 'ask']);
 
     // Notifications
     Route::get('/notifications', [NotificationApiController::class, 'index']);

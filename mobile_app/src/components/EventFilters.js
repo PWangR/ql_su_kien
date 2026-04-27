@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Colors from '../constants/Colors';
 
 const EventFilters = ({ 
   statuses = [], 
@@ -18,7 +19,7 @@ const EventFilters = ({
     { value: 'da_ket_thuc', label: 'Đã kết thúc' },
   ];
 
-  const hasActiveFilters = selectedStatus !== '' || selectedCategory !== '';
+  const hasActiveFilters = (selectedStatus && selectedStatus !== '') || (selectedCategory && selectedCategory !== '');
 
   return (
     <View style={styles.container}>
@@ -28,7 +29,7 @@ const EventFilters = ({
           <Text style={styles.filterLabel}>Trạng thái</Text>
           {hasActiveFilters && (
             <TouchableOpacity onPress={onClearFilters} style={styles.clearBtn}>
-              <MaterialIcons name="close" size={14} color="#007bff" />
+              <MaterialIcons name="refresh" size={14} color={Colors.primary} />
               <Text style={styles.clearText}>Đặt lại</Text>
             </TouchableOpacity>
           )}
@@ -116,13 +117,13 @@ const EventFilters = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
-    paddingVertical: 12,
+    backgroundColor: Colors.white,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#e9ecef',
+    borderBottomColor: Colors.borderLight,
   },
   filterSection: {
-    marginBottom: 12,
+    marginBottom: 16,
     paddingHorizontal: 16,
   },
   filterHeader: {
@@ -132,45 +133,46 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   filterLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#212529',
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   clearBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    padding: 6,
   },
   clearText: {
     fontSize: 12,
-    color: '#007bff',
-    fontWeight: '500',
+    color: Colors.primary,
+    fontWeight: '600',
   },
   filterScroll: {
     paddingBottom: 4,
     gap: 8,
   },
   filterChip: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#dee2e6',
-    backgroundColor: '#fff',
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
     marginRight: 8,
   },
   filterChipActive: {
-    backgroundColor: '#007bff',
-    borderColor: '#007bff',
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
   },
   filterChipText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#6c757d',
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textMuted,
   },
   filterChipTextActive: {
-    color: '#fff',
+    color: Colors.white,
   },
 });
 

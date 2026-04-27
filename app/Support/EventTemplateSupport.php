@@ -66,6 +66,17 @@ class EventTemplateSupport
                     ],
                 ],
             ],
+            'documents' => [
+                'label' => 'Tài liệu đính kèm',
+                'icon' => 'bi-paperclip',
+                'description' => 'Đính kèm tài liệu từ thư viện media',
+                'defaults' => [
+                    'title' => 'Tài liệu đính kèm',
+                    'settings' => [
+                        'label' => 'Tài liệu',
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -177,6 +188,9 @@ class EventTemplateSupport
             ],
             'gallery' => [
                 'hint' => trim((string) Arr::get($settings, 'hint', 'Tải nhiều ảnh cho riêng khối này')) ?: 'Tải nhiều ảnh cho riêng khối này',
+            ],
+            'documents' => [
+                'label' => trim((string) Arr::get($settings, 'label', 'Tài liệu')) ?: 'Tài liệu',
             ],
             default => [],
         };

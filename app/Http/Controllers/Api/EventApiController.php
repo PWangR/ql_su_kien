@@ -282,5 +282,42 @@ class EventApiController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    /**
+     * Dữ liệu cho trang chủ (Featured, Latest, Categories)
+     */
+    public function homeData()
+    {
+        try {
+            $suKienNoiBat = SuKien::with('loaiSuKien')
+                ->where('trang_thai', '!=', 'huy')
+                ->whereNull('deleted_at')
+                ->orderBy('thoi_gian_bat_dau')
+                ->take(5)
+                ->get();
+
+            $suKienMoi = SuKien::with('loaiSuKien')
+                ->where('trang_thai', '!=', 'huy')
+                ->whereNull('deleted_at')
+                ->latest()
+                ->take(10)
+                ->get();
+
+            $loaiSuKien = \App\Models\LoaiSuKien::withCount('suKien')->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'featured' => $suKienNoiBat,
+                    'latest' => $suKienMoi,
+                    'categories' => $loaiSuKien
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy dữ liệu trang chủ',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
