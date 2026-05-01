@@ -26,8 +26,9 @@ class ProfileController extends Controller
 
         $recentRegistrations = DangKy::with('suKien')
             ->where('ma_sinh_vien', $user->ma_sinh_vien)
+            ->where('trang_thai_tham_gia', 'da_tham_gia')
             ->orderByDesc('thoi_gian_dang_ky')
-            ->take(3)
+            ->take(5)
             ->get();
 
         $nextEvent = DangKy::with('suKien')

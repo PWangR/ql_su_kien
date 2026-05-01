@@ -12,7 +12,7 @@ class HistoryController extends Controller
         $lichSu = DangKy::with('suKien')
             ->where('ma_sinh_vien', auth()->id())
             ->orderByDesc('thoi_gian_dang_ky')
-            ->paginate(15);
+            ->paginate(10);
 
         // Tính tổng điểm từ các sự kiện đã tham gia
         $tongDiem = DangKy::where('ma_sinh_vien', auth()->id())

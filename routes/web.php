@@ -145,6 +145,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Thống kê
     Route::get('thong-ke',      [ThongKeController::class, 'index'])->name('thong-ke.index');
     Route::get('thong-ke/diem', [ThongKeController::class, 'diem'])->name('thong-ke.diem');
+    Route::get('thong-ke/api/{id}', [ThongKeController::class, 'apiChiTietSuKien'])->name('thong-ke.api-chi-tiet');
 
     // Báo cáo
     Route::get('bao-cao',           [BaoCaoController::class, 'index'])->name('bao-cao.index');

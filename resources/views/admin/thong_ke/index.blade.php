@@ -15,6 +15,26 @@
 @endsection
 
 @section('content')
+<!-- Form Filter -->
+<div class="card" style="margin-bottom:var(--space-xl);">
+    <div class="card-body">
+        <form method="GET" action="{{ route('admin.thong-ke.index') }}" style="display: flex; gap: var(--space-md); align-items: flex-end;">
+            <div style="flex: 1;">
+                <label for="tu_ngay" class="form-label">Từ ngày</label>
+                <input type="date" name="tu_ngay" id="tu_ngay" class="form-control" value="{{ request('tu_ngay') }}">
+            </div>
+            <div style="flex: 1;">
+                <label for="den_ngay" class="form-label">Đến ngày</label>
+                <input type="date" name="den_ngay" id="den_ngay" class="form-control" value="{{ request('den_ngay') }}">
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-filter"></i> Lọc</button>
+                <a href="{{ route('admin.thong-ke.index') }}" class="btn btn-outline">Xóa lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Stats -->
 <div class="stat-grid" style="margin-bottom:var(--space-xl);">
     <div class="stat-card">
@@ -83,6 +103,52 @@
 
 </div>
 
+<!-- Bảng Phân tích Sự kiện -->
+<div class="card" style="margin-bottom:var(--space-xl);">
+    <div class="card-header">
+        <div class="card-title"><i class="bi bi-table"></i> Bảng Phân tích Sự kiện</div>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sự kiện</th>
+                    <th>Thời gian bắt đầu</th>
+                    <th style="text-align: center;">Tổng ĐK</th>
+                    <th style="text-align: center;">Đã ĐD</th>
+                    <th style="text-align: center;">Vắng</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($danhSachSuKien as $sk)
+                <tr>
+                    <td><strong>{{ $sk->ten_su_kien }}</strong></td>
+                    <td>{{ \Carbon\Carbon::parse($sk->thoi_gian_bat_dau)->format('d/m/Y H:i') }}</td>
+                    <td style="text-align: center;"><span class="badge" style="background:var(--primary);color:#fff">{{ $sk->tong_dang_ky }}</span></td>
+                    <td style="text-align: center;"><span class="badge" style="background:var(--success);color:#fff">{{ $sk->da_diem_danh }}</span></td>
+                    <td style="text-align: center;"><span class="badge" style="background:var(--danger);color:#fff">{{ $sk->vang_mat }}</span></td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline btn-view-stats" data-id="{{ $sk->ma_su_kien }}">
+                            <i class="bi bi-pie-chart"></i> Xem chi tiết
+                        </button>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" style="text-align:center;padding:var(--space-2xl);color:var(--text-muted);">Không có sự kiện nào</td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    @if($danhSachSuKien->hasPages())
+    <div class="card-body" style="border-top:1px solid var(--border-light)">
+        {{ $danhSachSuKien->links() }}
+    </div>
+    @endif
+</div>
+
 <!-- Điểm sinh viên -->
 <div class="card">
     <div class="card-header">
@@ -121,6 +187,42 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="statsModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div class="modal-card" style="background:var(--card);width:90%;max-width:800px;border-radius:12px;box-shadow:0 10px 25px rgba(0,0,0,0.1);max-height:90vh;display:flex;flex-direction:column;">
+        <div class="modal-header" style="padding:20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+            <h3 id="modalEventTitle" style="margin:0;font-size:1.25rem;">Chi tiết sự kiện</h3>
+            <button type="button" id="closeModalBtn" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:20px;overflow-y:auto;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:20px;">
+                <div>
+                    <h4 style="margin-bottom:15px;font-size:1rem;">Tỉ lệ điểm danh</h4>
+                    <div style="height:250px;position:relative;">
+                        <canvas id="attendancePieChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h4 style="margin-bottom:15px;font-size:1rem;">Top lớp tham gia</h4>
+                    <div class="table-responsive" style="border: 1px solid var(--border-light); border-radius: 8px;">
+                        <table id="topLopTable" style="margin: 0;">
+                            <thead>
+                                <tr>
+                                    <th>Lớp</th>
+                                    <th style="text-align:center;">Số lượng tham gia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dữ liệu render qua JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -215,5 +317,87 @@
             }
         });
     }
+
+    // Modal và Biểu đồ tròn
+    let pieChartInstance = null;
+
+    document.querySelectorAll('.btn-view-stats').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const eventId = this.dataset.id;
+            
+            document.getElementById('statsModal').style.display = 'flex';
+            document.getElementById('modalEventTitle').textContent = 'Đang tải dữ liệu...';
+            document.querySelector('#topLopTable tbody').innerHTML = '<tr><td colspan="2" style="text-align:center;padding:15px;">Đang tải...</td></tr>';
+            
+            try {
+                const res = await fetch(`/admin/thong-ke/api/${eventId}`);
+                const data = await res.json();
+                
+                document.getElementById('modalEventTitle').textContent = data.su_kien;
+                
+                if (pieChartInstance) {
+                    pieChartInstance.destroy();
+                }
+                
+                const ctx = document.getElementById('attendancePieChart').getContext('2d');
+                pieChartInstance = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Đã điểm danh', 'Vắng mặt', 'Chưa điểm danh'],
+                        datasets: [{
+                            data: [data.da_diem_danh, data.vang_mat, data.chua_diem_danh],
+                            backgroundColor: [
+                                '#10b981', // success
+                                '#ef4444', // danger
+                                '#9ca3af'  // text-muted/gray
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                const tbody = document.querySelector('#topLopTable tbody');
+                tbody.innerHTML = '';
+                if (data.top_lop.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;padding:15px;">Không có dữ liệu điểm danh</td></tr>';
+                } else {
+                    data.top_lop.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td><strong>${item.lop}</strong></td><td style="text-align:center;">${item.so_luong}</td>`;
+                        tbody.appendChild(tr);
+                    });
+                }
+                
+            } catch (err) {
+                console.error(err);
+                document.getElementById('modalEventTitle').textContent = 'Lỗi khi tải dữ liệu';
+                document.querySelector('#topLopTable tbody').innerHTML = '<tr><td colspan="2" style="text-align:center;padding:15px;color:red;">Lỗi kết nối. Vui lòng thử lại sau.</td></tr>';
+            }
+        });
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+        document.getElementById('statsModal').style.display = 'none';
+    });
+    
+    document.getElementById('statsModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('statsModal')) {
+            document.getElementById('statsModal').style.display = 'none';
+        }
+    });
 </script>
 @endsection

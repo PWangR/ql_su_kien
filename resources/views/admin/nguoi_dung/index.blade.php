@@ -81,7 +81,6 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        min-width: 240px;
     }
 
     .user-avatar {
@@ -292,13 +291,10 @@ $tongChuaXacThuc = $nguoiDung->getCollection()->whereNull('email_verified_at')->
         <table>
             <thead>
                 <tr>
-                    <th style="min-width:260px;">Người dùng</th>
-                    <th>MSSV</th>
-                    <th>Lớp</th>
-                    <th>Email</th>
-                    <th>Xác thực</th>
-                    <th>Vai trò</th>
+                    <th>Người dùng</th>
+                    <th>Hồ sơ</th>
                     <th>Trạng thái</th>
+                    <th>Vai trò</th>
                     <th style="text-align:right;">Thao tác</th>
                 </tr>
             </thead>
@@ -306,7 +302,7 @@ $tongChuaXacThuc = $nguoiDung->getCollection()->whereNull('email_verified_at')->
                 @forelse($nguoiDung as $nd)
                 <tr>
                     <td>
-                        <div class="user-cell">
+                        <div class="user-cell" style="min-width: 200px;">
                             <div class="user-avatar">
                                 @if($nd->duong_dan_anh)
                                 <img src="{{ asset('storage/'.$nd->duong_dan_anh) }}" alt="{{ $nd->ho_ten }}">
@@ -316,42 +312,44 @@ $tongChuaXacThuc = $nguoiDung->getCollection()->whereNull('email_verified_at')->
                             </div>
                             <div class="user-meta">
                                 <strong>{{ $nd->ho_ten }}</strong>
-                                <span class="text-xs text-muted">{{ $nd->so_dien_thoai ?: 'Chưa có số điện thoại' }}</span>
+                                <span class="text-xs text-muted">{{ $nd->email }}</span>
                             </div>
                         </div>
                     </td>
-                    <td><span class="mono">{{ $nd->ma_sinh_vien }}</span></td>
-                    <td>{{ $nd->lop }}</td>
-                    <td style="min-width:240px;">
-                        <div>{{ $nd->email }}</div>
-                        <div class="text-xs text-muted">Tạo lúc {{ optional($nd->created_at)->format('d/m/Y H:i') }}</div>
+                    <td>
+                        <div><span class="mono">{{ $nd->ma_sinh_vien }}</span> - {{ $nd->lop }}</div>
+                        <div class="text-xs text-muted" style="margin-top:4px;">
+                            <i class="bi bi-telephone"></i> {{ $nd->so_dien_thoai ?: 'Chưa cập nhật' }}
+                        </div>
                     </td>
                     <td>
-                        @if($nd->email_verified_at)
-                        <span class="verification-chip verified"><i class="bi bi-patch-check"></i> Đã xác thực</span>
-                        @else
-                        <span class="verification-chip pending"><i class="bi bi-hourglass-split"></i> Chờ xác thực</span>
-                        @endif
+                        <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+                            @if($nd->email_verified_at)
+                            <span class="verification-chip verified"><i class="bi bi-patch-check"></i> Đã xác thực</span>
+                            @else
+                            <span class="verification-chip pending"><i class="bi bi-hourglass-split"></i> Chờ xác thực</span>
+                            @endif
+
+                            @php
+                            $statusMap = [
+                            'hoat_dong' => 'badge-success',
+                            'khong_hoat_dong' => 'badge-secondary',
+                            'bi_khoa' => 'badge-danger',
+                            ];
+                            $statusLabel = [
+                            'hoat_dong' => 'Hoạt động',
+                            'khong_hoat_dong' => 'Không hoạt động',
+                            'bi_khoa' => 'Bị khóa',
+                            ];
+                            @endphp
+                            <span class="badge {{ $statusMap[$nd->trang_thai] ?? 'badge-secondary' }}">{{ $statusLabel[$nd->trang_thai] ?? 'Không rõ' }}</span>
+                        </div>
                     </td>
                     <td>
                         <span class="badge {{ $nd->vai_tro === 'admin' ? 'badge-primary' : 'badge-secondary' }}">
                             {{ $nd->vai_tro === 'admin' ? 'Admin' : 'Sinh viên' }}
                         </span>
-                    </td>
-                    <td>
-                        @php
-                        $statusMap = [
-                        'hoat_dong' => 'badge-success',
-                        'khong_hoat_dong' => 'badge-secondary',
-                        'bi_khoa' => 'badge-danger',
-                        ];
-                        $statusLabel = [
-                        'hoat_dong' => 'Hoạt động',
-                        'khong_hoat_dong' => 'Không hoạt động',
-                        'bi_khoa' => 'Bị khóa',
-                        ];
-                        @endphp
-                        <span class="badge {{ $statusMap[$nd->trang_thai] ?? 'badge-secondary' }}">{{ $statusLabel[$nd->trang_thai] ?? 'Không rõ' }}</span>
+                        <div class="text-xs text-muted" style="margin-top:6px; white-space:nowrap;">Tạo lúc {{ optional($nd->created_at)->format('d/m/Y') }}</div>
                     </td>
                     <td>
                         <div class="btn-group table-actions">
@@ -378,7 +376,7 @@ $tongChuaXacThuc = $nguoiDung->getCollection()->whereNull('email_verified_at')->
                             <form method="POST" action="{{ route('admin.nguoi-dung.destroy', $nd->ma_sinh_vien) }}" style="display:inline;" onsubmit="return confirm('Xóa người dùng này?')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-danger btn-sm" title="Xóa"><i class="bi bi-trash"></i></button>
                             </form>
                             @endif
                         </div>
@@ -386,7 +384,7 @@ $tongChuaXacThuc = $nguoiDung->getCollection()->whereNull('email_verified_at')->
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" style="text-align:center;padding:var(--space-2xl);color:var(--text-muted);">
+                    <td colspan="5" style="text-align:center;padding:var(--space-2xl);color:var(--text-muted);">
                         <i class="bi bi-people" style="font-size:28px;display:block;margin-bottom:6px;opacity:0.3;"></i>Chưa có người dùng phù hợp bộ lọc
                     </td>
                 </tr>
