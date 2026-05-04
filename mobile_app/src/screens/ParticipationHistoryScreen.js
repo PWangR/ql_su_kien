@@ -20,6 +20,7 @@ const ParticipationHistoryScreen = ({ navigation }) => {
   const [pagination, setPagination] = useState({
     current_page: 1,
     total: 0,
+    per_page: 20,
   });
 
   const fetchHistory = useCallback(async (page = 1) => {
@@ -48,7 +49,7 @@ const ParticipationHistoryScreen = ({ navigation }) => {
   }, [fetchHistory]);
 
   const handleLoadMore = () => {
-    if (pagination.current_page * 20 < pagination.total) {
+    if (pagination.current_page * pagination.per_page < pagination.total) {
       fetchHistory(pagination.current_page + 1);
     }
   };
@@ -62,6 +63,9 @@ const ParticipationHistoryScreen = ({ navigation }) => {
       da_dang_ky: { label: 'Đã đăng ký', color: Colors.primary, bgColor: Colors.primaryBg },
       da_tham_gia: { label: 'Đã tham gia', color: Colors.success, bgColor: Colors.successBg },
       vang: { label: 'Vắng mặt', color: Colors.danger, bgColor: Colors.dangerBg },
+      vang_mat: { label: 'Vắng mặt', color: Colors.danger, bgColor: Colors.dangerBg },
+      chua_du_dieu_kien: { label: 'Chưa đủ điều kiện', color: Colors.warning, bgColor: '#FFF9E6' },
+      huy: { label: 'Đã hủy', color: Colors.textMuted, bgColor: Colors.background },
     };
     return config[status] || { label: status, color: Colors.textMuted, bgColor: Colors.background };
   };
@@ -89,6 +93,7 @@ const ParticipationHistoryScreen = ({ navigation }) => {
                 <Text style={styles.pointsText}>+{event.diem_cong} điểm</Text>
               </View>
             )}
+            <Text style={styles.checkinText}>Điểm danh: {item.so_lan_diem_danh || 0}/2</Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: status.bgColor }]}>
             <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>
@@ -108,7 +113,7 @@ const ParticipationHistoryScreen = ({ navigation }) => {
         <FlatList
           data={history}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => String(item.ma_dang_ky)}
           contentContainerStyle={styles.list}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />
@@ -196,6 +201,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#B28900',
+  },
+  checkinText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: Colors.textMuted,
+    marginTop: 6,
   },
   statusBadge: {
     paddingHorizontal: 10,

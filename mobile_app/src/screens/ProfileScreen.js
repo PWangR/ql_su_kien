@@ -19,10 +19,15 @@ import Typography from '../constants/Typography';
 const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuthStore();
   const [points, setPoints] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const avatarUri = user?.avatar || (user?.duong_dan_anh ? `${BASE_URL}/storage/${user.duong_dan_anh}` : null);
 
   useEffect(() => {
     fetchPoints();
+    fetchUnreadCount();
+    const timer = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchPoints = async () => {
@@ -36,6 +41,17 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await api.get('/notifications/unread');
+      if (response.data.success) {
+        setUnreadCount(response.data.count || 0);
+      }
+    } catch (error) {
+      setUnreadCount(0);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -44,14 +60,14 @@ const ProfileScreen = ({ navigation }) => {
         {/* Profile Header */}
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            {user?.avatar ? (
-              <Image source={{ uri: `${BASE_URL}/storage/${user.avatar}` }} style={styles.avatar} />
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
                 <MaterialIcons name="person" size={60} color={Colors.primary} />
               </View>
             )}
-            <TouchableOpacity style={styles.editAvatarBtn}>
+            <TouchableOpacity style={styles.editAvatarBtn} onPress={() => navigation.navigate('EditProfile')}>
               <MaterialIcons name="camera-alt" size={18} color={Colors.white} />
             </TouchableOpacity>
           </View>
@@ -72,7 +88,7 @@ const ProfileScreen = ({ navigation }) => {
         </View>
 
         {/* Personal QR */}
-        <View style={styles.section}>
+        <View style={styles.hiddenSection}>
           <Text style={[Typography.h3, styles.sectionTitle]}>Mã cá nhân của bạn</Text>
           <View style={styles.qrContainer}>
             <Image 
@@ -121,6 +137,31 @@ const ProfileScreen = ({ navigation }) => {
             <MaterialIcons name="chevron-right" size={24} color={Colors.border} />
           </TouchableOpacity>
           
+          <TouchableOpacity style={[styles.actionBtn, { marginTop: 12 }]} onPress={() => navigation.navigate('Points')}>
+            <MaterialIcons name="stars" size={22} color={Colors.text} />
+            <Text style={[Typography.bodySemiBold, { flex: 1, marginLeft: 12 }]}>Điểm và bảng xếp hạng</Text>
+            <MaterialIcons name="chevron-right" size={24} color={Colors.border} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionBtn, { marginTop: 12 }]} onPress={() => navigation.navigate('Notifications')}>
+            <MaterialIcons name="notifications-none" size={22} color={Colors.text} />
+            <Text style={[Typography.bodySemiBold, { flex: 1, marginLeft: 12 }]}>Thông báo</Text>
+            {unreadCount > 0 && <View style={styles.redDot} />}
+            <MaterialIcons name="chevron-right" size={24} color={Colors.border} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionBtn, { marginTop: 12 }]} onPress={() => navigation.navigate('EditProfile')}>
+            <MaterialIcons name="edit" size={22} color={Colors.text} />
+            <Text style={[Typography.bodySemiBold, { flex: 1, marginLeft: 12 }]}>Chỉnh sửa hồ sơ</Text>
+            <MaterialIcons name="chevron-right" size={24} color={Colors.border} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.actionBtn, { marginTop: 12 }]} onPress={() => navigation.navigate('ChangePassword')}>
+            <MaterialIcons name="lock-outline" size={22} color={Colors.text} />
+            <Text style={[Typography.bodySemiBold, { flex: 1, marginLeft: 12 }]}>Đổi mật khẩu</Text>
+            <MaterialIcons name="chevron-right" size={24} color={Colors.border} />
+          </TouchableOpacity>
+
           <TouchableOpacity style={[styles.actionBtn, { marginTop: 12 }]} onPress={logout}>
             <MaterialIcons name="logout" size={22} color={Colors.danger} />
             <Text style={[Typography.bodySemiBold, { flex: 1, marginLeft: 12, color: Colors.danger }]}>Đăng xuất</Text>
@@ -146,6 +187,7 @@ const styles = StyleSheet.create({
   statsRow: { flexDirection: 'row', padding: 20, gap: 16 },
   statCard: { flex: 1, backgroundColor: Colors.white, padding: 20, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
   section: { paddingHorizontal: 20, marginTop: 24 },
+  hiddenSection: { display: 'none' },
   sectionTitle: { marginBottom: 16 },
   qrContainer: { backgroundColor: Colors.white, padding: 24, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: Colors.border },
   qrImage: { width: 160, height: 160, backgroundColor: '#fff' },
@@ -153,6 +195,7 @@ const styles = StyleSheet.create({
   infoItem: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: Colors.borderLight, gap: 16 },
   actions: { paddingHorizontal: 20, marginTop: 32 },
   actionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.white, padding: 16, borderRadius: 12, borderWidth: 1, borderColor: Colors.border },
+  redDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: Colors.danger, marginRight: 8 },
   versionText: { textAlign: 'center', marginTop: 40, color: Colors.textMuted, fontSize: 12, fontWeight: '600' },
 });
 

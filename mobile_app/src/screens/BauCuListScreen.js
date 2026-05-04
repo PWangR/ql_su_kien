@@ -45,8 +45,11 @@ const BauCuListScreen = ({ navigation }) => {
   const getStatusConfig = (status) => {
     const config = {
       sap_to_chuc: { label: 'Sắp diễn ra', color: Colors.primary, bgColor: Colors.primaryBg },
+      nhap: { label: 'Chưa bắt đầu', color: Colors.primary, bgColor: Colors.primaryBg },
       dang_dien_ra: { label: 'Đang diễn ra', color: Colors.success, bgColor: Colors.successBg },
       da_ket_thuc: { label: 'Đã kết thúc', color: Colors.textMuted, bgColor: Colors.background },
+      hoan_thanh: { label: 'Hoàn thành', color: Colors.textMuted, bgColor: Colors.background },
+      huy: { label: 'Đã hủy', color: Colors.danger, bgColor: Colors.dangerBg },
     };
     return config[status] || { label: 'Không xác định', color: Colors.textMuted, bgColor: Colors.background };
   };
@@ -63,7 +66,7 @@ const BauCuListScreen = ({ navigation }) => {
         <View style={styles.cardHeader}>
           <Text style={styles.title} numberOfLines={2}>{item.ten_cuoc_bau_cu}</Text>
           <View style={[styles.badge, { backgroundColor: status.bgColor }]}>
-            <Text style={[styles.badgeText, { color: status.color }]}>{status.label}</Text>
+            <Text style={[styles.badgeText, { color: status.color }]}>{item.trang_thai_label || status.label}</Text>
           </View>
         </View>
         

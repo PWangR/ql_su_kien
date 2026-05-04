@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\UserService;
 use App\Http\Requests\StoreNguoiDungRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserApiController extends Controller
 {
@@ -48,9 +49,17 @@ class UserApiController extends Controller
 
             $validated = $request->validate([
                 'ho_ten' => 'sometimes|string|max:100',
+                'lop' => 'sometimes|string|max:10',
+                'email' => 'sometimes|email|unique:nguoi_dung,email,' . $user->ma_sinh_vien . ',ma_sinh_vien',
                 'so_dien_thoai' => 'sometimes|string|max:15',
                 'duong_dan_anh' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
+
+            if ($request->hasFile('avatar') && !$request->hasFile('duong_dan_anh')) {
+                $validated['duong_dan_anh'] = $request->file('avatar');
+                unset($validated['avatar']);
+            }
 
             $this->userService->updateUser($user, $validated);
 
@@ -75,11 +84,19 @@ class UserApiController extends Controller
     {
         try {
             $validated = $request->validate([
-                'current_password' => 'required|current_password',
+                'current_password' => 'required|string',
                 'password' => 'required|string|min:6|confirmed',
             ]);
 
             $user = auth()->user();
+
+            if (!Hash::check($validated['current_password'], $user->mat_khau)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Mat khau hien tai khong dung'
+                ], 422);
+            }
+
             $this->userService->updateUser($user, [
                 'mat_khau' => $validated['password']
             ]);

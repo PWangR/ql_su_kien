@@ -89,6 +89,14 @@
         </select>
     </div>
 
+    <div class="form-group" style="text-align: left;">
+        <label>Loại điểm danh</label>
+        <select id="checkinTypeSelect" class="form-control" onchange="startQR()">
+            <option value="dau_buoi">Điểm danh lần 1 - đầu buổi</option>
+            <option value="cuoi_buoi">Điểm danh lần 2 - cuối buổi</option>
+        </select>
+    </div>
+
     <div id="qr-section" style="display: none;">
         <div class="app-only-badge">
             <i class="bi bi-phone"></i>
@@ -124,6 +132,7 @@ let timeLeft = 5; // Làm mới mỗi 5 giây để timestamp luôn sát nhất
 
 function startQR() {
     const select = document.getElementById('eventSelect');
+    const typeSelect = document.getElementById('checkinTypeSelect');
     const qrSection = document.getElementById('qr-section');
     
     if (!select.value) {
@@ -139,20 +148,21 @@ function startQR() {
     if (refreshInterval) clearInterval(refreshInterval);
     if (countdownInterval) clearInterval(countdownInterval);
     
-    generateQR(select.value);
+    generateQR(select.value, typeSelect.value);
     
     // Tạo khoảng thời gian làm mới
     refreshInterval = setInterval(() => {
-        generateQR(select.value);
+        generateQR(select.value, typeSelect.value);
     }, 5000); // Tạo mới mỗi 5 giây
 }
 
-function generateQR(eventId) {
+function generateQR(eventId, checkinType = 'dau_buoi') {
     console.log("Đang tạo QR cho sự kiện:", eventId);
     
     const qrData = JSON.stringify({
         action: 'diem_danh',
         ma_su_kien: parseInt(eventId),
+        loai_diem_danh: checkinType,
         t: Date.now()
     });
     

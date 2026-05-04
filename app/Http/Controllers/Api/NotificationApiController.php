@@ -73,7 +73,7 @@ class NotificationApiController extends Controller
     public function markAsRead($id)
     {
         try {
-            $notification = $this->notificationService->markAsRead($id);
+            $notification = ThongBao::where('ma_sinh_vien', auth()->id())->find($id);
 
             if (!$notification) {
                 return response()->json([
@@ -81,6 +81,8 @@ class NotificationApiController extends Controller
                     'message' => 'Thông báo không tồn tại'
                 ], 404);
             }
+
+            $notification->update(['da_doc' => true]);
 
             return response()->json([
                 'success' => true,
@@ -123,7 +125,7 @@ class NotificationApiController extends Controller
     public function destroy($id)
     {
         try {
-            $notification = ThongBao::find($id);
+            $notification = ThongBao::where('ma_sinh_vien', auth()->id())->find($id);
 
             if (!$notification) {
                 return response()->json([

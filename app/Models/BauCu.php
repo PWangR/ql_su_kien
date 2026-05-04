@@ -28,6 +28,12 @@ class BauCu extends Model
         'hien_thi_ket_qua'   => 'boolean',
     ];
 
+    protected $appends = [
+        'trang_thai_thuc_te',
+        'trang_thai_label',
+        'trang_thai_color',
+    ];
+
     /* ========== Relationships ========== */
 
     public function nguoiTao()

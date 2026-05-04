@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import useAuthStore from '../store/authStore';
 import Colors from '../constants/Colors';
+import api from '../services/api';
 
 // Màn hình
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import EventListScreen from '../screens/EventListScreen';
 import EventDetailScreen from '../screens/EventDetailScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -18,12 +21,34 @@ import BauCuDetailScreen from '../screens/BauCuDetailScreen';
 import ParticipationHistoryScreen from '../screens/ParticipationHistoryScreen';
 import ChatbotScreen from '../screens/ChatbotScreen';
 import HomeScreen from '../screens/HomeScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import PointsScreen from '../screens/PointsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Tab Navigator cho các màn hình chính sau khi đăng nhập
 const MainTabNavigator = () => {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const response = await api.get('/notifications/unread');
+      if (response.data.success) {
+        setUnreadCount(response.data.count || 0);
+      }
+    } catch (error) {
+      setUnreadCount(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUnreadCount();
+    const timer = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(timer);
+  }, [fetchUnreadCount]);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -49,6 +74,7 @@ const MainTabNavigator = () => {
           fontSize: 11,
           fontWeight: '700',
         },
+        tabBarBadge: route.name === 'Profile' && unreadCount > 0 ? unreadCount : undefined,
         headerShown: false,
       })}
     >
@@ -71,11 +97,23 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator>
         {token == null ? (
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
+          <>
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{ title: 'Đăng ký' }}
+            />
+            <Stack.Screen
+              name="ForgotPassword"
+              component={ForgotPasswordScreen}
+              options={{ headerShown: false }}
+            />
+          </>
         ) : (
           <>
             {/* Main Tabs */}
@@ -116,6 +154,26 @@ const AppNavigator = () => {
                 title: 'Lịch sử tham gia',
                 headerBackTitle: 'Quay lại'
               }}
+            />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="EditProfile"
+              component={EditProfileScreen}
+              options={{ title: 'Chỉnh sửa hồ sơ' }}
+            />
+            <Stack.Screen
+              name="ChangePassword"
+              component={ChangePasswordScreen}
+              options={{ title: 'Đổi mật khẩu' }}
+            />
+            <Stack.Screen
+              name="Points"
+              component={PointsScreen}
+              options={{ title: 'Điểm rèn luyện' }}
             />
             <Stack.Screen
               name="Chatbot"

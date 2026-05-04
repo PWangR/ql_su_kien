@@ -24,12 +24,18 @@ use App\Http\Controllers\ChatbotController;
 
 // Auth endpoints (public)
 Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/register', [AuthApiController::class, 'register']);
+Route::post('/forgot-password', [AuthApiController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthApiController::class, 'resetPassword']);
+Route::post('/email/resend', [AuthApiController::class, 'resendVerificationEmail']);
 Route::post('/logout', [AuthApiController::class, 'logout'])->middleware('auth:sanctum');
 
 // Event endpoints (public)
 Route::get('/events', [EventApiController::class, 'index']);
 Route::get('/home', [EventApiController::class, 'homeData']);
+Route::get('/events/search/{keyword}', [EventApiController::class, 'search']);
 Route::get('/events/{id}', [EventApiController::class, 'show']);
+Route::get('/event-types', [EventApiController::class, 'getEventTypes']);
 Route::get('/api/event-types', [EventApiController::class, 'getEventTypes']);
 // QR Code generation (public)
 Route::get('/generate-qr', [QrCodeApiController::class, 'generate'])->name('api.generate-qr');

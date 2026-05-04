@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator,
 import useAuthStore from '../store/authStore';
 import Colors from '../constants/Colors';
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -69,6 +69,20 @@ const LoginScreen = () => {
             ) : (
               <Text style={styles.buttonText}>Đăng Nhập</Text>
             )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={() => navigation.navigate('ForgotPassword')}
+          >
+            <Text style={styles.linkText}>Quen mat khau / gui lai email xac thuc</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.registerButton}
+            onPress={() => navigation.navigate('Register')}
+          >
+            <Text style={styles.registerText}>Tao tai khoan sinh vien</Text>
           </TouchableOpacity>
         </View>
 
@@ -149,6 +163,27 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontSize: 12,
     marginTop: 60,
+  },
+  linkButton: {
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  linkText: {
+    color: Colors.primary,
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  registerButton: {
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  registerText: {
+    color: Colors.primary,
+    fontWeight: '800',
+    fontSize: 14,
   },
 });
 

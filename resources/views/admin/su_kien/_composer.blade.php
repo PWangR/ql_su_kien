@@ -324,7 +324,7 @@
             </div>
         </div>
 
-        @if($mode === 'create')
+        @if(in_array($mode, ['create', 'edit'], true))
             <div class="card mb-lg">
                 <div class="card-header">
                     <div class="card-title"><i class="bi bi-layout-text-window"></i> Tùy chỉnh bố cục bài đăng</div>
@@ -366,7 +366,7 @@
     </div>
 </form>
 
-@if($mode === 'create')
+@if(in_array($mode, ['create', 'edit'], true))
 <script type="text/template" id="module-card-template-banner">
 <div class="card mb-lg module-card-editor" data-module-card="__ID__" data-module-id="__ID__" data-module-type="banner">
     <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-sm);">
@@ -556,7 +556,7 @@
         schemaInput.value = JSON.stringify(moduleState);
     }
 
-    @if($mode === 'create')
+    @if(in_array($mode, ['create', 'edit'], true))
     const layoutEditorList = document.getElementById('layoutEditorList');
 
     function renderLayoutEditor() {

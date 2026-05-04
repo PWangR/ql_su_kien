@@ -122,6 +122,10 @@ class RegistrationService
      */
     public function checkInEvent($userId, $eventId, $loaiDiemDanh = 'dau_buoi')
     {
+        if (!in_array($loaiDiemDanh, ['dau_buoi', 'cuoi_buoi'], true)) {
+            return ['success' => false, 'message' => 'Loại điểm danh không hợp lệ', 'status' => 422];
+        }
+
         $event = SuKien::find($eventId);
 
         if (!$event) {
@@ -146,7 +150,7 @@ class RegistrationService
             $dangKy = DangKy::create([
                 'ma_sinh_vien' => $userId,
                 'ma_su_kien' => $eventId,
-                'trang_thai_tham_gia' => 'da_tham_gia'
+                'trang_thai_tham_gia' => 'da_dang_ky'
             ]);
             $event->increment('so_luong_hien_tai');
         } elseif ($dangKy->trashed()) {
@@ -172,8 +176,9 @@ class RegistrationService
         ]);
 
         // Cập nhật trạng thái thành đã tham gia (nếu chưa)
-        if ($dangKy->trang_thai_tham_gia === 'da_dang_ky') {
+        if (in_array($dangKy->trang_thai_tham_gia, ['da_dang_ky', 'chua_du_dieu_kien'], true)) {
             $dangKy->update(['trang_thai_tham_gia' => 'da_tham_gia']);
+            $dangKy->refresh();
         }
 
         // Kiểm tra nếu đã điểm danh đủ 2 lần → cộng điểm
@@ -192,14 +197,20 @@ class RegistrationService
             }
         }
 
+        $dangKy->load('chiTietDiemDanh');
+
         return [
             'success' => true,
             'message' => 'Điểm danh thành công!',
             'status' => 200,
             'data' => [
+                'registration' => $dangKy,
                 'so_lan_diem_danh' => $soLanDiemDanh,
+                'da_diem_danh_dau_buoi' => $dangKy->da_diem_danh_dau_buoi,
+                'da_diem_danh_cuoi_buoi' => $dangKy->da_diem_danh_cuoi_buoi,
                 'trang_thai' => $dangKy->trang_thai_tham_gia,
-                'du_dieu_kien_cong_diem' => $soLanDiemDanh >= 2
+                'du_dieu_kien_cong_diem' => $soLanDiemDanh >= 2,
+                'da_cong_diem' => LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists(),
             ]
         ];
     }

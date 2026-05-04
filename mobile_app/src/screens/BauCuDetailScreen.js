@@ -101,6 +101,7 @@ const BauCuDetailScreen = ({ route, navigation }) => {
 
   const { bau_cu, ung_cu_viens, da_bo_phieu, la_cu_tri, ket_qua } = data;
   const isVotingOpen = bau_cu.trang_thai_thuc_te === 'dang_dien_ra';
+  const statusLabel = bau_cu.trang_thai_label || (isVotingOpen ? 'Đang diễn ra' : 'Đã kết thúc/Chưa bắt đầu');
 
   return (
     <SafeAreaView style={styles.container}>
@@ -110,7 +111,7 @@ const BauCuDetailScreen = ({ route, navigation }) => {
           <View style={styles.statusRow}>
             <View style={[styles.statusBadge, { backgroundColor: isVotingOpen ? Colors.successBg : Colors.background }]}>
               <Text style={[styles.statusText, { color: isVotingOpen ? Colors.success : Colors.textMuted }]}>
-                {isVotingOpen ? 'Đang diễn ra' : 'Đã kết thúc/Chưa bắt đầu'}
+                {statusLabel}
               </Text>
             </View>
             <Text style={styles.dateRange}>

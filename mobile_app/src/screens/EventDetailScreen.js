@@ -17,16 +17,17 @@ import { MaterialIcons } from '@expo/vector-icons';
 import api, { BASE_URL } from '../services/api';
 import useAuthStore from '../store/authStore';
 import Colors from '../constants/Colors';
-import Typography from '../constants/Typography';
 
 const { width } = Dimensions.get('window');
 
 const EventDetailScreen = ({ route, navigation }) => {
   const { eventId, event: initialEvent } = route.params;
+  const { user } = useAuthStore();
   const [event, setEvent] = useState(initialEvent);
   const [loading, setLoading] = useState(!initialEvent);
   const [registering, setRegistering] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [registration, setRegistration] = useState(null);
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
@@ -78,6 +79,7 @@ const EventDetailScreen = ({ route, navigation }) => {
       const response = await api.get(`/registrations/check/${eventId}`);
       if (response.data.success) {
         setIsRegistered(response.data.data.is_registered);
+        setRegistration(response.data.data.registration || null);
       }
     } catch (error) {
       console.error('Lỗi khi kiểm tra trạng thái đăng ký:', error);
@@ -91,6 +93,7 @@ const EventDetailScreen = ({ route, navigation }) => {
       if (response.data.success) {
         Alert.alert('Thành công', 'Bạn đã đăng ký tham gia sự kiện thành công!');
         setIsRegistered(true);
+        setRegistration(response.data.data || null);
       }
     } catch (error) {
       Alert.alert('Lỗi', error.response?.data?.message || 'Có lỗi xảy ra');
@@ -108,6 +111,7 @@ const EventDetailScreen = ({ route, navigation }) => {
           const response = await api.delete(`/registrations/${event.ma_su_kien}`);
           if (response.data.success) {
             setIsRegistered(false);
+            setRegistration(null);
           }
         } catch (error) {
           Alert.alert('Lỗi', 'Không thể hủy đăng ký');
@@ -140,7 +144,7 @@ const EventDetailScreen = ({ route, navigation }) => {
       dang_dien_ra: { label: 'Đang diễn ra', color: Colors.success },
       da_ket_thuc: { label: 'Đã kết thúc', color: Colors.textMuted },
     };
-    const status = event.trang_thai_thuc_te;
+    const status = event.trang_thai_thuc_te || event.trang_thai;
     const statusConfig = statusMap[status] || statusMap.da_ket_thuc;
 
     return (
@@ -155,7 +159,7 @@ const EventDetailScreen = ({ route, navigation }) => {
             </View>
           )}
         </View>
-        <Text style={[Typography.h1, { marginBottom: 12 }]}>{content.title || event.ten_su_kien}</Text>
+        <Text style={styles.eventTitle}>{content.title || event.ten_su_kien}</Text>
         {content.subtitle && <Text style={styles.headerSubtitle}>{content.subtitle}</Text>}
         {status === 'sap_to_chuc' && timeLeft && (
           <View style={styles.countdownContainer}>
@@ -227,8 +231,65 @@ const EventDetailScreen = ({ route, navigation }) => {
     </View>
   );
 
+  const renderGallery = (content = {}) => {
+    const images = content.images || [];
+    if (!images.length) return null;
+
+    return (
+      <View style={styles.moduleBox}>
+        <View style={styles.moduleTitle}>
+          <MaterialIcons name="collections" size={18} color={Colors.primary} />
+          <Text style={styles.moduleTitleText}>{content.title || 'Hình ảnh sự kiện'}</Text>
+        </View>
+        <View style={styles.galleryGrid}>
+          {images.map((imagePath, index) => (
+            <Image
+              key={`${imagePath}-${index}`}
+              source={{ uri: `${BASE_URL}/storage/${imagePath}` }}
+              style={styles.galleryImage}
+            />
+          ))}
+        </View>
+      </View>
+    );
+  };
+
+  const renderPersonalCode = () => {
+    if (!isRegistered || !registration?.ma_dang_ky || !user?.ma_sinh_vien) return null;
+
+    const code = JSON.stringify({
+      action: 'student_checkin',
+      ma_su_kien: event.ma_su_kien,
+      ma_dang_ky: registration.ma_dang_ky,
+      ma_sinh_vien: user.ma_sinh_vien,
+      loai_diem_danh: registration?.da_diem_danh_dau_buoi ? 'cuoi_buoi' : 'dau_buoi',
+    });
+
+    return (
+      <View style={styles.moduleBox}>
+        <View style={styles.moduleTitle}>
+          <MaterialIcons name="qr-code-2" size={18} color={Colors.primary} />
+          <Text style={styles.moduleTitleText}>Mã điểm danh cá nhân</Text>
+        </View>
+        <View style={styles.personalQrBox}>
+          <Image
+            source={{ uri: `${BASE_URL}/api/generate-qr?data=${encodeURIComponent(String(code))}` }}
+            style={styles.personalQrImage}
+          />
+          <Text style={styles.personalCodeText}>{String(code)}</Text>
+        </View>
+      </View>
+    );
+  };
+
   const renderModules = () => {
-    const modules = typeof event.bo_cuc === 'string' ? JSON.parse(event.bo_cuc) : (event.bo_cuc || []);
+    let modules = [];
+    try {
+      modules = typeof event.bo_cuc === 'string' ? JSON.parse(event.bo_cuc) : (event.bo_cuc || []);
+    } catch (error) {
+      modules = [];
+    }
+
     if (modules.length === 0) {
         // Fallback layout
         return (
@@ -237,19 +298,26 @@ const EventDetailScreen = ({ route, navigation }) => {
                 {renderHeader({})}
                 {renderInfo({})}
                 {renderDescription({})}
+                {renderPersonalCode()}
             </>
         );
     }
-    return modules.map((m, i) => {
-      switch(m.type) {
-        case 'banner': return <View key={i}>{renderBanner(m.content)}</View>;
-        case 'header': return <View key={i}>{renderHeader(m.content)}</View>;
-        case 'info': return <View key={i}>{renderInfo(m.content)}</View>;
-        case 'description': return <View key={i}>{renderDescription(m.content)}</View>;
-        case 'documents': return <View key={i}>{renderDocuments(m.content)}</View>;
-        default: return null;
-      }
-    });
+    return (
+      <>
+        {modules.map((m, i) => {
+          switch(m.type) {
+            case 'banner': return <View key={i}>{renderBanner(m.content)}</View>;
+            case 'header': return <View key={i}>{renderHeader(m.content)}</View>;
+            case 'info': return <View key={i}>{renderInfo(m.content)}</View>;
+            case 'description': return <View key={i}>{renderDescription(m.content)}</View>;
+            case 'gallery': return <View key={i}>{renderGallery(m.content)}</View>;
+            case 'documents': return <View key={i}>{renderDocuments(m.content)}</View>;
+            default: return null;
+          }
+        })}
+        {renderPersonalCode()}
+      </>
+    );
   };
 
   if (loading) return <View style={styles.loading}><ActivityIndicator size="large" color={Colors.primary} /></View>;
@@ -288,35 +356,36 @@ const EventDetailScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scrollContent: { padding: 16, paddingBottom: 100 },
+  scrollContent: { padding: 12, paddingBottom: 88 },
   moduleBox: {
     backgroundColor: Colors.white,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: Colors.border,
-    padding: 20,
-    marginBottom: 16,
+    padding: 14,
+    marginBottom: 10,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
-  moduleBanner: { width: '100%', height: 200, borderRadius: 6, marginBottom: 10 },
+  moduleBanner: { width: '100%', aspectRatio: 16 / 8.5, borderRadius: 6, marginBottom: 8 },
   moduleNote: { color: Colors.textMuted, fontSize: 13, textAlign: 'center', fontStyle: 'italic' },
-  moduleTitle: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 8 },
+  moduleTitle: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, gap: 8 },
   moduleTitleText: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  headerBadges: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  eventTitle: { fontSize: 22, lineHeight: 28, fontWeight: '800', color: Colors.text, marginBottom: 8 },
+  headerBadges: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 4 },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: '800', textTransform: 'uppercase' },
-  headerSubtitle: { color: Colors.textMuted, lineHeight: 22, fontSize: 14 },
+  headerSubtitle: { color: Colors.textMuted, lineHeight: 20, fontSize: 13 },
   countdownContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 6 },
   countdownText: { color: Colors.textMuted, fontWeight: '700', fontSize: 13 },
-  infoList: { gap: 12 },
-  infoRow: { borderBottomWidth: 1, borderBottomColor: Colors.borderLight, paddingBottom: 12 },
+  infoList: { gap: 8 },
+  infoRow: { borderBottomWidth: 1, borderBottomColor: Colors.borderLight, paddingBottom: 8 },
   infoLabel: { fontSize: 11, color: Colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 },
-  infoValue: { fontSize: 15, fontWeight: '700', color: Colors.text },
-  descriptionText: { fontSize: 15, lineHeight: 26, color: Colors.textLight },
+  infoValue: { fontSize: 15, fontWeight: '700', color: Colors.text, flexShrink: 1 },
+  descriptionText: { fontSize: 14, lineHeight: 22, color: Colors.textLight },
   docLink: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -329,23 +398,28 @@ const styles = StyleSheet.create({
   },
   docName: { fontSize: 14, fontWeight: '600', color: Colors.text },
   docMeta: { fontSize: 11, color: Colors.textMuted },
+  galleryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  galleryImage: { width: (width - 64) / 2, aspectRatio: 1, borderRadius: 6, backgroundColor: Colors.borderLight },
+  personalQrBox: { alignItems: 'center', gap: 10 },
+  personalQrImage: { width: 148, height: 148, backgroundColor: Colors.white },
+  personalCodeText: { color: Colors.textMuted, fontSize: 12, textAlign: 'center' },
   bottomBar: {
     position: 'absolute',
     bottom: 0, left: 0, right: 0,
-    padding: 16,
+    padding: 12,
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
   btnRegister: {
     backgroundColor: Colors.primary,
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   btnUnregister: {
     backgroundColor: Colors.danger,
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 8,
     alignItems: 'center',
   },

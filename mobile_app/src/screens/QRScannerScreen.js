@@ -53,6 +53,7 @@ export default function QRScannerScreen({ navigation }) {
         ma_su_kien: payload.ma_su_kien,
         ma_sinh_vien: payload.ma_sinh_vien || null,
         action: payload.action,
+        loai_diem_danh: payload.loai_diem_danh || 'dau_buoi',
         scanned_at: Date.now()
       });
 
@@ -293,4 +294,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-

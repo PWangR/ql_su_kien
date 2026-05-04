@@ -179,7 +179,8 @@ class RegistrationApiController extends Controller
     {
         $request->validate([
             'ma_su_kien' => 'required|integer',
-            'diff' => 'required|numeric'
+            'diff' => 'required|numeric',
+            'loai_diem_danh' => 'nullable|string|in:dau_buoi,cuoi_buoi'
         ]);
 
         $diff = $request->input('diff');
@@ -194,6 +195,14 @@ class RegistrationApiController extends Controller
         }
 
         // 2. Tìm sự kiện
+        $result = $this->registrationService->checkInEvent(
+            auth()->id(),
+            $maSuKien,
+            $request->input('loai_diem_danh', 'dau_buoi')
+        );
+
+        return response()->json($result, $result['status'] ?? ($result['success'] ? 200 : 400));
+
         $suKien = SuKien::find($maSuKien);
         if (!$suKien) {
             return response()->json([
@@ -282,6 +291,14 @@ class RegistrationApiController extends Controller
                     $targetUserId = $userId;
                 }
 
+                $this->registrationService->checkInEvent(
+                    $targetUserId,
+                    $maSuKien,
+                    $event['loai_diem_danh'] ?? 'dau_buoi'
+                );
+
+                continue;
+
                 $suKien = SuKien::find($maSuKien);
 
                 if (!$suKien || $suKien->trang_thai === 'huy') {
@@ -343,6 +360,7 @@ class RegistrationApiController extends Controller
                 'success' => true,
                 'data' => [
                     'is_registered' => $registration ? true : false,
+                    'ma_diem_danh_ca_nhan' => $registration?->ma_diem_danh_ca_nhan,
                     'registration' => $registration
                 ]
             ]);

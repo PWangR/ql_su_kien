@@ -1,63 +1,112 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  FlatList, 
-  ActivityIndicator, 
-  TouchableOpacity, 
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
   SafeAreaView,
-  StatusBar 
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import api from '../services/api';
 import { MaterialIcons } from '@expo/vector-icons';
+import api from '../services/api';
 import Colors from '../constants/Colors';
 import Typography from '../constants/Typography';
 
 const NotificationScreen = ({ navigation }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await api.get('/notifications');
+      if (response.data.success) {
+        setNotifications(response.data.data || []);
+      }
+    } catch (error) {
+      console.error('Notification error:', error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     fetchNotifications();
   }, []);
 
-  const fetchNotifications = async () => {
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchNotifications();
+  };
+
+  const markAsRead = async (item) => {
+    if (item.da_doc) return;
     try {
-      const response = await api.get('/notifications');
-      setNotifications(response.data.data);
+      await api.post(`/notifications/${item.ma_thong_bao}/read`);
+      setNotifications((current) =>
+        current.map((noti) =>
+          noti.ma_thong_bao === item.ma_thong_bao ? { ...noti, da_doc: true } : noti
+        )
+      );
     } catch (error) {
-      console.error('Lỗi lấy thông báo:', error);
-    } finally {
-      setLoading(false);
+      Alert.alert('Không thành công', 'Không thể đánh dấu thông báo.');
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await api.post('/notifications/read-all');
+      setNotifications((current) => current.map((item) => ({ ...item, da_doc: true })));
+    } catch (error) {
+      Alert.alert('Không thành công', 'Không thể đánh dấu tất cả thông báo.');
+    }
+  };
+
+  const deleteNotification = async (item) => {
+    try {
+      await api.delete(`/notifications/${item.ma_thong_bao}`);
+      setNotifications((current) => current.filter((noti) => noti.ma_thong_bao !== item.ma_thong_bao));
+    } catch (error) {
+      Alert.alert('Không thành công', 'Không thể xóa thông báo.');
     }
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={[styles.card, !item.read_at && styles.unreadCard]}
-      activeOpacity={0.7}
+    <TouchableOpacity
+      style={[styles.card, !item.da_doc && styles.unreadCard]}
+      activeOpacity={0.8}
+      onPress={() => markAsRead(item)}
     >
-      <View style={[styles.iconContainer, !item.read_at && styles.unreadIconContainer]}>
-        <MaterialIcons 
-          name={item.read_at ? "notifications-none" : "notifications-active"} 
-          size={22} 
-          color={item.read_at ? Colors.textMuted : Colors.primary} 
+      <View style={[styles.iconContainer, !item.da_doc && styles.unreadIconContainer]}>
+        <MaterialIcons
+          name={item.da_doc ? 'notifications-none' : 'notifications-active'}
+          size={22}
+          color={item.da_doc ? Colors.textMuted : Colors.primary}
         />
       </View>
       <View style={styles.content}>
         <View style={styles.contentHeader}>
-          <Text style={[Typography.bodyBold, !item.read_at && { color: Colors.primary }]}>
-            {item.data.title || 'Thông báo mới'}
+          <Text style={[Typography.bodyBold, !item.da_doc && { color: Colors.primary }]} numberOfLines={2}>
+            {item.tieu_de || 'Thông báo'}
           </Text>
-          {!item.read_at && <View style={styles.unreadDot} />}
+          {!item.da_doc && <View style={styles.unreadDot} />}
         </View>
         <Text style={[Typography.body, { color: Colors.textLight }]} numberOfLines={3}>
-          {item.data.message || item.data.content}
+          {item.noi_dung}
         </Text>
-        <Text style={[Typography.caption, { color: Colors.textMuted, marginTop: 8 }]}>
-          {new Date(item.created_at).toLocaleString('vi-VN')}
-        </Text>
+        <View style={styles.itemFooter}>
+          <Text style={[Typography.caption, { color: Colors.textMuted }]}>
+            {new Date(item.created_at).toLocaleString('vi-VN')}
+          </Text>
+          <TouchableOpacity onPress={() => deleteNotification(item)} hitSlop={10}>
+            <MaterialIcons name="delete-outline" size={20} color={Colors.danger} />
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -70,7 +119,9 @@ const NotificationScreen = ({ navigation }) => {
           <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
         </TouchableOpacity>
         <Text style={Typography.h3}>Thông báo</Text>
-        <MaterialIcons name="done-all" size={24} color={Colors.primary} />
+        <TouchableOpacity onPress={markAllAsRead}>
+          <MaterialIcons name="done-all" size={24} color={Colors.primary} />
+        </TouchableOpacity>
       </View>
 
       {loading ? (
@@ -81,8 +132,9 @@ const NotificationScreen = ({ navigation }) => {
         <FlatList
           data={notifications}
           renderItem={renderItem}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.ma_thong_bao.toString()}
           contentContainerStyle={styles.list}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <MaterialIcons name="notifications-off" size={64} color={Colors.border} />
@@ -99,14 +151,14 @@ const NotificationScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  header: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16, 
-    backgroundColor: Colors.white, 
-    borderBottomWidth: 1, 
-    borderBottomColor: Colors.border 
+    padding: 16,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   list: { padding: 16 },
@@ -121,15 +173,19 @@ const styles = StyleSheet.create({
   },
   unreadCard: { backgroundColor: Colors.primaryBg, borderColor: Colors.primary },
   iconContainer: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: Colors.background,
-    justifyContent: 'center', alignItems: 'center',
-    marginRight: 16
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
   unreadIconContainer: { backgroundColor: Colors.white },
   content: { flex: 1 },
-  contentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  contentHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 8 },
   unreadDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary },
+  itemFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 },
   emptyContainer: { alignItems: 'center', justifyContent: 'center', marginTop: 100 },
 });
 

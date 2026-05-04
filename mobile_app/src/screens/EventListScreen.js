@@ -5,6 +5,7 @@ import {
   FlatList,
   ActivityIndicator,
   Text,
+  TouchableOpacity,
   RefreshControl,
   SectionList,
   Platform,
@@ -42,7 +43,7 @@ const EventListScreen = ({ navigation }) => {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await api.get('/api/event-types');
+      const response = await api.get('/event-types');
       if (response.data.success) {
         setCategories(response.data.data);
       }
@@ -77,7 +78,7 @@ const EventListScreen = ({ navigation }) => {
       const response = await api.get('/events', { params });
 
       if (response.data.success) {
-        setEvents(response.data.data);
+        setEvents((current) => page === 1 ? response.data.data : [...current, ...response.data.data]);
         setPagination(response.data.pagination);
       } else {
         setEvents([]);
@@ -92,9 +93,10 @@ const EventListScreen = ({ navigation }) => {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    setCurrentPage(1);
     await fetchEvents(1);
     setRefreshing(false);
-  }, [fetchEvents]);
+  }, [fetchEvents, setCurrentPage]);
 
   useEffect(() => {
     fetchCategories();
@@ -105,24 +107,29 @@ const EventListScreen = ({ navigation }) => {
   }, [searchQuery, selectedStatus, selectedCategory, fetchEvents, currentPage]);
 
   const handleSearch = useCallback((query) => {
+    setCurrentPage(1);
     setSearchQuery(query);
-  }, [setSearchQuery]);
+  }, [setCurrentPage, setSearchQuery]);
 
   const handleClearSearch = useCallback(() => {
+    setCurrentPage(1);
     setSearchQuery('');
-  }, [setSearchQuery]);
+  }, [setCurrentPage, setSearchQuery]);
 
   const handleStatusChange = useCallback((status) => {
+    setCurrentPage(1);
     setSelectedStatus(status);
-  }, [setSelectedStatus]);
+  }, [setCurrentPage, setSelectedStatus]);
 
   const handleCategoryChange = useCallback((category) => {
+    setCurrentPage(1);
     setSelectedCategory(category);
-  }, [setSelectedCategory]);
+  }, [setCurrentPage, setSelectedCategory]);
 
   const handleClearFilters = useCallback(() => {
+    setCurrentPage(1);
     clearFilters();
-  }, [clearFilters]);
+  }, [clearFilters, setCurrentPage]);
 
   const handleLoadMore = useCallback(() => {
     if (currentPage < pagination.last_page) {
@@ -156,7 +163,7 @@ const EventListScreen = ({ navigation }) => {
   );
 
   const renderFooter = () => {
-    if (!loading && pagination.current_page >= pagination.last_page) {
+    if (!loading && pagination.total === 0) {
       return null;
     }
 
@@ -164,6 +171,18 @@ const EventListScreen = ({ navigation }) => {
       <View style={styles.footerContainer}>
         {loading && pagination.current_page > 1 && (
           <ActivityIndicator size="small" color={Colors.primary} />
+        )}
+        {!loading && pagination.total > 0 && (
+          <>
+            <Text style={styles.paginationText}>
+              Trang {pagination.current_page}/{pagination.last_page} • {events.length}/{pagination.total} sự kiện
+            </Text>
+            {pagination.current_page < pagination.last_page && (
+              <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
+                <Text style={styles.loadMoreText}>Tải thêm</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
     );
@@ -288,6 +307,25 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: 10,
+  },
+  paginationText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.textMuted,
+  },
+  loadMoreButton: {
+    backgroundColor: Colors.white,
+    borderColor: Colors.primary,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  loadMoreText: {
+    color: Colors.primary,
+    fontSize: 13,
+    fontWeight: '800',
   },
   emptyContainer: {
     justifyContent: 'center',

@@ -78,7 +78,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.heroActions}>
         <TouchableOpacity 
           style={styles.heroBtnPrimary}
-          onPress={() => navigation.navigate('Events')}
+          onPress={() => navigation.navigate('EventsList')}
         >
           <MaterialIcons name="calendar-today" size={18} color={Colors.white} />
           <Text style={styles.heroBtnText}>Xem tất cả</Text>
@@ -148,7 +148,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.filterSection}>
       <View style={styles.sectionHeader}>
         <Text style={[Typography.h2, { fontSize: 20 }]}>Sự kiện mới nhất</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('Events')}>
+        <TouchableOpacity onPress={() => navigation.navigate('EventsList')}>
           <Text style={styles.seeAll}>Xem tất cả →</Text>
         </TouchableOpacity>
       </View>

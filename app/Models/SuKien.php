@@ -39,6 +39,13 @@ class SuKien extends Model
         'bo_cuc'             => 'array',
     ];
 
+    protected $appends = [
+        'trang_thai_thuc_te',
+        'trang_thai_label',
+        'trang_thai_color',
+        'is_full',
+    ];
+
     public function loaiSuKien()
     {
         return $this->belongsTo(LoaiSuKien::class, 'ma_loai_su_kien', 'ma_loai_su_kien');
@@ -99,7 +106,7 @@ class SuKien extends Model
         };
     }
 
-    public function isFullAttribute()
+    public function getIsFullAttribute()
     {
         return $this->so_luong_toi_da > 0 && $this->so_luong_hien_tai >= $this->so_luong_toi_da;
     }

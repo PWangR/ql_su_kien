@@ -312,7 +312,8 @@ function processQRCode(text) {
 
         axios.post('{{ route('admin.diem-danh.process-scanner') }}', {
             mssv: mssv,
-            ma_su_kien: payload.ma_su_kien
+            ma_su_kien: payload.ma_su_kien,
+            loai_diem_danh: payload.loai_diem_danh || 'dau_buoi'
         })
         .then(response => {
             showResult(true, `[SV: ${mssv}] ${response.data.message}`);

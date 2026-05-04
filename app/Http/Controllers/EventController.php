@@ -133,6 +133,17 @@ class EventController extends Controller
     {
         $suKien = SuKien::where('qr_checkin_token', $token)->firstOrFail();
 
+        $result = $this->registrationService->checkInEvent(auth()->id(), $suKien->ma_su_kien, 'dau_buoi');
+
+        if (!$result['success']) {
+            return back()->with('error', $result['message']);
+        }
+
+        return view('events.qr-checkin', [
+            'suKien' => $suKien,
+            'dangKy' => $result['data']['registration'] ?? null,
+        ])->with('success', 'Điểm danh thành công!');
+
         if ($suKien->trang_thai === 'huy') {
             return back()->with('error', 'Sự kiện đã bị hủy.');
         }

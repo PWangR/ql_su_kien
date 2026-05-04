@@ -29,7 +29,8 @@ const useQueueStore = create(
             events: queue.map(item => ({
               ma_su_kien: item.ma_su_kien,
               action: item.action || 'diem_danh',
-              ma_sinh_vien: item.ma_sinh_vien || null
+              ma_sinh_vien: item.ma_sinh_vien || null,
+              loai_diem_danh: item.loai_diem_danh || 'dau_buoi'
             }))
           };
 

@@ -14,7 +14,6 @@ class PointService
     {
         return LichSuDiem::create([
             'ma_sinh_vien' => $userId,
-            'ma_su_kien' => $eventId,
             'ma_dang_ky' => $registrationId,
             'diem' => $points,
             'nguon' => $source,
@@ -44,7 +43,7 @@ class PointService
     public function getPointHistory($userId, $limit = 20, $page = 1)
     {
         return LichSuDiem::where('ma_sinh_vien', $userId)
-            ->with(['suKien', 'dangKy'])
+            ->with(['dangKy.suKien'])
             ->orderBy('thoi_gian_ghi_nhan', 'desc')
             ->paginate($limit, ['*'], 'page', $page);
     }
@@ -54,10 +53,10 @@ class PointService
      */
     public function getTopStudents($limit = 10)
     {
-        return User::selectRaw('nguoi_dung.*, SUM(lich_su_diem.diem) as total_points')
+        return User::selectRaw('nguoi_dung.ma_sinh_vien, nguoi_dung.ho_ten, nguoi_dung.email, nguoi_dung.lop, COALESCE(SUM(lich_su_diem.diem), 0) as total_points')
             ->leftJoin('lich_su_diem', 'nguoi_dung.ma_sinh_vien', '=', 'lich_su_diem.ma_sinh_vien')
             ->where('vai_tro', 'sinh_vien')
-            ->groupBy('nguoi_dung.ma_sinh_vien')
+            ->groupBy('nguoi_dung.ma_sinh_vien', 'nguoi_dung.ho_ten', 'nguoi_dung.email', 'nguoi_dung.lop')
             ->orderByDesc('total_points')
             ->limit($limit)
             ->get();

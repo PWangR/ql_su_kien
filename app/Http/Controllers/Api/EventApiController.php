@@ -282,6 +282,8 @@ class EventApiController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
     /**
      * Dữ liệu cho trang chủ (Featured, Latest, Categories)
      */

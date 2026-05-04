@@ -24,4 +24,9 @@ class LichSuDiem extends Model
     {
         return $this->belongsTo(User::class, 'ma_sinh_vien', 'ma_sinh_vien');
     }
+
+    public function dangKy()
+    {
+        return $this->belongsTo(DangKy::class, 'ma_dang_ky', 'ma_dang_ky');
+    }
 }

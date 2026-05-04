@@ -5,6 +5,7 @@ namespace Tests\Unit\Services;
 use Tests\TestCase;
 use App\Services\RegistrationService;
 use App\Models\DangKy;
+use App\Models\LichSuDiem;
 use App\Models\SuKien;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -133,5 +134,56 @@ class RegistrationServiceTest extends TestCase
         );
 
         $this->assertCount(3, $history->items());
+    }
+
+    public function test_check_in_twice_adds_points_once()
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->student()->create();
+
+        $event = SuKien::factory()
+            ->for($admin, 'nguoiTao')
+            ->ongoing()
+            ->create([
+                'so_luong_toi_da' => 100,
+                'so_luong_hien_tai' => 0,
+                'diem_cong' => 15,
+            ]);
+
+        $first = $this->registrationService->checkInEvent(
+            $student->ma_sinh_vien,
+            $event->ma_su_kien,
+            'dau_buoi'
+        );
+
+        $second = $this->registrationService->checkInEvent(
+            $student->ma_sinh_vien,
+            $event->ma_su_kien,
+            'cuoi_buoi'
+        );
+
+        $this->assertTrue($first['success']);
+        $this->assertTrue($second['success']);
+        $this->assertTrue($second['data']['da_cong_diem']);
+
+        $registration = DangKy::where('ma_sinh_vien', $student->ma_sinh_vien)
+            ->where('ma_su_kien', $event->ma_su_kien)
+            ->first();
+
+        $this->assertDatabaseHas('lich_su_diem', [
+            'ma_sinh_vien' => $student->ma_sinh_vien,
+            'ma_dang_ky' => $registration->ma_dang_ky,
+            'diem' => 15,
+            'nguon' => 'tham_gia_su_kien',
+        ]);
+
+        $duplicate = $this->registrationService->checkInEvent(
+            $student->ma_sinh_vien,
+            $event->ma_su_kien,
+            'cuoi_buoi'
+        );
+
+        $this->assertFalse($duplicate['success']);
+        $this->assertSame(1, LichSuDiem::where('ma_dang_ky', $registration->ma_dang_ky)->count());
     }
 }

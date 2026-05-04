@@ -20,6 +20,14 @@ class DangKy extends Model
         'trang_thai_tham_gia'
     ];
 
+    protected $appends = [
+        'trang_thai_label',
+        'so_lan_diem_danh',
+        'da_diem_danh_dau_buoi',
+        'da_diem_danh_cuoi_buoi',
+        'ma_diem_danh_ca_nhan',
+    ];
+
     public function nguoiDung()
     {
         return $this->belongsTo(User::class, 'ma_sinh_vien', 'ma_sinh_vien');
@@ -73,5 +81,21 @@ class DangKy extends Model
             'huy'              => 'Đã hủy',
             default            => 'Không xác định',
         };
+    }
+
+    public function getMaDiemDanhCaNhanAttribute()
+    {
+        if (!$this->ma_dang_ky || !$this->ma_su_kien || !$this->ma_sinh_vien) {
+            return null;
+        }
+
+        return implode('|', [
+            'event',
+            $this->ma_su_kien,
+            'registration',
+            $this->ma_dang_ky,
+            'student',
+            $this->ma_sinh_vien,
+        ]);
     }
 }
