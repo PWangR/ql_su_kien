@@ -11,7 +11,8 @@ import {
   Linking,
   SafeAreaView,
   Dimensions,
-  StatusBar
+  StatusBar,
+  Clipboard
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import api, { BASE_URL } from '../services/api';
@@ -127,11 +128,17 @@ const EventDetailScreen = ({ route, navigation }) => {
     const bannerPath = content.image_path || event.anh_su_kien;
     return (
       <View style={styles.moduleBox}>
-        {bannerPath && (
+        {bannerPath && bannerPath.trim() ? (
           <Image 
             source={{ uri: `${BASE_URL}/storage/${bannerPath}` }} 
-            style={styles.moduleBanner} 
+            style={styles.moduleBanner}
+            onError={(e) => console.error('Banner image load failed:', e)}
           />
+        ) : (
+          <View style={[styles.moduleBanner, { backgroundColor: Colors.borderLight, justifyContent: 'center', alignItems: 'center' }]}>
+            <MaterialIcons name="image" size={40} color={Colors.textMuted} />
+            <Text style={{ color: Colors.textMuted, marginTop: 8, fontSize: 13 }}>Chưa cập nhật hình ảnh</Text>
+          </View>
         )}
         {content.caption && <Text style={styles.moduleNote}>{content.caption}</Text>}
       </View>
@@ -232,7 +239,7 @@ const EventDetailScreen = ({ route, navigation }) => {
   );
 
   const renderGallery = (content = {}) => {
-    const images = content.images || [];
+    const images = (content.images || []).filter(img => img && img.trim());
     if (!images.length) return null;
 
     return (
@@ -243,11 +250,13 @@ const EventDetailScreen = ({ route, navigation }) => {
         </View>
         <View style={styles.galleryGrid}>
           {images.map((imagePath, index) => (
-            <Image
-              key={`${imagePath}-${index}`}
-              source={{ uri: `${BASE_URL}/storage/${imagePath}` }}
-              style={styles.galleryImage}
-            />
+            <View key={`${imagePath}-${index}`} style={{ width: (width - 64) / 2, aspectRatio: 1 }}>
+              <Image
+                source={{ uri: `${BASE_URL}/storage/${imagePath}` }}
+                style={styles.galleryImage}
+                onError={(e) => console.error(`Gallery image ${index} failed:`, e)}
+              />
+            </View>
           ))}
         </View>
       </View>
@@ -265,6 +274,8 @@ const EventDetailScreen = ({ route, navigation }) => {
       loai_diem_danh: registration?.da_diem_danh_dau_buoi ? 'cuoi_buoi' : 'dau_buoi',
     });
 
+    const codeString = String(code);
+
     return (
       <View style={styles.moduleBox}>
         <View style={styles.moduleTitle}>
@@ -272,11 +283,28 @@ const EventDetailScreen = ({ route, navigation }) => {
           <Text style={styles.moduleTitleText}>Mã điểm danh cá nhân</Text>
         </View>
         <View style={styles.personalQrBox}>
-          <Image
-            source={{ uri: `${BASE_URL}/api/generate-qr?data=${encodeURIComponent(String(code))}` }}
-            style={styles.personalQrImage}
-          />
-          <Text style={styles.personalCodeText}>{String(code)}</Text>
+          <View style={styles.qrCodeContainer}>
+            <MaterialIcons name="qr-code-2" size={80} color={Colors.primary} style={{ opacity: 0.7 }} />
+            <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 8 }}>QR được tạo từ server</Text>
+          </View>
+          <TouchableOpacity 
+            style={styles.copyButton}
+            onPress={() => {
+              Clipboard.setString(codeString);
+              Alert.alert('Thành công', 'Đã sao chép mã vào clipboard');
+            }}
+          >
+            <MaterialIcons name="content-copy" size={16} color={Colors.primary} />
+            <Text style={styles.copyButtonText}>Sao chép mã</Text>
+          </TouchableOpacity>
+          <View style={styles.codeTextBox}>
+            <Text style={styles.personalCodeText} numberOfLines={4} selectable>
+              {codeString}
+            </Text>
+          </View>
+          <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 8, textAlign: 'center' }}>
+            Quản trị viên sẽ quét mã này từ web để điểm danh
+          </Text>
         </View>
       </View>
     );
@@ -425,6 +453,10 @@ const styles = StyleSheet.create({
   },
   btnDisabled: { opacity: 0.6 },
   btnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  qrCodeContainer: { alignItems: 'center', justifyContent: 'center', marginVertical: 16, padding: 12, backgroundColor: '#f5f5f5', borderRadius: 8 },
+  copyButton: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, backgroundColor: Colors.primaryBg, borderRadius: 6, gap: 8, justifyContent: 'center' },
+  copyButtonText: { color: Colors.primary, fontWeight: '700', fontSize: 13 },
+  codeTextBox: { padding: 12, backgroundColor: Colors.borderLight, borderRadius: 6, marginTop: 10 },
 });
 
 export default EventDetailScreen;

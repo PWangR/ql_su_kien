@@ -83,12 +83,12 @@ const PointsScreen = () => {
         ListHeaderComponent={
           <>
             <View style={styles.totalCard}>
-              <Text style={styles.totalLabel}>Tong diem tich luy</Text>
+              <Text style={styles.totalLabel}>Tổng điểm tích lũy</Text>
               <Text style={styles.totalValue}>{total}</Text>
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Bang xep hang</Text>
+              <Text style={styles.sectionTitle}>Bảng xếp hạng</Text>
               {leaderboard.map((student, index) => (
                 <View key={student.ma_sinh_vien} style={styles.rankItem}>
                   <Text style={styles.rankNo}>#{index + 1}</Text>
@@ -101,13 +101,13 @@ const PointsScreen = () => {
               ))}
             </View>
 
-            <Text style={styles.sectionTitle}>Lich su diem</Text>
+            <Text style={styles.sectionTitle}>Lịch sử điểm</Text>
           </>
         }
         ListEmptyComponent={
           <View style={styles.empty}>
             <MaterialIcons name="stars" size={64} color={Colors.border} />
-            <Text style={styles.emptyText}>Chua co lich su diem.</Text>
+            <Text style={styles.emptyText}>Chưa có lịch sử điểm.</Text>
           </View>
         }
       />

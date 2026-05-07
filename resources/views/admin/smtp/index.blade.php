@@ -403,6 +403,16 @@
                     placeholder="test@example.com"
                     value="{{ auth()->user()->email }}">
             </div>
+            <div class="form-group" style="min-width: 200px; margin-bottom: 0;">
+                <label class="form-label" for="email_type">Loại email test</label>
+                <select class="form-control" id="email_type">
+                    <option value="generic">📧 Email test chung</option>
+                    <option value="verify">✅ Email xác thực tài khoản</option>
+                    <option value="welcome">👋 Email chào mừng</option>
+                    <option value="event_notification">📢 Email thông báo sự kiện</option>
+                    <option value="reset_password">🔐 Email đặt lại mật khẩu</option>
+                </select>
+            </div>
             <div style="margin-bottom: 0;">
                 <button type="button" class="btn btn-outline" id="btnTestEmail" onclick="testSmtpEmail()">
                     <i class="bi bi-send"></i> Gửi email test
@@ -480,6 +490,7 @@
     // Test gửi email via AJAX
     function testSmtpEmail() {
         const email = document.getElementById('test_email').value;
+        const emailType = document.getElementById('email_type').value;
         const btn = document.getElementById('btnTestEmail');
         const result = document.getElementById('testResult');
 
@@ -493,7 +504,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Đang gửi...';
         result.style.display = 'block';
-        result.innerHTML = '<div class="alert alert-info"><i class="bi bi-clock"></i> Đang gửi email test, vui lòng chờ...</div>';
+        result.innerHTML = '<div class="alert alert-info"><i class="bi bi-clock"></i> Đang gửi email test (' + emailType + '), vui lòng chờ...</div>';
 
         fetch('{{ route("admin.smtp.test") }}', {
                 method: 'POST',
@@ -503,7 +514,8 @@
                     'Accept': 'application/json',
                 },
                 body: JSON.stringify({
-                    test_email: email
+                    test_email: email,
+                    email_type: emailType
                 }),
             })
             .then(res => res.json())

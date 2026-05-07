@@ -41,7 +41,7 @@ $smtp = SmtpSetting::first();
         .button {
             display: inline-block;
             padding: 12px 30px;
-            background-color: #007bff;
+            background-color: #0fb951;
             color: #ffffff;
             text-decoration: none;
             border-radius: 4px;
@@ -50,7 +50,7 @@ $smtp = SmtpSetting::first();
         }
 
         .button:hover {
-            background-color: #0056b3;
+            background-color: #27e470;
         }
 
         .signature {

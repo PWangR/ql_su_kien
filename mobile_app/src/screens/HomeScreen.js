@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -24,11 +24,16 @@ const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const [featured, setFeatured] = useState([]);
+  const [loopedFeatured, setLoopedFeatured] = useState([]);
   const [latest, setLatest] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const carouselRef = useRef(null);
+  const autoScrollTimer = useRef(null);
 
   const logout = useAuthStore((state) => state.logout);
   const queue = useQueueStore((state) => state.queue);
@@ -39,7 +44,12 @@ const HomeScreen = ({ navigation }) => {
     try {
       const response = await api.get('/home');
       if (response.data.success) {
-        setFeatured(response.data.data.featured);
+        const featuredData = response.data.data.featured;
+        setFeatured(featuredData);
+        // Create looped array for infinite carousel (5 items x3 for seamless loop)
+        if (featuredData && featuredData.length > 0) {
+          setLoopedFeatured([...featuredData, ...featuredData, ...featuredData]);
+        }
         setLatest(response.data.data.latest);
         setCategories(response.data.data.categories);
       }
@@ -58,6 +68,8 @@ const HomeScreen = ({ navigation }) => {
     }, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  // Remove auto-scroll - manual scroll only
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -100,28 +112,36 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Featured Slider */}
-      {featured.length > 0 && (
+      {/* Featured Slider - Infinite Loop Carousel */}
+      {loopedFeatured.length > 0 && (
         <View style={styles.carouselContainer}>
           <ScrollView 
+            ref={carouselRef}
             horizontal 
             pagingEnabled 
             showsHorizontalScrollIndicator={false}
             snapToInterval={width - 48}
             decelerationRate="fast"
             contentContainerStyle={styles.carouselContent}
+            scrollEventThrottle={16}
+            onMomentumScrollEnd={(e) => {
+              const position = e.nativeEvent.contentOffset.x;
+              const index = Math.round(position / (width - 48));
+              setCurrentSlide(index % (featured.length || 1));
+            }}
           >
-            {featured.map((item) => (
+            {loopedFeatured.map((item, idx) => (
               <TouchableOpacity 
-                key={item.ma_su_kien}
+                key={`${item.ma_su_kien}-${idx}`}
                 style={styles.slide}
                 onPress={() => navigation.navigate('EventDetail', { eventId: item.ma_su_kien, event: item })}
                 activeOpacity={0.9}
               >
-                {item.anh_su_kien ? (
+                {item.anh_su_kien && item.anh_su_kien.trim() ? (
                   <Image 
                     source={{ uri: `${BASE_URL}/storage/${item.anh_su_kien}` }}
                     style={styles.slideImage}
+                    onError={(e) => console.error(`Carousel image ${idx} failed:`, e)}
                   />
                 ) : (
                   <View style={[styles.slideImage, { backgroundColor: '#111', justifyContent: 'center', alignItems: 'center' }]}>
@@ -139,6 +159,21 @@ const HomeScreen = ({ navigation }) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
+          
+          {/* Carousel Indicators */}
+          {featured.length > 0 && (
+            <View style={styles.carouselIndicators}>
+              {featured.map((_, idx) => (
+                <View 
+                  key={idx}
+                  style={[
+                    styles.indicator,
+                    currentSlide % featured.length === idx && styles.indicatorActive
+                  ]}
+                />
+              ))}
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -446,6 +481,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.text,
     fontWeight: '700',
+  },
+  carouselIndicators: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    paddingHorizontal: 24,
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  indicatorActive: {
+    backgroundColor: Colors.white,
+    width: 24,
   },
 });
 

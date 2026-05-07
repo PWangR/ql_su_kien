@@ -105,6 +105,7 @@ class SmtpSettingController extends Controller
     {
         $request->validate([
             'test_email' => 'required|email',
+            'email_type' => 'nullable|string|in:generic,verify,welcome,event_notification,reset_password',
         ], [
             'test_email.required' => 'Vui lòng nhập email nhận test.',
             'test_email.email'    => 'Địa chỉ email không hợp lệ.',
@@ -123,29 +124,22 @@ class SmtpSettingController extends Controller
             // Override config tạm thời để test
             $this->applySmtpConfig($smtp);
 
-            Mail::raw(
-                'Đây là email test từ hệ thống Quản Lý Sự Kiện. Nếu bạn nhận được email này, cấu hình SMTP đã hoạt động đúng!',
-                function ($message) use ($request, $smtp) {
-                    $message->to($request->test_email)
-                        ->subject('🔧 Test SMTP — Quản Lý Sự Kiện');
+            $emailType = $request->email_type ?? 'generic';
 
-                    if ($smtp->mail_from_address) {
-                        $message->from($smtp->mail_from_address, $smtp->mail_from_name ?? 'Quản Lý Sự Kiện');
-                    }
-                }
-            );
+            // Test gửi email dựa vào loại email
+            $this->sendTestEmail($emailType, $request->test_email, $smtp);
 
             // Ghi log
             ActivityLog::log(
                 'update',
-                "Test gửi email SMTP tới {$request->test_email} — thành công",
+                "Test gửi email ({$emailType}) SMTP tới {$request->test_email} — thành công",
                 SmtpSetting::class,
                 $smtp->id
             );
 
             return response()->json([
                 'success' => true,
-                'message' => "Email test đã được gửi thành công tới {$request->test_email}!",
+                'message' => "Email test ({$emailType}) đã được gửi thành công tới {$request->test_email}!",
             ]);
         } catch (\Exception $e) {
             $errorMessage = $e->getMessage();
@@ -160,13 +154,95 @@ class SmtpSettingController extends Controller
             } elseif (str_contains($errorMessage, 'Unable to connect with TLS encryption')) {
                 $friendlyMessage = 'Lỗi mã hóa: Máy chủ không hỗ trợ phương thức mã hóa TLS/SSL này hoặc cấu hình bị sai.';
             } else {
-                $friendlyMessage = 'Gửi email thất bại quá trình xử lý: ' . $errorMessage;
+                $friendlyMessage = 'Gửi email thất bại: ' . $errorMessage;
             }
 
             return response()->json([
                 'success' => false,
                 'message' => $friendlyMessage,
             ]);
+        }
+    }
+
+    /**
+     * Send different types of test emails - GỬI EMAIL THẬT
+     */
+    private function sendTestEmail(string $emailType, string $recipientEmail, SmtpSetting $smtp): void
+    {
+        switch ($emailType) {
+            case 'verify':
+                // Gửi email xác thực thật (VerifyEmailMail)
+                $testUser = new \App\Models\User([
+                    'ho_ten' => 'Test User',
+                    'email' => $recipientEmail,
+                ]);
+                $verificationUrl = route('verification.verify', [
+                    'id' => 1,
+                    'hash' => 'test-hash'
+                ]);
+                Mail::send(new \App\Mail\VerifyEmailMail($testUser, $verificationUrl));
+                break;
+
+            case 'welcome':
+                // Email chào mừng
+                Mail::raw(
+                    "Chào mừng bạn đến với Hệ thống Quản Lý Sự Kiện NTU!\n\nBạn có thể:\n- Tham gia các sự kiện\n- Xem điểm tích lũy\n- Quản lý hồ sơ cá nhân\n\nTrân trọng,\nĐội ngũ Quản Lý Sự Kiện",
+                    function ($message) use ($recipientEmail, $smtp) {
+                        $message->to($recipientEmail)
+                            ->subject($smtp->subject_event_confirm ?? 'Chào mừng bạn - Quản lý Sự kiện');
+
+                        if ($smtp->mail_from_address) {
+                            $message->from($smtp->mail_from_address, $smtp->mail_from_name ?? 'Quản Lý Sự Kiện');
+                        }
+                    }
+                );
+                break;
+
+            case 'event_notification':
+                // Email thông báo sự kiện
+                Mail::raw(
+                    "Có sự kiện mới cho bạn!\n\nSự kiện: Event Test\nThời gian: 2026-05-15 09:00\nĐịa điểm: Phòng học A\nĐiểm cộng: +5 điểm\n\nHãy đăng ký ngay!\n\nTrân trọng,\nĐội ngũ Quản Lý Sự Kiện",
+                    function ($message) use ($recipientEmail, $smtp) {
+                        $message->to($recipientEmail)
+                            ->subject($smtp->subject_event_cancel ?? 'Thông báo sự kiện mới - Quản lý Sự kiện');
+
+                        if ($smtp->mail_from_address) {
+                            $message->from($smtp->mail_from_address, $smtp->mail_from_name ?? 'Quản Lý Sự Kiện');
+                        }
+                    }
+                );
+                break;
+
+            case 'reset_password':
+                // Email reset password
+                Mail::raw(
+                    "Bạn đã yêu cầu đặt lại mật khẩu.\n\nNhấp vào link bên dưới để đặt lại mật khẩu:\n" .
+                        route('password.reset', ['token' => 'test-token']) . "\n\nLink này sẽ hết hạn sau 60 phút.\n\nTrân trọng,\nĐội ngũ Quản Lý Sự Kiện",
+                    function ($message) use ($recipientEmail, $smtp) {
+                        $message->to($recipientEmail)
+                            ->subject($smtp->subject_event_update ?? 'Đặt lại mật khẩu - Quản lý Sự kiện');
+
+                        if ($smtp->mail_from_address) {
+                            $message->from($smtp->mail_from_address, $smtp->mail_from_name ?? 'Quản Lý Sự Kiện');
+                        }
+                    }
+                );
+                break;
+
+            default:
+                // Generic test email
+                Mail::raw(
+                    "Đây là email test từ hệ thống Quản Lý Sự Kiện. Nếu bạn nhận được email này, cấu hình SMTP đã hoạt động đúng!\n\nTrân trọng,\nĐội ngũ Quản Lý Sự Kiện",
+                    function ($message) use ($recipientEmail, $smtp) {
+                        $message->to($recipientEmail)
+                            ->subject('🔧 Test SMTP — Quản Lý Sự Kiện');
+
+                        if ($smtp->mail_from_address) {
+                            $message->from($smtp->mail_from_address, $smtp->mail_from_name ?? 'Quản Lý Sự Kiện');
+                        }
+                    }
+                );
+                break;
         }
     }
 
