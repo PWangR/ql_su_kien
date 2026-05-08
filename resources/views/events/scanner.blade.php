@@ -375,12 +375,11 @@
                 throw new Error('Mã QR này không phải QR điểm danh sự kiện hợp lệ.');
             }
 
-            axios.post('{{ route('
-                events.process - scanner ') }}', {
-                    action: payload.action,
-                    ma_su_kien: payload.ma_su_kien,
-                    diff: Math.abs(Date.now() - payload.t),
-                }).then((response) => {
+            axios.post('{{ route("events.process-scanner") }}', {
+                action: payload.action,
+                ma_su_kien: payload.ma_su_kien,
+                diff: Math.abs(Date.now() - payload.t),
+            }).then((response) => {
                 showScanResult(true, response.data.message);
             }).catch((error) => {
                 const message = error.response?.data?.message || error.message;

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\SuKien;
 use App\Models\User;
 use App\Services\RegistrationService;
+use Illuminate\Http\Request;
 
 class DiemDanhController extends Controller
 {
@@ -15,11 +15,10 @@ class DiemDanhController extends Controller
     ) {}
 
     /**
-     * Màn hình chọn sự kiện để sinh QR Code điểm danh (Admin -> User quét)
+     * Man hinh chon su kien de sinh QR Code diem danh (Admin -> User quet).
      */
     public function index()
     {
-        // Lấy danh sách sự kiện đang diễn ra
         $danhSachSuKien = SuKien::where('trang_thai', '!=', 'huy')
             ->where('thoi_gian_bat_dau', '<=', now())
             ->where('thoi_gian_ket_thuc', '>=', now())
@@ -32,7 +31,7 @@ class DiemDanhController extends Controller
     }
 
     /**
-     * Màn hình máy quét QR Code (Admin quét User)
+     * Man hinh may quet QR Code (Admin quet User).
      */
     public function scanner()
     {
@@ -40,64 +39,39 @@ class DiemDanhController extends Controller
     }
 
     /**
-     * Xử lý kết quả quét mã từ Admin (POST API nội bộ)
+     * Xu ly ket qua quet ma tu Admin (POST API noi bo).
      */
     public function processScanner(Request $request)
     {
         $request->validate([
             'mssv' => 'required|digits:8',
             'ma_su_kien' => 'required|integer',
-            'loai_diem_danh' => 'nullable|string|in:dau_buoi,cuoi_buoi',
         ]);
 
         $mssv = $request->input('mssv');
         $maSuKien = $request->input('ma_su_kien');
-        $loaiDiemDanh = $request->input('loai_diem_danh', 'dau_buoi');
 
         $user = User::where('ma_sinh_vien', $mssv)->first();
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Không tìm thấy sinh viên có mã ' . $mssv
+                'message' => 'Khong tim thay sinh vien co ma ' . $mssv
             ], 404);
         }
 
-        $suKien = SuKien::find($maSuKien);
-        if (!$suKien) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không tìm thấy sự kiện'
-            ], 404);
-        }
-
-        if ($suKien->trang_thai === 'huy') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Sự kiện này đã bị hủy.'
-            ], 400);
-        }
-
-        $result = $this->registrationService->checkInEvent($user->ma_sinh_vien, $maSuKien, $loaiDiemDanh);
+        $result = $this->registrationService->adminCheckInStudent($user->ma_sinh_vien, $maSuKien);
 
         if (!$result['success']) {
-            $message = $result['message'] ?? 'Không thể điểm danh sinh viên này.';
-
-            if (str_contains($message, 'Bạn đã được điểm danh')) {
-                $message = "Sinh viên này đã được điểm danh {$loaiDiemDanh} trước đó!";
-            }
-
             return response()->json([
                 'success' => false,
-                'message' => $message,
+                'message' => $result['message'] ?? 'Khong the diem danh sinh vien nay.',
+                'data' => $result['data'] ?? null,
             ], $result['status'] ?? 400);
         }
 
-        $label = $loaiDiemDanh === 'dau_buoi' ? 'đầu buổi' : 'cuối buổi';
-        $message = "Điểm danh {$label} thẻ sinh viên thành công!";
-
         return response()->json([
             'success' => true,
-            'message' => $message,
+            'message' => 'Diem danh dau buoi va cuoi buoi cho sinh vien thanh cong!',
             'data' => $result['data'] ?? null,
         ]);
     }

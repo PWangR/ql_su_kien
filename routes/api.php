@@ -97,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Registration management
         Route::get('/registrations', [RegistrationApiController::class, 'index']);
+        Route::post('/registrations/scan-student', [RegistrationApiController::class, 'adminScanStudentQr']);
         Route::put('/registrations/{id}', [RegistrationApiController::class, 'updateStatus']);
         Route::get('/events/{eventId}/participants', [RegistrationApiController::class, 'eventParticipants']);
 

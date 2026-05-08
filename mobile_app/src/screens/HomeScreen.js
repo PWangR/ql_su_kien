@@ -35,10 +35,12 @@ const HomeScreen = ({ navigation }) => {
   const carouselRef = useRef(null);
   const autoScrollTimer = useRef(null);
 
+  const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const queue = useQueueStore((state) => state.queue);
   const syncQueue = useQueueStore((state) => state.syncQueue);
   const isSyncing = useQueueStore((state) => state.isSyncing);
+  const isAdmin = ['admin', 'super_admin'].includes(user?.vai_tro);
 
   const fetchHomeData = async () => {
     try {
@@ -101,7 +103,7 @@ const HomeScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('QRScanner')}
         >
           <MaterialIcons name="qr-code-scanner" size={18} color={Colors.white} />
-          <Text style={styles.heroBtnText}>Quét mã</Text>
+          <Text style={styles.heroBtnText}>{isAdmin ? 'Quét QR sinh viên' : 'Quét QR sự kiện'}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 

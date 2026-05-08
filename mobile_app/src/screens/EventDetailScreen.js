@@ -11,8 +11,7 @@ import {
   Linking,
   SafeAreaView,
   Dimensions,
-  StatusBar,
-  Clipboard
+  StatusBar
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import api, { BASE_URL } from '../services/api';
@@ -20,6 +19,36 @@ import useAuthStore from '../store/authStore';
 import Colors from '../constants/Colors';
 
 const { width } = Dimensions.get('window');
+
+const encodeBase64 = (value) => {
+  if (typeof btoa === 'function') {
+    return btoa(value);
+  }
+
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  let output = '';
+  let i = 0;
+
+  while (i < value.length) {
+    const chr1 = value.charCodeAt(i++);
+    const chr2 = value.charCodeAt(i++);
+    const chr3 = value.charCodeAt(i++);
+    const enc1 = chr1 >> 2;
+    const enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+    let enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+    let enc4 = chr3 & 63;
+
+    if (Number.isNaN(chr2)) {
+      enc3 = enc4 = 64;
+    } else if (Number.isNaN(chr3)) {
+      enc4 = 64;
+    }
+
+    output += chars.charAt(enc1) + chars.charAt(enc2) + chars.charAt(enc3) + chars.charAt(enc4);
+  }
+
+  return output;
+};
 
 const EventDetailScreen = ({ route, navigation }) => {
   const { eventId, event: initialEvent } = route.params;
@@ -30,6 +59,7 @@ const EventDetailScreen = ({ route, navigation }) => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [registration, setRegistration] = useState(null);
   const [timeLeft, setTimeLeft] = useState('');
+  const [qrTimestamp, setQrTimestamp] = useState(Date.now());
 
   useEffect(() => {
     fetchEventDetails();
@@ -44,6 +74,16 @@ const EventDetailScreen = ({ route, navigation }) => {
       return () => clearInterval(timer);
     }
   }, [event]);
+
+  useEffect(() => {
+    if (!isRegistered) return undefined;
+
+    const timer = setInterval(() => {
+      setQrTimestamp(Date.now());
+    }, 20000);
+
+    return () => clearInterval(timer);
+  }, [isRegistered]);
 
   const calculateTimeLeft = () => {
     const now = new Date().getTime();
@@ -264,17 +304,16 @@ const EventDetailScreen = ({ route, navigation }) => {
   };
 
   const renderPersonalCode = () => {
-    if (!isRegistered || !registration?.ma_dang_ky || !user?.ma_sinh_vien) return null;
+    if (!isRegistered || !user?.ma_sinh_vien || !event?.ma_su_kien) return null;
 
-    const code = JSON.stringify({
+    const qrData = JSON.stringify({
       action: 'student_checkin',
       ma_su_kien: event.ma_su_kien,
-      ma_dang_ky: registration.ma_dang_ky,
       ma_sinh_vien: user.ma_sinh_vien,
-      loai_diem_danh: registration?.da_diem_danh_dau_buoi ? 'cuoi_buoi' : 'dau_buoi',
+      t: qrTimestamp,
     });
 
-    const codeString = String(code);
+    const qrUrl = `${BASE_URL}/api/generate-qr?format=png&base64=1&data=${encodeURIComponent(encodeBase64(qrData))}`;
 
     return (
       <View style={styles.moduleBox}>
@@ -283,25 +322,7 @@ const EventDetailScreen = ({ route, navigation }) => {
           <Text style={styles.moduleTitleText}>Mã điểm danh cá nhân</Text>
         </View>
         <View style={styles.personalQrBox}>
-          <View style={styles.qrCodeContainer}>
-            <MaterialIcons name="qr-code-2" size={80} color={Colors.primary} style={{ opacity: 0.7 }} />
-            <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 8 }}>QR được tạo từ server</Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.copyButton}
-            onPress={() => {
-              Clipboard.setString(codeString);
-              Alert.alert('Thành công', 'Đã sao chép mã vào clipboard');
-            }}
-          >
-            <MaterialIcons name="content-copy" size={16} color={Colors.primary} />
-            <Text style={styles.copyButtonText}>Sao chép mã</Text>
-          </TouchableOpacity>
-          <View style={styles.codeTextBox}>
-            <Text style={styles.personalCodeText} numberOfLines={4} selectable>
-              {codeString}
-            </Text>
-          </View>
+          <Image source={{ uri: qrUrl }} style={styles.personalQrImage} />
           <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 8, textAlign: 'center' }}>
             Quản trị viên sẽ quét mã này từ web để điểm danh
           </Text>

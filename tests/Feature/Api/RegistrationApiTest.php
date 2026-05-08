@@ -3,6 +3,8 @@
 namespace Tests\Feature\Api;
 
 use Tests\TestCase;
+use App\Models\ChiTietDiemDanh;
+use App\Models\DangKy;
 use App\Models\User;
 use App\Models\SuKien;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,5 +91,52 @@ class RegistrationApiTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure(['success', 'data', 'pagination']);
+    }
+
+    public function test_mobile_admin_can_scan_student_qr()
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->student()->create();
+
+        $event = SuKien::factory()
+            ->for($admin, 'nguoiTao')
+            ->ongoing()
+            ->create([
+                'so_luong_toi_da' => 100,
+                'diem_cong' => 10,
+            ]);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->postJson('/api/admin/registrations/scan-student', [
+            'ma_su_kien' => $event->ma_su_kien,
+            'ma_sinh_vien' => $student->ma_sinh_vien,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('success', true);
+
+        $registration = DangKy::where('ma_sinh_vien', $student->ma_sinh_vien)
+            ->where('ma_su_kien', $event->ma_su_kien)
+            ->first();
+
+        $this->assertNotNull($registration);
+        $this->assertSame(2, ChiTietDiemDanh::where('ma_dang_ky', $registration->ma_dang_ky)->count());
+    }
+
+    public function test_student_cannot_call_mobile_admin_scan_endpoint()
+    {
+        $student = User::factory()->student()->create();
+        $targetStudent = User::factory()->student()->create();
+        $event = SuKien::factory()->ongoing()->create(['so_luong_toi_da' => 100]);
+
+        Sanctum::actingAs($student);
+
+        $response = $this->postJson('/api/admin/registrations/scan-student', [
+            'ma_su_kien' => $event->ma_su_kien,
+            'ma_sinh_vien' => $targetStudent->ma_sinh_vien,
+        ]);
+
+        $response->assertStatus(403);
     }
 }

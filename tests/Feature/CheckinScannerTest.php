@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\DangKy;
+use App\Models\ChiTietDiemDanh;
+use App\Models\LichSuDiem;
 use App\Models\SuKien;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -39,6 +41,19 @@ class CheckinScannerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('success', true);
+
+        $registration = DangKy::where('ma_sinh_vien', $student->ma_sinh_vien)
+            ->where('ma_su_kien', $event->ma_su_kien)
+            ->first();
+
+        $this->assertNotNull($registration);
+        $this->assertSame('da_tham_gia', $registration->trang_thai_tham_gia);
+
+        $checkins = ChiTietDiemDanh::where('ma_dang_ky', $registration->ma_dang_ky)->get();
+
+        $this->assertCount(1, $checkins);
+        $this->assertEquals(['dau_buoi'], $checkins->pluck('loai_diem_danh')->all());
+        $this->assertSame(0, LichSuDiem::where('ma_dang_ky', $registration->ma_dang_ky)->count());
 
         $this->assertDatabaseHas('dang_ky', [
             'ma_sinh_vien' => $student->ma_sinh_vien,
@@ -83,6 +98,16 @@ class CheckinScannerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('success', true);
+
+        $registration = DangKy::where('ma_sinh_vien', $student->ma_sinh_vien)
+            ->where('ma_su_kien', $event->ma_su_kien)
+            ->first();
+
+        $checkins = ChiTietDiemDanh::where('ma_dang_ky', $registration->ma_dang_ky)->get();
+
+        $this->assertCount(2, $checkins);
+        $this->assertEqualsCanonicalizing(['dau_buoi', 'cuoi_buoi'], $checkins->pluck('loai_diem_danh')->all());
+        $this->assertSame(1, LichSuDiem::where('ma_dang_ky', $registration->ma_dang_ky)->count());
 
         $this->assertDatabaseHas('dang_ky', [
             'ma_sinh_vien' => $student->ma_sinh_vien,

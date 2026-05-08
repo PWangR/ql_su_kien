@@ -4,6 +4,7 @@ namespace Tests\Unit\Services;
 
 use Tests\TestCase;
 use App\Services\RegistrationService;
+use App\Models\ChiTietDiemDanh;
 use App\Models\DangKy;
 use App\Models\LichSuDiem;
 use App\Models\SuKien;
@@ -181,6 +182,56 @@ class RegistrationServiceTest extends TestCase
             $student->ma_sinh_vien,
             $event->ma_su_kien,
             'cuoi_buoi'
+        );
+
+        $this->assertFalse($duplicate['success']);
+        $this->assertSame(1, LichSuDiem::where('ma_dang_ky', $registration->ma_dang_ky)->count());
+    }
+
+    public function test_admin_check_in_student_marks_both_sessions_and_adds_points_once()
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->student()->create();
+
+        $event = SuKien::factory()
+            ->for($admin, 'nguoiTao')
+            ->ongoing()
+            ->create([
+                'so_luong_toi_da' => 100,
+                'so_luong_hien_tai' => 0,
+                'diem_cong' => 20,
+            ]);
+
+        $result = $this->registrationService->adminCheckInStudent(
+            $student->ma_sinh_vien,
+            $event->ma_su_kien
+        );
+
+        $this->assertTrue($result['success']);
+        $this->assertTrue($result['data']['da_cong_diem']);
+
+        $registration = DangKy::where('ma_sinh_vien', $student->ma_sinh_vien)
+            ->where('ma_su_kien', $event->ma_su_kien)
+            ->first();
+
+        $checkins = ChiTietDiemDanh::where('ma_dang_ky', $registration->ma_dang_ky)
+            ->orderBy('loai_diem_danh')
+            ->get();
+
+        $this->assertCount(2, $checkins);
+        $this->assertEqualsCanonicalizing(['cuoi_buoi', 'dau_buoi'], $checkins->pluck('loai_diem_danh')->all());
+        $this->assertTrue($checkins[0]->diem_danh_at->equalTo($checkins[1]->diem_danh_at));
+
+        $this->assertDatabaseHas('lich_su_diem', [
+            'ma_sinh_vien' => $student->ma_sinh_vien,
+            'ma_dang_ky' => $registration->ma_dang_ky,
+            'diem' => 20,
+            'nguon' => 'tham_gia_su_kien',
+        ]);
+
+        $duplicate = $this->registrationService->adminCheckInStudent(
+            $student->ma_sinh_vien,
+            $event->ma_su_kien
         );
 
         $this->assertFalse($duplicate['success']);

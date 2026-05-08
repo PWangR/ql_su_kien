@@ -1,15 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, SafeAreaView } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { MaterialIcons } from '@expo/vector-icons';
+import api from '../services/api';
+import useAuthStore from '../store/authStore';
 import useQueueStore from '../store/queueStore';
 import Colors from '../constants/Colors';
 
 export default function QRScannerScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
+  const { user } = useAuthStore();
+  const isAdmin = ['admin', 'super_admin'].includes(user?.vai_tro);
   const [scanned, setScanned] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('Hướng camera vào mã QR sự kiện để điểm danh');
+  const [statusMessage, setStatusMessage] = useState('Huong camera vao ma QR su kien de diem danh');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    setStatusMessage(
+      isAdmin
+        ? 'Huong camera vao ma QR ca nhan cua nguoi dung de diem danh'
+        : 'Huong camera vao ma QR su kien de diem danh'
+    );
+  }, [isAdmin]);
 
   if (!permission) {
     return <View style={styles.container} />;
@@ -20,47 +32,61 @@ export default function QRScannerScreen({ navigation }) {
       <SafeAreaView style={styles.permissionContainer}>
         <View style={styles.permissionContent}>
           <MaterialIcons name="camera-alt" size={80} color={Colors.primary} />
-          <Text style={styles.permissionTitle}>Quyền truy cập Camera</Text>
+          <Text style={styles.permissionTitle}>Quyen truy cap Camera</Text>
           <Text style={styles.permissionText}>
-            Ứng dụng cần quyền truy cập camera để quét mã QR điểm danh tham gia sự kiện.
+            Ung dung can quyen truy cap camera de quet ma QR diem danh tham gia su kien.
           </Text>
           <TouchableOpacity style={styles.permissionBtn} onPress={requestPermission}>
-            <Text style={styles.permissionBtnText}>Cấp quyền ngay</Text>
+            <Text style={styles.permissionBtnText}>Cap quyen ngay</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
   }
 
-  const handleBarCodeScanned = async ({ type, data }) => {
+  const handleBarCodeScanned = async ({ data }) => {
     setScanned(true);
     try {
       const payload = JSON.parse(data);
 
-      if (!['diem_danh', 'student_checkin'].includes(payload.action) || !payload.ma_su_kien || !payload.t) {
-        throw new Error('Mã QR không hợp lệ, hoặc không đúng định dạng điểm danh.');
+      if (isAdmin) {
+        if (payload.action !== 'student_checkin' || !payload.ma_su_kien || !payload.ma_sinh_vien) {
+          throw new Error('Ma QR khong dung dinh dang diem danh nguoi dung.');
+        }
+
+        const response = await api.post('/admin/registrations/scan-student', {
+          ma_su_kien: payload.ma_su_kien,
+          ma_sinh_vien: payload.ma_sinh_vien,
+        });
+
+        setStatusMessage(response.data.message || 'Diem danh nguoi dung thanh cong.');
+        setIsSuccess(true);
+        return;
+      }
+
+      if (payload.action !== 'diem_danh' || !payload.ma_su_kien || !payload.t) {
+        throw new Error('Ma QR khong hop le, hoac khong dung dinh dang diem danh su kien.');
       }
 
       const diff = Math.abs(Date.now() - payload.t);
-      console.log('Time diff (ms):', diff);
 
       if (diff > 20000) {
-        throw new Error('Mã QR đã hết hạn, vui lòng quét mã mới nhất.');
+        throw new Error('Ma QR da het han, vui long quet ma moi nhat.');
       }
 
-      // Lưu vào hàng chờ
       useQueueStore.getState().enqueue({
         ma_su_kien: payload.ma_su_kien,
-        ma_sinh_vien: payload.ma_sinh_vien || null,
+        ma_sinh_vien: null,
         action: payload.action,
         loai_diem_danh: payload.loai_diem_danh || 'dau_buoi',
         scanned_at: Date.now()
       });
 
-      setStatusMessage('Điểm danh thành công! Thông tin sẽ được gửi về máy chủ khi có kết nối.');
+      setStatusMessage('Diem danh thanh cong! Thong tin se duoc gui ve may chu khi co ket noi.');
       setIsSuccess(true);
     } catch (error) {
-      setStatusMessage('Lỗi quét mã: ' + error.message);
+      const message = error.response?.data?.message || error.message;
+      setStatusMessage('Loi quet ma: ' + message);
       setIsSuccess(false);
     }
   };
@@ -72,14 +98,14 @@ export default function QRScannerScreen({ navigation }) {
         facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{
-          barcodeTypes: ["qr"],
+          barcodeTypes: ['qr'],
         }}
       >
         <View style={styles.overlay}>
           <TouchableOpacity style={styles.closeBtn} onPress={() => navigation.goBack()}>
             <MaterialIcons name="close" size={28} color={Colors.white} />
           </TouchableOpacity>
-          
+
           <View style={styles.scanFrameContainer}>
             <View style={styles.scanFrame}>
               <View style={[styles.corner, styles.topLeft]} />
@@ -87,31 +113,31 @@ export default function QRScannerScreen({ navigation }) {
               <View style={[styles.corner, styles.bottomLeft]} />
               <View style={[styles.corner, styles.bottomRight]} />
             </View>
-            <Text style={styles.hintText}>Đưa mã QR vào giữa khung hình</Text>
+            <Text style={styles.hintText}>Dua ma QR vao giua khung hinh</Text>
           </View>
         </View>
       </CameraView>
 
       <View style={[styles.bottomCard, isSuccess ? styles.cardSuccess : (scanned ? styles.cardError : styles.cardNormal)]}>
         <View style={styles.statusHeader}>
-          <MaterialIcons 
-            name={isSuccess ? "check-circle" : (scanned ? "error" : "qr-code-scanner")} 
-            size={32} 
-            color={isSuccess ? Colors.success : (scanned ? Colors.danger : Colors.primary)} 
+          <MaterialIcons
+            name={isSuccess ? 'check-circle' : (scanned ? 'error' : 'qr-code-scanner')}
+            size={32}
+            color={isSuccess ? Colors.success : (scanned ? Colors.danger : Colors.primary)}
           />
           <Text style={[styles.statusTitle, isSuccess ? styles.textSuccess : (scanned ? styles.textError : styles.textNormal)]}>
-            {isSuccess ? 'Thành công' : (scanned ? 'Thất bại' : 'Đang chờ quét...')}
+            {isSuccess ? 'Thanh cong' : (scanned ? 'That bai' : 'Dang cho quet...')}
           </Text>
         </View>
-        
+
         <Text style={styles.statusText}>{statusMessage}</Text>
 
         {scanned && (
-          <TouchableOpacity 
-            style={[styles.actionBtn, isSuccess ? styles.btnSuccess : styles.btnError]} 
+          <TouchableOpacity
+            style={[styles.actionBtn, isSuccess ? styles.btnSuccess : styles.btnError]}
             onPress={() => isSuccess ? navigation.goBack() : setScanned(false)}
           >
-            <Text style={styles.actionBtnText}>{isSuccess ? "Hoàn tất" : "Thử lại"}</Text>
+            <Text style={styles.actionBtnText}>{isSuccess ? 'Hoan tat' : 'Thu lai'}</Text>
           </TouchableOpacity>
         )}
       </View>

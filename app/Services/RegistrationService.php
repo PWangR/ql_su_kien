@@ -218,6 +218,119 @@ class RegistrationService
     /**
      * Lấy lịch sử tham gia của người dùng
      */
+    /**
+     * Admin/ban to chuc quet QR ca nhan cua sinh vien.
+     * Mot lan quet duoc tinh nhu diem danh du ca dau buoi va cuoi buoi.
+     */
+    public function adminCheckInStudent($userId, $eventId)
+    {
+        return \DB::transaction(function () use ($userId, $eventId) {
+            $event = SuKien::find($eventId);
+
+            if (!$event) {
+                return ['success' => false, 'message' => 'Su kien khong ton tai', 'status' => 404];
+            }
+
+            if ($event->trang_thai === 'huy') {
+                return ['success' => false, 'message' => 'Su kien da bi huy.', 'status' => 400];
+            }
+
+            $dangKy = DangKy::withTrashed()
+                ->where('ma_sinh_vien', $userId)
+                ->where('ma_su_kien', $eventId)
+                ->first();
+
+            if (!$dangKy) {
+                if ($event->so_luong_toi_da > 0 && $event->so_luong_hien_tai >= $event->so_luong_toi_da) {
+                    return ['success' => false, 'message' => 'Su kien da du so luong tham gia.', 'status' => 400];
+                }
+
+                $dangKy = DangKy::create([
+                    'ma_sinh_vien' => $userId,
+                    'ma_su_kien' => $eventId,
+                    'trang_thai_tham_gia' => 'da_dang_ky'
+                ]);
+                $event->increment('so_luong_hien_tai');
+            } elseif ($dangKy->trashed()) {
+                $dangKy->restore();
+            }
+
+            $existingTypes = ChiTietDiemDanh::where('ma_dang_ky', $dangKy->ma_dang_ky)
+                ->pluck('loai_diem_danh')
+                ->all();
+
+            $alreadyComplete = in_array('dau_buoi', $existingTypes, true)
+                && in_array('cuoi_buoi', $existingTypes, true);
+
+            if ($alreadyComplete && LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists()) {
+                $dangKy->load('chiTietDiemDanh');
+
+                return [
+                    'success' => false,
+                    'message' => 'Sinh vien nay da duoc diem danh day du truoc do!',
+                    'status' => 400,
+                    'data' => [
+                        'registration' => $dangKy,
+                        'so_lan_diem_danh' => $dangKy->chiTietDiemDanh->count(),
+                        'da_diem_danh_dau_buoi' => true,
+                        'da_diem_danh_cuoi_buoi' => true,
+                        'trang_thai' => $dangKy->trang_thai_tham_gia,
+                        'du_dieu_kien_cong_diem' => true,
+                        'da_cong_diem' => true,
+                    ]
+                ];
+            }
+
+            $scanAt = now();
+            foreach (['dau_buoi', 'cuoi_buoi'] as $loaiDiemDanh) {
+                ChiTietDiemDanh::updateOrCreate(
+                    [
+                        'ma_dang_ky' => $dangKy->ma_dang_ky,
+                        'loai_diem_danh' => $loaiDiemDanh,
+                    ],
+                    [
+                        'ma_su_kien' => $eventId,
+                        'ma_sinh_vien' => $userId,
+                        'diem_danh_at' => $scanAt,
+                    ]
+                );
+            }
+
+            if (in_array($dangKy->trang_thai_tham_gia, ['da_dang_ky', 'chua_du_dieu_kien'], true)) {
+                $dangKy->update(['trang_thai_tham_gia' => 'da_tham_gia']);
+                $dangKy->refresh();
+            }
+
+            if (!LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists()) {
+                LichSuDiem::create([
+                    'ma_sinh_vien' => $userId,
+                    'ma_su_kien' => $eventId,
+                    'ma_dang_ky' => $dangKy->ma_dang_ky,
+                    'diem' => $event->diem_cong,
+                    'nguon' => 'tham_gia_su_kien',
+                ]);
+            }
+
+            $dangKy->load('chiTietDiemDanh');
+
+            return [
+                'success' => true,
+                'message' => 'Diem danh sinh vien thanh cong!',
+                'status' => 200,
+                'data' => [
+                    'registration' => $dangKy,
+                    'so_lan_diem_danh' => $dangKy->chiTietDiemDanh->count(),
+                    'da_diem_danh_dau_buoi' => true,
+                    'da_diem_danh_cuoi_buoi' => true,
+                    'trang_thai' => $dangKy->trang_thai_tham_gia,
+                    'du_dieu_kien_cong_diem' => true,
+                    'da_cong_diem' => true,
+                    'diem_danh_at' => $scanAt,
+                ]
+            ];
+        });
+    }
+
     public function getUserEventHistory($userId, $limit = 10, $page = 1)
     {
         return DangKy::where('ma_sinh_vien', $userId)

@@ -284,9 +284,19 @@ class RegistrationApiController extends Controller
                 $action = $event['action'] ?? 'diem_danh';
 
                 if ($action === 'student_checkin' && isset($event['ma_sinh_vien'])) {
+                    if (!auth()->user()?->isAdmin()) {
+                        continue;
+                    }
+
                     $targetUser = \App\Models\User::where('ma_sinh_vien', $event['ma_sinh_vien'])->first();
                     if (!$targetUser) continue;
-                    $targetUserId = $targetUser->ma_sinh_vien;
+
+                    $this->registrationService->adminCheckInStudent(
+                        $targetUser->ma_sinh_vien,
+                        $maSuKien
+                    );
+
+                    continue;
                 } else {
                     $targetUserId = $userId;
                 }
@@ -347,6 +357,36 @@ class RegistrationApiController extends Controller
     /**
      * Kiểm tra trạng thái đăng ký của người dùng cho sự kiện
      */
+    /**
+     * Mobile admin quet QR ca nhan cua nguoi dung de diem danh thu cong.
+     */
+    public function adminScanStudentQr(Request $request)
+    {
+        $request->validate([
+            'ma_su_kien' => 'required|integer',
+            'ma_sinh_vien' => 'required|digits:8',
+        ]);
+
+        $targetUser = \App\Models\User::where('ma_sinh_vien', $request->input('ma_sinh_vien'))->first();
+        if (!$targetUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Khong tim thay sinh vien co ma ' . $request->input('ma_sinh_vien'),
+            ], 404);
+        }
+
+        $result = $this->registrationService->adminCheckInStudent(
+            $targetUser->ma_sinh_vien,
+            (int) $request->input('ma_su_kien')
+        );
+
+        return response()->json([
+            'success' => $result['success'],
+            'message' => $result['message'],
+            'data' => $result['data'] ?? null,
+        ], $result['status'] ?? ($result['success'] ? 200 : 400));
+    }
+
     public function checkRegistration($eventId)
     {
         try {
