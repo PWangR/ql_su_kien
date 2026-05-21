@@ -1,54 +1,44 @@
 FROM php:8.2-fpm
 
-# Install system packages
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libmcrypt-dev \
-    zlib1g-dev \
-    libicu-dev \
+    default-mysql-client \
     g++ \
-    mysql-client \
+    libfreetype6-dev \
+    libicu-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libzip-dev \
     unzip \
-    && docker-php-ext-install -j$(nproc) \
-    gd \
-    mysqli \
-    pdo_mysql \
-    bcmath \
-    intl \
-    && docker-php-ext-enable \
-    gd \
-    mysqli \
-    pdo_mysql
+    zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" \
+        bcmath \
+        gd \
+        intl \
+        mysqli \
+        pdo_mysql \
+        zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
 COPY . .
+COPY docker/app/entrypoint.sh /usr/local/bin/ql-su-kien-entrypoint
 
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev
-
-# Create storage directories
-RUN mkdir -p storage/logs && chmod -R 775 storage bootstrap/cache
-
-# Copy environment file
-RUN cp .env.example .env
-
-# Generate application key
-RUN php artisan key:generate
-
-# Run migrations
-RUN php artisan migrate --force
+RUN chmod +x /usr/local/bin/ql-su-kien-entrypoint \
+    && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && chmod -R ug+rw storage bootstrap/cache \
+    && composer dump-autoload --optimize --no-scripts
 
 EXPOSE 9000
 
+ENTRYPOINT ["ql-su-kien-entrypoint"]
 CMD ["php-fpm"]

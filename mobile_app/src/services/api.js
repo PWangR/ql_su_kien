@@ -1,8 +1,13 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Đường dẫn cơ sở của máy chủ (có thể thay đổi tùy theo môi trường test)
-export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.1.211:8000';
+export const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
+
+let unauthorizedHandler = null;
+
+export const setUnauthorizedHandler = (handler) => {
+  unauthorizedHandler = handler;
+};
 
 const api = axios.create({
   baseURL: `${BASE_URL}/api`,
@@ -12,7 +17,6 @@ const api = axios.create({
   },
 });
 
-// Interceptor để tự động gắn Token vào header nếu đã đăng nhập
 api.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem('userToken');
@@ -21,7 +25,18 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('userData');
+      unauthorizedHandler?.();
+    }
+
     return Promise.reject(error);
   }
 );

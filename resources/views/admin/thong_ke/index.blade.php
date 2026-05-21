@@ -11,6 +11,69 @@
         height: 300px;
         margin-bottom: var(--space-lg);
     }
+
+    .attendance-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .attendance-summary-card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--bg-alt);
+    }
+
+    .attendance-summary-value {
+        font-family: var(--font-numeric);
+        font-weight: 800;
+        font-size: 1.35rem;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
+
+    .attendance-stack {
+        height: 18px;
+        display: flex;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--bg-alt);
+        margin-bottom: 14px;
+    }
+
+    .attendance-stack span {
+        min-width: 0;
+    }
+
+    .attendance-legend {
+        display: grid;
+        gap: 8px;
+    }
+
+    .attendance-legend-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: .85rem;
+    }
+
+    .attendance-legend-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .attendance-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
 </style>
 @endsection
 
@@ -115,7 +178,7 @@
                     <th>Sự kiện</th>
                     <th>Thời gian bắt đầu</th>
                     <th style="text-align: center;">Tổng ĐK</th>
-                    <th style="text-align: center;">Đã ĐD</th>
+                    <th style="text-align: center;">Điểm danh</th>
                     <th style="text-align: center;">Vắng</th>
                     <th>Thao tác</th>
                 </tr>
@@ -125,12 +188,12 @@
                 <tr>
                     <td><strong>{{ $sk->ten_su_kien }}</strong></td>
                     <td>{{ \Carbon\Carbon::parse($sk->thoi_gian_bat_dau)->format('d/m/Y H:i') }}</td>
-                    <td style="text-align: center;"><span class="badge" style="background:var(--primary);color:#fff">{{ $sk->tong_dang_ky }}</span></td>
-                    <td style="text-align: center;"><span class="badge" style="background:var(--success);color:#fff">{{ $sk->da_diem_danh }}</span></td>
+                    <td style="text-align: center;"><span class="badge" style="background:var(--accent);color:#fff">{{ $sk->tong_dang_ky }}</span></td>
+                    <td style="text-align: center;"><span class="badge" style="background:var(--success);color:#fff">{{ $sk->du_dieu_kien }}</span></td>
                     <td style="text-align: center;"><span class="badge" style="background:var(--danger);color:#fff">{{ $sk->vang_mat }}</span></td>
                     <td>
                         <button type="button" class="btn btn-sm btn-outline btn-view-stats" data-id="{{ $sk->ma_su_kien }}">
-                            <i class="bi bi-pie-chart"></i> Xem chi tiết
+                            <i class="bi bi-bar-chart-steps"></i> Xem chi tiết
                         </button>
                     </td>
                 </tr>
@@ -200,10 +263,11 @@
         <div class="modal-body" style="padding:20px;overflow-y:auto;">
             <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:20px;">
                 <div>
-                    <h4 style="margin-bottom:15px;font-size:1rem;">Tỉ lệ điểm danh</h4>
-                    <div style="height:250px;position:relative;">
-                        <canvas id="attendancePieChart"></canvas>
-                    </div>
+                    <h4 style="margin-bottom:15px;font-size:1rem;">Tình trạng điểm danh</h4>
+                    <div id="attendanceRequirement" class="text-sm text-muted" style="margin-bottom:12px;"></div>
+                    <div id="attendanceSummary" class="attendance-summary-grid"></div>
+                    <div id="attendanceStack" class="attendance-stack"></div>
+                    <div id="attendanceLegend" class="attendance-legend"></div>
                 </div>
                 <div>
                     <h4 style="margin-bottom:15px;font-size:1rem;">Top lớp tham gia</h4>
@@ -318,58 +382,27 @@
         });
     }
 
-    // Modal và Biểu đồ tròn
-    let pieChartInstance = null;
+    // Modal chi tiết sự kiện
 
     document.querySelectorAll('.btn-view-stats').forEach(btn => {
         btn.addEventListener('click', async function() {
             const eventId = this.dataset.id;
-            
+
             document.getElementById('statsModal').style.display = 'flex';
             document.getElementById('modalEventTitle').textContent = 'Đang tải dữ liệu...';
+            document.getElementById('attendanceRequirement').textContent = '';
+            document.getElementById('attendanceSummary').innerHTML = '';
+            document.getElementById('attendanceStack').innerHTML = '';
+            document.getElementById('attendanceLegend').innerHTML = '';
             document.querySelector('#topLopTable tbody').innerHTML = '<tr><td colspan="2" style="text-align:center;padding:15px;">Đang tải...</td></tr>';
-            
+
             try {
                 const res = await fetch(`/admin/thong-ke/api/${eventId}`);
                 const data = await res.json();
-                
+
                 document.getElementById('modalEventTitle').textContent = data.su_kien;
-                
-                if (pieChartInstance) {
-                    pieChartInstance.destroy();
-                }
-                
-                const ctx = document.getElementById('attendancePieChart').getContext('2d');
-                pieChartInstance = new Chart(ctx, {
-                    type: 'pie',
-                    data: {
-                        labels: ['Đã điểm danh', 'Vắng mặt', 'Chưa điểm danh'],
-                        datasets: [{
-                            data: [data.da_diem_danh, data.vang_mat, data.chua_diem_danh],
-                            backgroundColor: [
-                                '#10b981', // success
-                                '#ef4444', // danger
-                                '#9ca3af'  // text-muted/gray
-                            ],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    padding: 20,
-                                    usePointStyle: true,
-                                    font: { size: 12 }
-                                }
-                            }
-                        }
-                    }
-                });
-                
+                renderAttendanceBreakdown(data);
+
                 const tbody = document.querySelector('#topLopTable tbody');
                 tbody.innerHTML = '';
                 if (data.top_lop.length === 0) {
@@ -381,19 +414,82 @@
                         tbody.appendChild(tr);
                     });
                 }
-                
+
             } catch (err) {
                 console.error(err);
                 document.getElementById('modalEventTitle').textContent = 'Lỗi khi tải dữ liệu';
+                document.getElementById('attendanceSummary').innerHTML = '<div style="grid-column:1/-1;color:var(--danger);">Không tải được dữ liệu điểm danh.</div>';
                 document.querySelector('#topLopTable tbody').innerHTML = '<tr><td colspan="2" style="text-align:center;padding:15px;color:red;">Lỗi kết nối. Vui lòng thử lại sau.</td></tr>';
             }
         });
     });
 
+    function renderAttendanceBreakdown(data) {
+        const total = Number(data.tong_dang_ky || 0);
+        const items = [{
+                key: 'du_dieu_kien',
+                label: 'Đủ điều kiện',
+                value: Number(data.du_dieu_kien || data.da_diem_danh || 0),
+                color: '#10b981'
+            },
+            {
+                key: 'da_quet_chua_du',
+                label: 'Đã quét, chưa đủ',
+                value: Number(data.da_quet_chua_du || 0),
+                color: '#f59e0b'
+            },
+            {
+                key: 'chua_diem_danh',
+                label: 'Chưa điểm danh',
+                value: Number(data.chua_diem_danh || 0),
+                color: '#64748b'
+            },
+            {
+                key: 'vang_mat',
+                label: 'Vắng mặt',
+                value: Number(data.vang_mat || 0),
+                color: '#ef4444'
+            },
+        ];
+
+        document.getElementById('attendanceRequirement').textContent =
+            `Yêu cầu: ${Number(data.so_lan_diem_danh_yeu_cau || 2)} lần điểm danh. Tổng đăng ký: ${total}.`;
+
+        document.getElementById('attendanceSummary').innerHTML = items.map(item => `
+            <div class="attendance-summary-card">
+                <div class="attendance-summary-value" style="color:${item.color};">${item.value}</div>
+                <div class="text-xs text-muted">${item.label}</div>
+            </div>
+        `).join('');
+
+        const stack = document.getElementById('attendanceStack');
+        if (!total) {
+            stack.innerHTML = '<span style="width:100%;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text-muted);">Chưa có đăng ký</span>';
+        } else {
+            stack.innerHTML = items
+                .filter(item => item.value > 0)
+                .map(item => `<span title="${item.label}: ${item.value}" style="width:${(item.value / total) * 100}%;background:${item.color};"></span>`)
+                .join('');
+        }
+
+        document.getElementById('attendanceLegend').innerHTML = items.map(item => {
+            const pct = total ? Math.round((item.value / total) * 100) : 0;
+            return `
+                <div class="attendance-legend-row">
+                    <div class="attendance-legend-label">
+                        <span class="attendance-dot" style="background:${item.color};"></span>
+                        <span>${item.label}</span>
+                    </div>
+                    <strong>${item.value} (${pct}%)</strong>
+                </div>
+            `;
+        }).join('');
+    }
+
     document.getElementById('closeModalBtn').addEventListener('click', () => {
         document.getElementById('statsModal').style.display = 'none';
     });
-    
+
     document.getElementById('statsModal').addEventListener('click', (e) => {
         if (e.target === document.getElementById('statsModal')) {
             document.getElementById('statsModal').style.display = 'none';

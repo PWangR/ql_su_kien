@@ -112,7 +112,9 @@ class MediaController extends Controller
 
     public function apiList(Request $request)
     {
-        $query = ThuVienDaPhuongTien::libraryItems()->whereNull('deleted_at');
+        $query = ThuVienDaPhuongTien::with('theAnh')
+            ->libraryItems()
+            ->whereNull('deleted_at');
 
         if ($request->filled('loai_tep')) {
             $query->where('loai_tep', $request->loai_tep);
@@ -120,6 +122,12 @@ class MediaController extends Controller
 
         if ($request->filled('tu_khoa')) {
             $query->where('ten_tep', 'like', '%' . $request->tu_khoa . '%');
+        }
+
+        if ($request->filled('the_anh')) {
+            $query->whereHas('theAnh', function ($q) use ($request) {
+                $q->where('the_anh.ma_the_anh', $request->the_anh);
+            });
         }
 
         $media = $query->latest('created_at')->paginate(24);
@@ -132,6 +140,11 @@ class MediaController extends Controller
                 'loai_tep'       => $m->loai_tep,
                 'kich_thuoc'     => $m->kich_thuoc,
                 'url'            => asset('storage/' . $m->duong_dan_tep),
+                'the_anh'        => $m->theAnh->map(fn($tag) => [
+                    'ma_the_anh' => $tag->ma_the_anh,
+                    'ten_the' => $tag->ten_the,
+                    'mau_sac' => $tag->mau_sac,
+                ])->values(),
             ]),
             'current_page' => $media->currentPage(),
             'last_page'    => $media->lastPage(),

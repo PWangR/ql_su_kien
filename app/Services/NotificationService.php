@@ -27,6 +27,11 @@ class NotificationService
      */
     public function createBulkNotification(array $userIds, $title, $content, $type = 'he_thong', $eventId = null)
     {
+        $userIds = array_values(array_unique(array_filter($userIds)));
+        if (empty($userIds)) {
+            return false;
+        }
+
         $notifications = [];
         foreach ($userIds as $userId) {
             $notifications[] = [

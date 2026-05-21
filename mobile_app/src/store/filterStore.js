@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 const useFilterStore = create(
   persist(
@@ -23,7 +23,7 @@ const useFilterStore = create(
     }),
     {
       name: 'filter-store',
-      storage: AsyncStorage,
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );

@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { 
@@ -35,7 +36,12 @@ export default function App() {
   });
 
   useEffect(() => {
-    restoreToken();
+    const bootstrap = async () => {
+      await AsyncStorage.removeItem('filter-store');
+      await restoreToken();
+    };
+
+    bootstrap();
   }, []);
 
   const onLayoutRootView = useCallback(async () => {

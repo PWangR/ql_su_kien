@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../services/api';
+import api, { setUnauthorizedHandler } from '../services/api';
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -12,7 +12,16 @@ const useAuthStore = create((set) => ({
       const token = await AsyncStorage.getItem('userToken');
       const userStr = await AsyncStorage.getItem('userData');
       if (token && userStr) {
-        set({ token, user: JSON.parse(userStr), isLoading: false });
+        try {
+          const response = await api.get('/user');
+          const user = response.data.data || response.data.user || JSON.parse(userStr);
+          await AsyncStorage.setItem('userData', JSON.stringify(user));
+          set({ token, user, isLoading: false });
+        } catch (error) {
+          await AsyncStorage.removeItem('userToken');
+          await AsyncStorage.removeItem('userData');
+          set({ token: null, user: null, isLoading: false });
+        }
       } else {
         set({ isLoading: false });
       }
@@ -104,5 +113,9 @@ const useAuthStore = create((set) => ({
     }
   },
 }));
+
+setUnauthorizedHandler(() => {
+  useAuthStore.setState({ token: null, user: null, isLoading: false });
+});
 
 export default useAuthStore;

@@ -320,6 +320,19 @@
                         <input class="form-control" type="number" min="0" id="diem_cong" name="diem_cong" required
                             value="{{ $fieldValue('diem_cong', $eventModel->diem_cong ?? $selectedTemplate?->diem_cong ?? 0) }}">
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="so_lan_diem_danh_yeu_cau">Chế độ điểm danh</label>
+                        <select class="form-control" id="so_lan_diem_danh_yeu_cau" name="so_lan_diem_danh_yeu_cau" required>
+                            <option value="2" @selected((int) $fieldValue('so_lan_diem_danh_yeu_cau', $eventModel->so_lan_diem_danh_yeu_cau ?? 2) === 2)>
+                                2 lần - đầu buổi và cuối buổi
+                            </option>
+                            <option value="1" @selected((int) $fieldValue('so_lan_diem_danh_yeu_cau', $eventModel->so_lan_diem_danh_yeu_cau ?? 2) === 1)>
+                                1 lần - quét một lần là đủ điều kiện
+                            </option>
+                        </select>
+                        <div class="form-hint">Mặc định hệ thống yêu cầu 2 lần. Chọn 1 lần cho sự kiện chỉ cần một lượt xác nhận tham gia.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1018,6 +1031,12 @@
                 <button type="button" onclick="closeMediaPicker()" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.4rem;line-height:1;padding:0 4px;">&#215;</button>
             </div>
         </div>
+        <div style="padding:10px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;">
+            <span style="font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Thẻ ảnh</span>
+            <div id="mpTagFilters" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span class="text-muted" style="font-size:.8rem;">Đang tải thẻ...</span>
+            </div>
+        </div>
         {{-- Grid --}}
         <div id="mpGrid" style="flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;min-height:200px;"></div>
         {{-- Footer --}}
@@ -1046,9 +1065,12 @@ let _mp = {
     lastPage: 1,
     selected: {},   // { ma_phuong_tien: itemObj }
     searchTimer: null,
+    tagId: '',
+    tagsLoaded: false,
 };
 
 const _mpApiUrl = '{{ route("admin.media.api.list") }}';
+const _mpTagsUrl = '{{ route("admin.media.tags.json") }}';
 
 function openMediaPicker(type, moduleId, mode) {
     _mp.type     = type;
@@ -1056,6 +1078,7 @@ function openMediaPicker(type, moduleId, mode) {
     _mp.mode     = mode;
     _mp.page     = 1;
     _mp.selected = {};
+    _mp.tagId    = '';
 
     // Auto-filter theo loại module
     const filter = document.getElementById('mpFilter');
@@ -1067,9 +1090,11 @@ function openMediaPicker(type, moduleId, mode) {
         filter.value = '';
     }
     document.getElementById('mpSearch').value = '';
+    mpSetActiveTag('');
 
     const modal = document.getElementById('mediaPickerModal');
     modal.style.display = 'flex';
+    mpLoadTags();
     mpLoadPage(1);
 }
 
@@ -1097,6 +1122,7 @@ function mpLoadPage(page) {
     const params = new URLSearchParams({ page });
     if (loaiTep) params.set('loai_tep', loaiTep);
     if (search)  params.set('tu_khoa', search);
+    if (_mp.tagId) params.set('the_anh', _mp.tagId);
 
     fetch(`${_mpApiUrl}?${params}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(r => r.json())
@@ -1128,14 +1154,49 @@ function mpRenderGrid(items) {
             ? `<img src="${item.url}" alt="" style="width:100%;height:90px;object-fit:cover;border-radius:5px;">`
             : `<div style="height:90px;display:flex;align-items:center;justify-content:center;background:var(--bg-alt);border-radius:5px;"><i class="bi bi-file-earmark-text" style="font-size:2rem;color:var(--text-muted);"></i></div>`;
         const safeItem   = JSON.stringify(item).replace(/'/g, "&#39;");
+        const tagsHtml = (item.the_anh || []).slice(0, 3).map(tag => {
+            const textColor = getContrastColor(tag.mau_sac || '#64748b');
+            return `<span style="background:${tag.mau_sac || '#64748b'};color:${textColor};font-size:.58rem;font-weight:700;border-radius:4px;padding:1px 5px;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtmlAttr(tag.ten_the || '')}</span>`;
+        }).join('');
         return `
             <div onclick="mpToggleItem(${item.ma_phuong_tien},this)" data-item='${safeItem}'
                 style="cursor:pointer;border-radius:7px;padding:6px;border:${border};transition:border-color .12s;position:relative;" title="${item.ten_tep}">
                 <div style="position:relative;">${thumb}${checkIcon}</div>
                 <div style="font-size:.68rem;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);">${item.ten_tep}</div>
+                <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px;min-height:16px;">${tagsHtml}</div>
             </div>`;
     }).join('');
     mpUpdateCount();
+}
+
+function mpLoadTags() {
+    if (_mp.tagsLoaded) return;
+
+    fetch(_mpTagsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json())
+        .then(tags => {
+            _mp.tagsLoaded = true;
+            const container = document.getElementById('mpTagFilters');
+            const allButton = '<button type="button" data-mp-tag="" onclick="mpSetActiveTag(\'\'); mpLoadPage(1);" style="border:1px solid var(--border);border-radius:6px;background:#185FA5;color:#fff;padding:4px 9px;font-size:.72rem;font-weight:700;cursor:pointer;">Tất cả</button>';
+            const tagButtons = tags.map(tag => {
+                const textColor = getContrastColor(tag.mau_sac || '#64748b');
+                return `<button type="button" data-mp-tag="${tag.ma_the_anh}" onclick="mpSetActiveTag('${tag.ma_the_anh}'); mpLoadPage(1);" style="border:1px solid transparent;border-radius:6px;background:${tag.mau_sac || '#64748b'};color:${textColor};padding:4px 9px;font-size:.72rem;font-weight:700;cursor:pointer;opacity:.72;">${escapeHtmlAttr(tag.ten_the)}</button>`;
+            }).join('');
+            container.innerHTML = allButton + tagButtons;
+            mpSetActiveTag(_mp.tagId);
+        })
+        .catch(() => {
+            document.getElementById('mpTagFilters').innerHTML = '<span style="font-size:.8rem;color:var(--danger);">Không tải được thẻ.</span>';
+        });
+}
+
+function mpSetActiveTag(tagId) {
+    _mp.tagId = tagId || '';
+    document.querySelectorAll('#mpTagFilters [data-mp-tag]').forEach(btn => {
+        const active = (btn.dataset.mpTag || '') === _mp.tagId;
+        btn.style.opacity = active ? '1' : '.72';
+        btn.style.boxShadow = active ? '0 0 0 2px var(--card), 0 0 0 4px currentColor' : 'none';
+    });
 }
 
 function mpToggleItem(id, el) {
@@ -1236,6 +1297,23 @@ function addDocumentItem(moduleId, item) {
             <i class="bi bi-x-circle"></i>
         </button>`;
     container.appendChild(div);
+}
+
+function getContrastColor(hex) {
+    const normalized = String(hex || '#64748b').replace('#', '');
+    const r = parseInt(normalized.substring(0, 2), 16);
+    const g = parseInt(normalized.substring(2, 4), 16);
+    const b = parseInt(normalized.substring(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 128 ? '#000000' : '#FFFFFF';
+}
+
+function escapeHtmlAttr(value) {
+    return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
 }
 
 // Đóng picker khi click nền

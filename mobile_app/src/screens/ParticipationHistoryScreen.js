@@ -73,16 +73,17 @@ const ParticipationHistoryScreen = ({ navigation }) => {
   const renderItem = ({ item }) => {
     const status = getStatusConfig(item.trang_thai_tham_gia);
     const event = item.su_kien || {};
+    const requiredCheckins = event.so_lan_diem_danh_yeu_cau || item.so_lan_diem_danh_yeu_cau || 2;
     
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => navigation.navigate('EventDetail', { eventId: event.ma_su_kien, event })}
+        onPress={() => event.ma_su_kien && navigation.navigate('EventDetail', { eventId: event.ma_su_kien, event })}
         activeOpacity={0.7}
       >
         <View style={styles.cardContent}>
           <View style={styles.leftContent}>
-            <Text style={styles.eventTitle} numberOfLines={2}>{event.ten_su_kien}</Text>
+            <Text style={styles.eventTitle} numberOfLines={2}>{event.ten_su_kien || 'Sự kiện đã bị xóa'}</Text>
             <View style={styles.infoRow}>
               <MaterialIcons name="calendar-today" size={14} color={Colors.textMuted} />
               <Text style={styles.infoText}>{new Date(item.thoi_gian_dang_ky).toLocaleDateString('vi-VN')}</Text>
@@ -93,7 +94,7 @@ const ParticipationHistoryScreen = ({ navigation }) => {
                 <Text style={styles.pointsText}>+{event.diem_cong} điểm</Text>
               </View>
             )}
-            <Text style={styles.checkinText}>Điểm danh: {item.so_lan_diem_danh || 0}/2</Text>
+            <Text style={styles.checkinText}>Điểm danh: {item.so_lan_diem_danh || 0}/{requiredCheckins}</Text>
           </View>
           <View style={[styles.statusBadge, { backgroundColor: status.bgColor }]}>
             <Text style={[styles.statusText, { color: status.color }]}>{status.label}</Text>

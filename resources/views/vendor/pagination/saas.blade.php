@@ -1,7 +1,7 @@
 @if ($paginator->hasPages())
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+    <div class="pagination-shell">
 
-        <div class="btn-group" style="gap: 4px; border-radius: var(--radius-sm);  background:transparent;">
+        <div class="pagination-controls" aria-label="Phân trang">
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
                 <button type="button" class="btn btn-secondary btn-sm" disabled

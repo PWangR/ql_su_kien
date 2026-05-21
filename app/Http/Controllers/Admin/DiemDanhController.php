@@ -71,7 +71,7 @@ class DiemDanhController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Diem danh dau buoi va cuoi buoi cho sinh vien thanh cong!',
+            'message' => $result['message'] ?? 'Diem danh sinh vien thanh cong!',
             'data' => $result['data'] ?? null,
         ]);
     }

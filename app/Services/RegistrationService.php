@@ -157,6 +157,21 @@ class RegistrationService
             $dangKy->restore();
         }
 
+        $soLanYeuCau = $this->requiredCheckinCount($event);
+        $soLanDaCo = ChiTietDiemDanh::where('ma_dang_ky', $dangKy->ma_dang_ky)->count();
+
+        if ($soLanDaCo >= $soLanYeuCau) {
+            $this->markQualifiedAndAwardPoints($dangKy, $event);
+            $dangKy->load('chiTietDiemDanh');
+
+            return [
+                'success' => false,
+                'message' => 'Bạn đã điểm danh đủ số lần yêu cầu cho sự kiện này!',
+                'status' => 400,
+                'data' => $this->checkinResponseData($dangKy, $soLanDaCo, $soLanYeuCau),
+            ];
+        }
+
         // Kiểm tra đã điểm danh loại này chưa
         $existingCheckin = ChiTietDiemDanh::where('ma_dang_ky', $dangKy->ma_dang_ky)
             ->where('loai_diem_danh', $loaiDiemDanh)
@@ -181,20 +196,11 @@ class RegistrationService
             $dangKy->refresh();
         }
 
-        // Kiểm tra nếu đã điểm danh đủ 2 lần → cộng điểm
+        // Kiểm tra nếu đã điểm danh đủ số lần yêu cầu → cộng điểm
         $soLanDiemDanh = ChiTietDiemDanh::where('ma_dang_ky', $dangKy->ma_dang_ky)->count();
 
-        if ($soLanDiemDanh >= 2) {
-            // Kiểm tra chưa cộng điểm
-            if (!LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists()) {
-                LichSuDiem::create([
-                    'ma_sinh_vien' => $userId,
-                    'ma_su_kien' => $eventId,
-                    'ma_dang_ky' => $dangKy->ma_dang_ky,
-                    'diem' => $event->diem_cong,
-                    'nguon' => 'tham_gia_su_kien',
-                ]);
-            }
+        if ($soLanDiemDanh >= $soLanYeuCau) {
+            $this->markQualifiedAndAwardPoints($dangKy, $event);
         }
 
         $dangKy->load('chiTietDiemDanh');
@@ -205,13 +211,8 @@ class RegistrationService
             'status' => 200,
             'data' => [
                 'registration' => $dangKy,
-                'so_lan_diem_danh' => $soLanDiemDanh,
-                'da_diem_danh_dau_buoi' => $dangKy->da_diem_danh_dau_buoi,
-                'da_diem_danh_cuoi_buoi' => $dangKy->da_diem_danh_cuoi_buoi,
-                'trang_thai' => $dangKy->trang_thai_tham_gia,
-                'du_dieu_kien_cong_diem' => $soLanDiemDanh >= 2,
-                'da_cong_diem' => LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists(),
-            ]
+                ...$this->checkinResponseData($dangKy, $soLanDiemDanh, $soLanYeuCau),
+            ],
         ];
     }
 
@@ -259,30 +260,23 @@ class RegistrationService
                 ->pluck('loai_diem_danh')
                 ->all();
 
-            $alreadyComplete = in_array('dau_buoi', $existingTypes, true)
-                && in_array('cuoi_buoi', $existingTypes, true);
+            $soLanYeuCau = $this->requiredCheckinCount($event);
+            $requiredTypes = $this->requiredCheckinTypes($event);
+            $alreadyComplete = count(array_intersect($requiredTypes, $existingTypes)) >= $soLanYeuCau;
 
             if ($alreadyComplete && LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists()) {
                 $dangKy->load('chiTietDiemDanh');
 
                 return [
                     'success' => false,
-                    'message' => 'Sinh vien nay da duoc diem danh day du truoc do!',
+                    'message' => 'Sinh vien nay da duoc diem danh du so lan yeu cau truoc do!',
                     'status' => 400,
-                    'data' => [
-                        'registration' => $dangKy,
-                        'so_lan_diem_danh' => $dangKy->chiTietDiemDanh->count(),
-                        'da_diem_danh_dau_buoi' => true,
-                        'da_diem_danh_cuoi_buoi' => true,
-                        'trang_thai' => $dangKy->trang_thai_tham_gia,
-                        'du_dieu_kien_cong_diem' => true,
-                        'da_cong_diem' => true,
-                    ]
+                    'data' => $this->checkinResponseData($dangKy, $dangKy->chiTietDiemDanh->count(), $soLanYeuCau),
                 ];
             }
 
             $scanAt = now();
-            foreach (['dau_buoi', 'cuoi_buoi'] as $loaiDiemDanh) {
+            foreach ($requiredTypes as $loaiDiemDanh) {
                 ChiTietDiemDanh::updateOrCreate(
                     [
                         'ma_dang_ky' => $dangKy->ma_dang_ky,
@@ -301,32 +295,19 @@ class RegistrationService
                 $dangKy->refresh();
             }
 
-            if (!LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists()) {
-                LichSuDiem::create([
-                    'ma_sinh_vien' => $userId,
-                    'ma_su_kien' => $eventId,
-                    'ma_dang_ky' => $dangKy->ma_dang_ky,
-                    'diem' => $event->diem_cong,
-                    'nguon' => 'tham_gia_su_kien',
-                ]);
-            }
+            $this->markQualifiedAndAwardPoints($dangKy, $event);
 
             $dangKy->load('chiTietDiemDanh');
+            $soLanDiemDanh = $dangKy->chiTietDiemDanh->count();
 
             return [
                 'success' => true,
                 'message' => 'Diem danh sinh vien thanh cong!',
                 'status' => 200,
                 'data' => [
-                    'registration' => $dangKy,
-                    'so_lan_diem_danh' => $dangKy->chiTietDiemDanh->count(),
-                    'da_diem_danh_dau_buoi' => true,
-                    'da_diem_danh_cuoi_buoi' => true,
-                    'trang_thai' => $dangKy->trang_thai_tham_gia,
-                    'du_dieu_kien_cong_diem' => true,
-                    'da_cong_diem' => true,
+                    ...$this->checkinResponseData($dangKy, $soLanDiemDanh, $soLanYeuCau),
                     'diem_danh_at' => $scanAt,
-                ]
+                ],
             ];
         });
     }
@@ -368,8 +349,8 @@ class RegistrationService
         foreach ($registrations as $registration) {
             $soLanDiemDanh = $registration->chiTietDiemDanh()->count();
 
-            // Nếu chỉ điểm danh < 2 lần → chuyển sang "chua_du_dieu_kien"
-            if ($soLanDiemDanh < 2) {
+            // Nếu điểm danh chưa đủ số lần yêu cầu → chuyển sang "chua_du_dieu_kien"
+            if ($soLanDiemDanh < $this->requiredCheckinCount($event)) {
                 $registration->update(['trang_thai_tham_gia' => 'chua_du_dieu_kien']);
             }
         }
@@ -380,5 +361,49 @@ class RegistrationService
             ->update(['trang_thai_tham_gia' => 'vang_mat']);
 
         return ['success' => true, 'message' => 'Cập nhật trạng thái thành công'];
+    }
+
+    protected function requiredCheckinCount(SuKien $event): int
+    {
+        return (int) ($event->so_lan_diem_danh_yeu_cau ?? 2) === 1 ? 1 : 2;
+    }
+
+    protected function requiredCheckinTypes(SuKien $event): array
+    {
+        return $this->requiredCheckinCount($event) === 1
+            ? ['dau_buoi']
+            : ['dau_buoi', 'cuoi_buoi'];
+    }
+
+    protected function markQualifiedAndAwardPoints(DangKy $dangKy, SuKien $event): void
+    {
+        if ($dangKy->trang_thai_tham_gia !== 'da_tham_gia') {
+            $dangKy->update(['trang_thai_tham_gia' => 'da_tham_gia']);
+            $dangKy->refresh();
+        }
+
+        if (!LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists()) {
+            LichSuDiem::create([
+                'ma_sinh_vien' => $dangKy->ma_sinh_vien,
+                'ma_su_kien' => $dangKy->ma_su_kien,
+                'ma_dang_ky' => $dangKy->ma_dang_ky,
+                'diem' => $event->diem_cong,
+                'nguon' => 'tham_gia_su_kien',
+            ]);
+        }
+    }
+
+    protected function checkinResponseData(DangKy $dangKy, int $soLanDiemDanh, int $soLanYeuCau): array
+    {
+        return [
+            'registration' => $dangKy,
+            'so_lan_diem_danh' => $soLanDiemDanh,
+            'so_lan_diem_danh_yeu_cau' => $soLanYeuCau,
+            'da_diem_danh_dau_buoi' => $dangKy->da_diem_danh_dau_buoi,
+            'da_diem_danh_cuoi_buoi' => $dangKy->da_diem_danh_cuoi_buoi,
+            'trang_thai' => $dangKy->trang_thai_tham_gia,
+            'du_dieu_kien_cong_diem' => $soLanDiemDanh >= $soLanYeuCau,
+            'da_cong_diem' => LichSuDiem::where('ma_dang_ky', $dangKy->ma_dang_ky)->exists(),
+        ];
     }
 }

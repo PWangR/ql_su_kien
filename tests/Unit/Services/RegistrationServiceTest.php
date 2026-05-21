@@ -237,4 +237,47 @@ class RegistrationServiceTest extends TestCase
         $this->assertFalse($duplicate['success']);
         $this->assertSame(1, LichSuDiem::where('ma_dang_ky', $registration->ma_dang_ky)->count());
     }
+
+    public function test_one_checkin_event_adds_points_after_first_scan()
+    {
+        $admin = User::factory()->admin()->create();
+        $student = User::factory()->student()->create();
+
+        $event = SuKien::factory()
+            ->for($admin, 'nguoiTao')
+            ->ongoing()
+            ->create([
+                'so_luong_toi_da' => 100,
+                'so_luong_hien_tai' => 0,
+                'diem_cong' => 10,
+                'so_lan_diem_danh_yeu_cau' => 1,
+            ]);
+
+        $result = $this->registrationService->checkInEvent(
+            $student->ma_sinh_vien,
+            $event->ma_su_kien,
+            'dau_buoi'
+        );
+
+        $this->assertTrue($result['success']);
+        $this->assertTrue($result['data']['da_cong_diem']);
+        $this->assertSame(1, $result['data']['so_lan_diem_danh_yeu_cau']);
+
+        $registration = DangKy::where('ma_sinh_vien', $student->ma_sinh_vien)
+            ->where('ma_su_kien', $event->ma_su_kien)
+            ->first();
+
+        $this->assertSame(1, ChiTietDiemDanh::where('ma_dang_ky', $registration->ma_dang_ky)->count());
+        $this->assertSame(1, LichSuDiem::where('ma_dang_ky', $registration->ma_dang_ky)->count());
+
+        $duplicate = $this->registrationService->checkInEvent(
+            $student->ma_sinh_vien,
+            $event->ma_su_kien,
+            'cuoi_buoi'
+        );
+
+        $this->assertFalse($duplicate['success']);
+        $this->assertSame(1, ChiTietDiemDanh::where('ma_dang_ky', $registration->ma_dang_ky)->count());
+        $this->assertSame(1, LichSuDiem::where('ma_dang_ky', $registration->ma_dang_ky)->count());
+    }
 }

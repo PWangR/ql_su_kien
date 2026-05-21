@@ -45,7 +45,7 @@
                             @if($dk->suKien->dia_diem)<i class="bi bi-geo-alt"></i> {{ $dk->suKien->dia_diem }}@endif
                         </div>
                         @else
-                        <span class="text-muted">-</span>
+                        <span class="text-muted" style="font-weight:600;">Sự kiện đã bị xóa</span>
                         @endif
                     </td>
                     <td class="text-sm text-muted">

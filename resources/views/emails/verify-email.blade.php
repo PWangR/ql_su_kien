@@ -41,7 +41,7 @@ $smtp = SmtpSetting::first();
         .button {
             display: inline-block;
             padding: 12px 30px;
-            background-color: #0fb951;
+            background-color: #eef4ff;
             color: #ffffff;
             text-decoration: none;
             border-radius: 4px;
@@ -92,7 +92,7 @@ $smtp = SmtpSetting::first();
             <p>Cảm ơn bạn đã đăng ký tài khoản. Vui lòng nhấp vào nút bên dưới để xác thực email của bạn.</p>
 
             <div style="text-align: center;">
-                <a href="{{ $verificationUrl }}" class="button">Xác thực Email</a>
+                <a href="{{ $verificationUrl }}">Xác thực Email</a>
             </div>
 
             <p style="color: #666; font-size: 13px;">

@@ -82,7 +82,9 @@
         <select id="eventSelect" class="form-control" onchange="startQR()">
             <option value="">-- Chọn sự kiện --</option>
             @forelse($danhSachSuKien as $sk)
-                <option value="{{ $sk->ma_su_kien }}">{{ $sk->ten_su_kien }} (ID: {{ $sk->ma_su_kien }})</option>
+                <option value="{{ $sk->ma_su_kien }}" data-required-checkins="{{ $sk->so_lan_diem_danh_yeu_cau ?? 2 }}">
+                    {{ $sk->ten_su_kien }} (ID: {{ $sk->ma_su_kien }})
+                </option>
             @empty
                 <!-- No active events -->
             @endforelse
@@ -95,6 +97,7 @@
             <option value="dau_buoi">Điểm danh lần 1 - đầu buổi</option>
             <option value="cuoi_buoi">Điểm danh lần 2 - cuối buổi</option>
         </select>
+        <div id="checkinModeHint" class="text-muted" style="font-size:.8125rem;margin-top:6px;"></div>
     </div>
 
     <div id="qr-section" style="display: none;">
@@ -134,12 +137,26 @@ function startQR() {
     const select = document.getElementById('eventSelect');
     const typeSelect = document.getElementById('checkinTypeSelect');
     const qrSection = document.getElementById('qr-section');
+    const hint = document.getElementById('checkinModeHint');
     
     if (!select.value) {
         qrSection.style.display = 'none';
+        typeSelect.disabled = false;
+        if (hint) hint.textContent = '';
         clearInterval(refreshInterval);
         clearInterval(countdownInterval);
         return;
+    }
+
+    const selectedOption = select.options[select.selectedIndex];
+    const requiredCheckins = Number(selectedOption?.dataset.requiredCheckins || 2);
+    if (requiredCheckins === 1) {
+        typeSelect.value = 'dau_buoi';
+        typeSelect.disabled = true;
+        if (hint) hint.textContent = 'Sự kiện này chỉ yêu cầu điểm danh 1 lần. Một lượt quét sẽ đủ điều kiện cộng điểm.';
+    } else {
+        typeSelect.disabled = false;
+        if (hint) hint.textContent = 'Sự kiện này yêu cầu điểm danh đầu buổi và cuối buổi.';
     }
     
     qrSection.style.display = 'block';

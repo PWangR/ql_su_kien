@@ -56,8 +56,12 @@ class ThongKeController extends Controller
         $danhSachSuKien = (clone $querySuKien)
             ->withCount(['dangKy as tong_dang_ky'])
             ->withCount([
-                'dangKy as da_diem_danh' => function ($q) {
-                    $q->where('trang_thai_tham_gia', 'da_tham_gia');
+                'dangKy as du_dieu_kien' => function ($q) {
+                    $q->whereExists(function ($subQuery) {
+                        $subQuery->select(DB::raw(1))
+                            ->from('lich_su_diem')
+                            ->whereColumn('lich_su_diem.ma_dang_ky', 'dang_ky.ma_dang_ky');
+                    });
                 }
             ])
             ->withCount([
@@ -95,13 +99,32 @@ class ThongKeController extends Controller
         $suKien = SuKien::findOrFail($id);
 
         $tongDangKy = DangKy::where('ma_su_kien', $id)->count();
-        $daDiemDanh = DangKy::where('ma_su_kien', $id)->where('trang_thai_tham_gia', 'da_tham_gia')->count();
+        $duDieuKien = DangKy::where('ma_su_kien', $id)
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('lich_su_diem')
+                    ->whereColumn('lich_su_diem.ma_dang_ky', 'dang_ky.ma_dang_ky');
+            })
+            ->count();
+        $daQuetChuaDu = DangKy::where('ma_su_kien', $id)
+            ->whereHas('chiTietDiemDanh')
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('lich_su_diem')
+                    ->whereColumn('lich_su_diem.ma_dang_ky', 'dang_ky.ma_dang_ky');
+            })
+            ->count();
         $vangMat = DangKy::where('ma_su_kien', $id)->where('trang_thai_tham_gia', 'vang_mat')->count();
-        $chuaDiemDanh = DangKy::where('ma_su_kien', $id)->where('trang_thai_tham_gia', 'chua_diem_danh')->count();
+        $chuaDiemDanh = max(0, $tongDangKy - $duDieuKien - $daQuetChuaDu - $vangMat);
+        $soLanYeuCau = (int) ($suKien->so_lan_diem_danh_yeu_cau ?? 2) === 1 ? 1 : 2;
 
         // Top lớp tham gia đông nhất
         $topLop = DangKy::where('ma_su_kien', $id)
-            ->where('trang_thai_tham_gia', 'da_tham_gia')
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('lich_su_diem')
+                    ->whereColumn('lich_su_diem.ma_dang_ky', 'dang_ky.ma_dang_ky');
+            })
             ->join('nguoi_dung', 'dang_ky.ma_sinh_vien', '=', 'nguoi_dung.ma_sinh_vien')
             ->select('nguoi_dung.lop', DB::raw('count(*) as so_luong'))
             ->groupBy('nguoi_dung.lop')
@@ -112,9 +135,12 @@ class ThongKeController extends Controller
         return response()->json([
             'su_kien' => $suKien->ten_su_kien,
             'tong_dang_ky' => $tongDangKy,
-            'da_diem_danh' => $daDiemDanh,
+            'du_dieu_kien' => $duDieuKien,
+            'da_diem_danh' => $duDieuKien,
+            'da_quet_chua_du' => $daQuetChuaDu,
             'vang_mat' => $vangMat,
             'chua_diem_danh' => $chuaDiemDanh,
+            'so_lan_diem_danh_yeu_cau' => $soLanYeuCau,
             'top_lop' => $topLop
         ]);
     }

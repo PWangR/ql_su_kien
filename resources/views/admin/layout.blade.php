@@ -14,7 +14,7 @@
     @yield('styles')
 </head>
 
-<body style="display:flex;min-height:100vh;">
+<body class="admin-shell" style="display:flex;min-height:100vh;">
 
     <x-loading-overlay />
 
@@ -29,6 +29,9 @@
                 <div class="sidebar-brand-text">Admin Panel</div>
                 <span class="sidebar-brand-sub">Quản Lý Sự Kiện</span>
             </div>
+            <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Đóng menu">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </a>
 
         <nav class="sidebar-nav">
@@ -46,6 +49,10 @@
             <a href="{{ route('admin.nguoi-dung.index') }}"
                 class="{{ request()->routeIs('admin.nguoi-dung*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i> Người dùng
+            </a>
+            <a href="{{ route('admin.thong-bao.index') }}"
+                class="{{ request()->routeIs('admin.thong-bao*') ? 'active' : '' }}">
+                <i class="bi bi-bell"></i> Thông Báo
             </a>
             <a href="{{ route('admin.media.index') }}" class="{{ request()->routeIs('admin.media*') ? 'active' : '' }}">
                 <i class="bi bi-images"></i> Thư viện media
@@ -114,7 +121,7 @@
     <!-- ════════════ TOPBAR ════════════ -->
     <header class="topbar">
         <div class="topbar-left">
-            <button class="sidebar-toggle" id="sidebarToggle">
+            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Mở menu" aria-controls="sidebar" aria-expanded="false">
                 <i class="bi bi-list"></i>
             </button>
             <h1 class="page-title">@yield('page-title', 'Dashboard')</h1>
@@ -150,25 +157,76 @@
         </div>
     </div>
 
+    <nav class="admin-mobile-nav" aria-label="Điều hướng admin nhanh">
+        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard*') ? 'active' : '' }}">
+            <i class="bi bi-columns-gap"></i>
+            <span>Tổng quan</span>
+        </a>
+        <a href="{{ route('admin.su-kien.index') }}" class="{{ request()->routeIs('admin.su-kien*') ? 'active' : '' }}">
+            <i class="bi bi-calendar3"></i>
+            <span>Sự kiện</span>
+        </a>
+        <a href="{{ route('admin.media.index') }}" class="{{ request()->routeIs('admin.media*') ? 'active' : '' }}">
+            <i class="bi bi-images"></i>
+            <span>Media</span>
+        </a>
+        <a href="{{ route('admin.thong-ke.index') }}" class="{{ request()->routeIs('admin.thong-ke*') ? 'active' : '' }}">
+            <i class="bi bi-bar-chart"></i>
+            <span>Thống kê</span>
+        </a>
+        <a href="{{ route('admin.diem-danh.index') }}" class="{{ request()->routeIs('admin.diem-danh*') ? 'active' : '' }}">
+            <i class="bi bi-qr-code"></i>
+            <span>QR</span>
+        </a>
+    </nav>
+
     <script>
         // Sidebar mobile toggle
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarClose = document.getElementById('sidebarClose');
+
+        function setSidebarOpen(isOpen) {
+            sidebar.classList.toggle('open', isOpen);
+            sidebarOverlay.classList.toggle('show', isOpen);
+            sidebarToggle?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            document.body.classList.toggle('sidebar-is-open', isOpen);
+        }
 
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('show');
+                setSidebarOpen(!sidebar.classList.contains('open'));
             });
         }
 
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', () => {
-                sidebar.classList.remove('open');
-                sidebarOverlay.classList.remove('show');
+                setSidebarOpen(false);
             });
         }
+
+        if (sidebarClose) {
+            sidebarClose.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setSidebarOpen(false);
+            });
+        }
+
+        document.querySelectorAll('.sidebar-nav a').forEach((link) => {
+            link.addEventListener('click', () => {
+                if (window.matchMedia('(max-width: 900px)').matches) {
+                    setSidebarOpen(false);
+                }
+            });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                setSidebarOpen(false);
+            }
+        });
 
         // Auto-hide alerts
         setTimeout(() => {

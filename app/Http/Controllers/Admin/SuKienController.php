@@ -116,6 +116,7 @@ class SuKienController extends Controller
         $data['mo_ta_chi_tiet'] = $this->extractPrimaryDescription($modules);
         $data['so_luong_toi_da'] = $data['so_luong_toi_da'] ?? 0;
         $data['diem_cong'] = $data['diem_cong'] ?? 0;
+        $data['so_lan_diem_danh_yeu_cau'] = (int) ($data['so_lan_diem_danh_yeu_cau'] ?? 2);
 
         $suKien = SuKien::create($data);
 
@@ -174,6 +175,7 @@ class SuKienController extends Controller
         $data['mo_ta_chi_tiet'] = $this->extractPrimaryDescription($modules);
         $data['so_luong_toi_da'] = $data['so_luong_toi_da'] ?? 0;
         $data['diem_cong'] = $data['diem_cong'] ?? 0;
+        $data['so_lan_diem_danh_yeu_cau'] = (int) ($data['so_lan_diem_danh_yeu_cau'] ?? 2);
 
         $suKien->update($data);
 

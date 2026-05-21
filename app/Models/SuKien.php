@@ -24,6 +24,7 @@ class SuKien extends Model
         'so_luong_toi_da',
         'so_luong_hien_tai',
         'diem_cong',
+        'so_lan_diem_danh_yeu_cau',
         'ma_nguoi_tao',
         'ma_nguoi_to_chuc',
         'trang_thai',
@@ -37,6 +38,7 @@ class SuKien extends Model
         'thoi_gian_bat_dau'  => 'datetime',
         'thoi_gian_ket_thuc' => 'datetime',
         'bo_cuc'             => 'array',
+        'so_lan_diem_danh_yeu_cau' => 'integer',
     ];
 
     protected $appends = [

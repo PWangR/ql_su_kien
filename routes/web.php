@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\BaoCaoController;
 use App\Http\Controllers\Admin\GeminiSettingController;
 use App\Http\Controllers\Admin\SmtpSettingController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\ThongBaoAdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
@@ -130,6 +131,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Quản lý người dùng
     Route::resource('nguoi-dung', NguoiDungController::class);
     Route::post('nguoi-dung/{id}/toggle-status', [NguoiDungController::class, 'toggleStatus'])->name('nguoi-dung.toggle-status');
+
+    // Thông báo admin
+    Route::get('thong-bao', [ThongBaoAdminController::class, 'index'])->name('thong-bao.index');
+    Route::post('thong-bao', [ThongBaoAdminController::class, 'store'])->name('thong-bao.store');
+    Route::post('thong-bao/{id}/cancel', [ThongBaoAdminController::class, 'cancel'])->name('thong-bao.cancel');
 
     // Thư viện media
     Route::get('media',              [MediaController::class, 'index'])->name('media.index');

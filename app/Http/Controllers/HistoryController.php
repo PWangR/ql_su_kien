@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DangKy;
+use App\Models\LichSuDiem;
 use Illuminate\Http\Request;
 
 class HistoryController extends Controller
@@ -14,14 +15,8 @@ class HistoryController extends Controller
             ->orderByDesc('thoi_gian_dang_ky')
             ->paginate(10);
 
-        // Tính tổng điểm từ các sự kiện đã tham gia
-        $tongDiem = DangKy::where('ma_sinh_vien', auth()->id())
-            ->where('trang_thai_tham_gia', 'da_tham_gia')
-            ->with('suKien')
-            ->get()
-            ->sum(function ($dk) {
-                return $dk->suKien?->diem_cong ?? 0;
-            });
+        // Tính từ lịch sử điểm để giữ nguyên điểm kể cả khi sự kiện đã bị xóa.
+        $tongDiem = LichSuDiem::where('ma_sinh_vien', auth()->id())->sum('diem');
 
         return view('history.index', compact('lichSu', 'tongDiem'));
     }
