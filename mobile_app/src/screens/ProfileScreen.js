@@ -7,9 +7,9 @@ import {
   TouchableOpacity, 
   ScrollView, 
   ActivityIndicator, 
-  SafeAreaView,
   StatusBar 
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import useAuthStore from '../store/authStore';
 import api, { BASE_URL } from '../services/api';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -53,7 +53,7 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         

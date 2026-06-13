@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -10,6 +10,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
@@ -21,7 +22,7 @@ const NotificationScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const response = await api.get('/notifications');
       if (response.data.success) {
@@ -33,18 +34,18 @@ const NotificationScreen = ({ navigation }) => {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchNotifications();
-  };
+  }, [fetchNotifications]);
 
-  const markAsRead = async (item) => {
+  const markAsRead = useCallback(async (item) => {
     if (item.da_doc) return;
     try {
       await api.post(`/notifications/${item.ma_thong_bao}/read`);
@@ -56,27 +57,27 @@ const NotificationScreen = ({ navigation }) => {
     } catch (error) {
       Alert.alert('Không thành công', 'Không thể đánh dấu thông báo.');
     }
-  };
+  }, []);
 
-  const markAllAsRead = async () => {
+  const markAllAsRead = useCallback(async () => {
     try {
       await api.post('/notifications/read-all');
       setNotifications((current) => current.map((item) => ({ ...item, da_doc: true })));
     } catch (error) {
       Alert.alert('Không thành công', 'Không thể đánh dấu tất cả thông báo.');
     }
-  };
+  }, []);
 
-  const deleteNotification = async (item) => {
+  const deleteNotification = useCallback(async (item) => {
     try {
       await api.delete(`/notifications/${item.ma_thong_bao}`);
       setNotifications((current) => current.filter((noti) => noti.ma_thong_bao !== item.ma_thong_bao));
     } catch (error) {
       Alert.alert('Không thành công', 'Không thể xóa thông báo.');
     }
-  };
+  }, []);
 
-  const renderItem = ({ item }) => (
+  const renderItem = useCallback(({ item }) => (
     <TouchableOpacity
       style={[styles.card, !item.da_doc && styles.unreadCard]}
       activeOpacity={0.8}
@@ -109,7 +110,7 @@ const NotificationScreen = ({ navigation }) => {
         </View>
       </View>
     </TouchableOpacity>
-  );
+  ), [deleteNotification, markAsRead]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -135,6 +136,11 @@ const NotificationScreen = ({ navigation }) => {
           keyExtractor={(item) => item.ma_thong_bao.toString()}
           contentContainerStyle={styles.list}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />}
+          removeClippedSubviews={Platform.OS === 'android'}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={7}
+          updateCellsBatchingPeriod={60}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <MaterialIcons name="notifications-off" size={64} color={Colors.border} />

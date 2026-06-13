@@ -3,17 +3,42 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import api from '../services/api';
 import useAuthStore from '../store/authStore';
 import Colors from '../constants/Colors';
+import RemoteImage from '../components/RemoteImage';
+
+const getAvatarFile = (asset) => {
+  const uri = asset.uri;
+  const extension = uri.split('?')[0].split('.').pop()?.toLowerCase();
+  const mimeFromExtension = {
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    gif: 'image/gif',
+    webp: 'image/webp',
+    heic: 'image/heic',
+    heif: 'image/heif',
+  };
+  const mimeType = asset.mimeType || mimeFromExtension[extension] || 'image/jpeg';
+  const fallbackExtension = mimeType.split('/')[1] === 'jpeg' ? 'jpg' : mimeType.split('/')[1] || 'jpg';
+
+  return {
+    uri,
+    name: asset.fileName || `avatar-${Date.now()}.${extension || fallbackExtension}`,
+    type: mimeType,
+  };
+};
 
 const EditProfileScreen = ({ navigation }) => {
   const { user, setUser } = useAuthStore();
@@ -36,7 +61,7 @@ const EditProfileScreen = ({ navigation }) => {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.85,
@@ -50,19 +75,32 @@ const EditProfileScreen = ({ navigation }) => {
   const save = async () => {
     setLoading(true);
     try {
-      const payload = new FormData();
-      Object.entries(form).forEach(([key, value]) => payload.append(key, value || ''));
-      if (avatar) {
-        payload.append('avatar', {
-          uri: avatar.uri,
-          name: avatar.fileName || 'avatar.jpg',
-          type: avatar.mimeType || 'image/jpeg',
+      const normalizedForm = Object.fromEntries(
+        Object.entries(form).map(([key, value]) => [
+          key,
+          typeof value === 'string' ? value.trim() : value,
+        ])
+      );
+
+      let response;
+      if (avatar?.uri) {
+        const payload = new FormData();
+        Object.entries(normalizedForm).forEach(([key, value]) => {
+          payload.append(key, value || '');
         });
+        payload.append('avatar', getAvatarFile(avatar));
+
+        response = await api.post('/user/profile/update', payload, {
+          transformRequest: (data) => data,
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        response = await api.post('/user/profile/update', normalizedForm);
       }
 
-      const response = await api.post('/user/profile/update', payload, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
       if (response.data.success) {
         const nextUser = response.data.data;
         await setUser({
@@ -74,40 +112,76 @@ const EditProfileScreen = ({ navigation }) => {
         navigation.goBack();
       }
     } catch (error) {
-      const firstError = error.response?.data?.errors ? Object.values(error.response.data.errors)?.[0]?.[0] : null;
-      Alert.alert('Không thành công', firstError || error.response?.data?.message || 'Không thể cập nhật hồ sơ.');
+      const firstError = error.response?.data?.errors
+        ? Object.values(error.response.data.errors)?.[0]?.[0]
+        : null;
+      Alert.alert(
+        'Không thành công',
+        firstError || error.response?.data?.message || 'Không thể cập nhật hồ sơ.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Chỉnh sửa hồ sơ</Text>
-        <TouchableOpacity style={styles.avatarPicker} onPress={pickAvatar}>
-          {avatar?.uri ? (
-            <Image source={{ uri: avatar.uri }} style={styles.avatarPreview} />
-          ) : (
-            <Text style={styles.avatarPickerText}>Chọn ảnh đại diện</Text>
-          )}
-        </TouchableOpacity>
-        <TextInput style={styles.input} placeholder="Họ tên" value={form.ho_ten} onChangeText={(v) => updateField('ho_ten', v)} />
-        <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" autoCapitalize="none" value={form.email} onChangeText={(v) => updateField('email', v)} />
-        <TextInput style={styles.input} placeholder="Lớp" value={form.lop} onChangeText={(v) => updateField('lop', v)} />
-        <TextInput style={styles.input} placeholder="Số điện thoại" keyboardType="phone-pad" value={form.so_dien_thoai} onChangeText={(v) => updateField('so_dien_thoai', v)} />
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <KeyboardAvoidingView
+        style={styles.keyboard}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>Chỉnh sửa hồ sơ</Text>
+          <TouchableOpacity style={styles.avatarPicker} onPress={pickAvatar}>
+            {avatar?.uri ? (
+              <Image source={{ uri: avatar.uri }} style={styles.avatarPreview} />
+            ) : user?.duong_dan_anh ? (
+              <RemoteImage path={user.duong_dan_anh} style={styles.avatarPreview} fallbackIcon="person" />
+            ) : (
+              <Text style={styles.avatarPickerText}>Chọn ảnh đại diện</Text>
+            )}
+          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Họ tên"
+            value={form.ho_ten}
+            onChangeText={(value) => updateField('ho_ten', value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={form.email}
+            onChangeText={(value) => updateField('email', value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Lớp"
+            value={form.lop}
+            onChangeText={(value) => updateField('lop', value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Số điện thoại"
+            keyboardType="phone-pad"
+            value={form.so_dien_thoai}
+            onChangeText={(value) => updateField('so_dien_thoai', value)}
+          />
 
-        <TouchableOpacity style={styles.button} onPress={save} disabled={loading}>
-          {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.buttonText}>Lưu thay đổi</Text>}
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={[styles.button, loading && styles.disabled]} onPress={save} disabled={loading}>
+            {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.buttonText}>Lưu thay đổi</Text>}
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: 20, gap: 14 },
+  keyboard: { flex: 1 },
+  content: { padding: 20, paddingBottom: 36, gap: 14 },
   title: { fontSize: 24, fontWeight: '900', color: Colors.text, marginBottom: 10 },
   avatarPicker: {
     alignSelf: 'center',
@@ -143,6 +217,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   button: { marginTop: 8, backgroundColor: Colors.primary, borderRadius: 12, alignItems: 'center', padding: 16 },
+  disabled: { opacity: 0.7 },
   buttonText: { color: Colors.white, fontSize: 15, fontWeight: '800' },
 });
 

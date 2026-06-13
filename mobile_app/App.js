@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { 
   useFonts, 
   Inter_400Regular, 
@@ -55,9 +56,11 @@ export default function App() {
   }
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <StatusBar style="auto" />
-      <AppNavigator />
-    </View>
+    <SafeAreaProvider>
+      <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+        <StatusBar style="auto" />
+        <AppNavigator />
+      </View>
+    </SafeAreaProvider>
   );
 }

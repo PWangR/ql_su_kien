@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123">
+  <rect width="794" height="1123" fill="#ffffff"/>
+  <defs>
+    <style>
+      .boundary { fill:#ffffff; stroke:#111111; stroke-width:1.2; }
+      .ellipse { fill:#ffffff; stroke:#111111; stroke-width:1.15; }
+      .line { stroke:#111111; stroke-width:1; fill:none; }
+      .dash { stroke:#111111; stroke-width:1; fill:none; stroke-dasharray:5 4; marker-end:url(#arrow); }
+      .title { font-family:"Times New Roman", serif; font-size:16px; font-weight:700; fill:#111111; }
+      .label { font-family:"Times New Roman", serif; font-size:13px; fill:#111111; }
+      .small { font-family:"Times New Roman", serif; font-size:12px; fill:#111111; }
+      .actorText { font-family:"Times New Roman", serif; font-size:13px; font-weight:700; fill:#111111; }
+      .group { font-family:"Times New Roman", serif; font-size:13px; font-weight:700; fill:#111111; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <text x="397" y="28" text-anchor="middle" class="title">Sơ đồ Use Case hệ thống quản lý sự kiện</text>
+
+  <!-- System boundary -->
+  <rect x="132" y="58" width="530" height="980" class="boundary"/>
+  <text x="397" y="82" text-anchor="middle" class="title">Hệ thống quản lý sự kiện</text>
+
+  <!-- Actors -->
+  <circle cx="62" cy="143" r="14" fill="#ffffff" stroke="#111111" stroke-width="1.2"/>
+  <path d="M62 157 L62 205 M36 174 L88 174 M62 205 L40 244 M62 205 L84 244" class="line"/>
+  <text x="62" y="268" text-anchor="middle" class="actorText">Quản trị viên</text>
+
+  <circle cx="732" cy="143" r="14" fill="#ffffff" stroke="#111111" stroke-width="1.2"/>
+  <path d="M732 157 L732 205 M706 174 L758 174 M732 205 L710 244 M732 205 L754 244" class="line"/>
+  <text x="732" y="268" text-anchor="middle" class="actorText">Sinh viên</text>
+
+  <!-- Group labels -->
+  <text x="250" y="120" text-anchor="middle" class="group">Nhóm quản trị</text>
+  <text x="397" y="120" text-anchor="middle" class="group">Dùng chung</text>
+  <text x="544" y="120" text-anchor="middle" class="group">Nhóm sinh viên</text>
+
+  <!-- Shared use cases -->
+  <ellipse cx="397" cy="160" rx="76" ry="24" class="ellipse"/>
+  <text x="397" y="164" text-anchor="middle" class="label">Đăng nhập</text>
+
+  <ellipse cx="397" cy="220" rx="76" ry="24" class="ellipse"/>
+  <text x="397" y="216" text-anchor="middle" class="label">Cập nhật hồ sơ</text>
+  <text x="397" y="231" text-anchor="middle" class="label">cá nhân</text>
+
+  <ellipse cx="397" cy="280" rx="76" ry="24" class="ellipse"/>
+  <text x="397" y="284" text-anchor="middle" class="label">Đổi mật khẩu</text>
+
+  <!-- Admin use cases -->
+  <ellipse cx="250" cy="160" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="156" text-anchor="middle" class="label">Quản lý tài khoản</text>
+  <text x="250" y="171" text-anchor="middle" class="label">người dùng</text>
+
+  <ellipse cx="250" cy="220" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="216" text-anchor="middle" class="label">Quản lý loại</text>
+  <text x="250" y="231" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="250" cy="280" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="284" text-anchor="middle" class="label">Quản lý sự kiện</text>
+
+  <ellipse cx="250" cy="340" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="336" text-anchor="middle" class="label">Quản lý bài đăng</text>
+  <text x="250" y="351" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="250" cy="400" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="404" text-anchor="middle" class="label">Quản lý đăng ký</text>
+
+  <ellipse cx="250" cy="460" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="456" text-anchor="middle" class="label">Điểm danh</text>
+  <text x="250" y="471" text-anchor="middle" class="label">sinh viên</text>
+
+  <ellipse cx="250" cy="520" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="516" text-anchor="middle" class="label">Quản lý điểm</text>
+  <text x="250" y="531" text-anchor="middle" class="label">rèn luyện</text>
+
+  <ellipse cx="250" cy="580" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="584" text-anchor="middle" class="label">Gửi thông báo</text>
+
+  <ellipse cx="250" cy="640" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="644" text-anchor="middle" class="label">Xem thống kê</text>
+
+  <ellipse cx="250" cy="700" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="704" text-anchor="middle" class="label">Xuất báo cáo</text>
+
+  <ellipse cx="250" cy="760" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="756" text-anchor="middle" class="label">Quản lý thư viện</text>
+  <text x="250" y="771" text-anchor="middle" class="label">media</text>
+
+  <ellipse cx="250" cy="820" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="816" text-anchor="middle" class="label">Quản lý bầu cử</text>
+  <text x="250" y="831" text-anchor="middle" class="label">trực tuyến</text>
+
+  <ellipse cx="250" cy="880" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="876" text-anchor="middle" class="label">Cấu hình email</text>
+  <text x="250" y="891" text-anchor="middle" class="label">và chatbot</text>
+
+  <ellipse cx="250" cy="940" rx="78" ry="24" class="ellipse"/>
+  <text x="250" y="936" text-anchor="middle" class="label">Xem nhật ký</text>
+  <text x="250" y="951" text-anchor="middle" class="label">hoạt động</text>
+
+  <!-- Student use cases -->
+  <ellipse cx="544" cy="160" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="156" text-anchor="middle" class="label">Đăng ký</text>
+  <text x="544" y="171" text-anchor="middle" class="label">tài khoản</text>
+
+  <ellipse cx="544" cy="220" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="216" text-anchor="middle" class="label">Xem danh sách</text>
+  <text x="544" y="231" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="544" cy="280" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="276" text-anchor="middle" class="label">Tìm kiếm và lọc</text>
+  <text x="544" y="291" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="544" cy="340" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="336" text-anchor="middle" class="label">Xem chi tiết</text>
+  <text x="544" y="351" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="544" cy="400" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="396" text-anchor="middle" class="label">Đăng ký</text>
+  <text x="544" y="411" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="544" cy="460" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="456" text-anchor="middle" class="label">Hủy đăng ký</text>
+  <text x="544" y="471" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="544" cy="520" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="516" text-anchor="middle" class="label">Điểm danh</text>
+  <text x="544" y="531" text-anchor="middle" class="label">bằng mã QR</text>
+
+  <ellipse cx="544" cy="580" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="576" text-anchor="middle" class="label">Xem lịch sử</text>
+  <text x="544" y="591" text-anchor="middle" class="label">tham gia</text>
+
+  <ellipse cx="544" cy="640" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="636" text-anchor="middle" class="label">Xem điểm</text>
+  <text x="544" y="651" text-anchor="middle" class="label">rèn luyện</text>
+
+  <ellipse cx="544" cy="700" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="704" text-anchor="middle" class="label">Nhận thông báo</text>
+
+  <ellipse cx="544" cy="760" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="756" text-anchor="middle" class="label">Tham gia bầu cử</text>
+  <text x="544" y="771" text-anchor="middle" class="label">trực tuyến</text>
+
+  <ellipse cx="544" cy="820" rx="78" ry="24" class="ellipse"/>
+  <text x="544" y="816" text-anchor="middle" class="label">Sử dụng chatbot</text>
+  <text x="544" y="831" text-anchor="middle" class="label">tra cứu</text>
+
+  <!-- Actor connector hubs -->
+  <path d="M91 174 L132 174" class="line"/>
+  <path d="M132 174 L160 160" class="line"/>
+  <path d="M132 174 L160 220" class="line"/>
+  <path d="M132 174 L160 280" class="line"/>
+  <path d="M132 174 L160 340" class="line"/>
+  <path d="M132 174 L160 400" class="line"/>
+  <path d="M132 174 L160 460" class="line"/>
+  <path d="M132 174 L160 520" class="line"/>
+  <path d="M132 174 L160 580" class="line"/>
+  <path d="M132 174 L160 640" class="line"/>
+  <path d="M132 174 L160 700" class="line"/>
+  <path d="M132 174 L160 760" class="line"/>
+  <path d="M132 174 L160 820" class="line"/>
+  <path d="M132 174 L160 880" class="line"/>
+  <path d="M132 174 L160 940" class="line"/>
+  <path d="M91 174 L321 160" class="line"/>
+
+  <path d="M703 174 L662 174" class="line"/>
+  <path d="M662 174 L624 160" class="line"/>
+  <path d="M662 174 L624 220" class="line"/>
+  <path d="M662 174 L624 280" class="line"/>
+  <path d="M662 174 L624 340" class="line"/>
+  <path d="M662 174 L624 400" class="line"/>
+  <path d="M662 174 L624 460" class="line"/>
+  <path d="M662 174 L624 520" class="line"/>
+  <path d="M662 174 L624 580" class="line"/>
+  <path d="M662 174 L624 640" class="line"/>
+  <path d="M662 174 L624 700" class="line"/>
+  <path d="M662 174 L624 760" class="line"/>
+  <path d="M662 174 L624 820" class="line"/>
+  <path d="M703 174 L473 160" class="line"/>
+  <path d="M703 174 L473 220" class="line"/>
+  <path d="M703 174 L473 280" class="line"/>
+
+  <!-- Include / extend relations kept minimal -->
+  <path d="M544 376 L544 364" class="dash"/>
+  <text x="575" y="376" class="small">&lt;&lt;extend&gt;&gt;</text>
+  <path d="M544 496 L544 424" class="dash"/>
+  <text x="575" y="480" class="small">&lt;&lt;include&gt;&gt;</text>
+  <path d="M328 340 L405 280" class="dash"/>
+  <text x="337" y="302" class="small">&lt;&lt;include&gt;&gt;</text>
+  <path d="M250 676 L250 664" class="dash"/>
+  <text x="280" y="674" class="small">&lt;&lt;extend&gt;&gt;</text>
+
+  <text x="397" y="1078" text-anchor="middle" class="small">Hình: Sơ đồ Use Case của hệ thống quản lý sự kiện</text>
+</svg>

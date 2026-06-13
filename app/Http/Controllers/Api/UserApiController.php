@@ -3,57 +3,56 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreNguoiDungRequest;
 use App\Models\User;
 use App\Services\UserService;
-use App\Http\Requests\StoreNguoiDungRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class UserApiController extends Controller
 {
-    protected $userService;
+    protected UserService $userService;
 
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
     }
 
-    /**
-     * Lấy hồ sơ người dùng hiện tại
-     */
     public function profile()
     {
-        try {
-            $user = auth()->user();
-
-            return response()->json([
-                'success' => true,
-                'data' => $user
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi lấy hồ sơ',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'data' => auth()->user(),
+        ]);
     }
 
-    /**
-     * Cập nhật hồ sơ người dùng
-     */
     public function updateProfile(Request $request)
     {
         try {
             $user = auth()->user();
 
             $validated = $request->validate([
-                'ho_ten' => 'sometimes|string|max:100',
-                'lop' => 'sometimes|string|max:10',
-                'email' => 'sometimes|email|unique:nguoi_dung,email,' . $user->ma_sinh_vien . ',ma_sinh_vien',
-                'so_dien_thoai' => 'sometimes|string|max:15',
-                'duong_dan_anh' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'ho_ten' => 'sometimes|required|string|max:100',
+                'lop' => 'nullable|string|max:10',
+                'email' => 'sometimes|required|email|unique:nguoi_dung,email,' . $user->ma_sinh_vien . ',ma_sinh_vien',
+                'so_dien_thoai' => 'nullable|string|max:15',
+                'duong_dan_anh' => 'sometimes|file|mimes:jpeg,png,jpg,gif,webp,heic,heif|max:5120',
+                'avatar' => 'sometimes|file|mimes:jpeg,png,jpg,gif,webp,heic,heif|max:5120',
+            ], [
+                'ho_ten.required' => 'Vui lòng nhập họ tên.',
+                'ho_ten.max' => 'Họ tên không được vượt quá 100 ký tự.',
+                'lop.max' => 'Lớp không được vượt quá 10 ký tự.',
+                'email.required' => 'Vui lòng nhập email.',
+                'email.email' => 'Email không đúng định dạng.',
+                'email.unique' => 'Email này đã được sử dụng.',
+                'so_dien_thoai.max' => 'Số điện thoại không được vượt quá 15 ký tự.',
+                'duong_dan_anh.file' => 'Ảnh đại diện tải lên không hợp lệ.',
+                'duong_dan_anh.mimes' => 'Ảnh đại diện phải có định dạng jpeg, png, jpg, gif, webp, heic hoặc heif.',
+                'duong_dan_anh.max' => 'Ảnh đại diện không được vượt quá 5MB.',
+                'avatar.file' => 'Ảnh đại diện tải lên không hợp lệ.',
+                'avatar.mimes' => 'Ảnh đại diện phải có định dạng jpeg, png, jpg, gif, webp, heic hoặc heif.',
+                'avatar.max' => 'Ảnh đại diện không được vượt quá 5MB.',
             ]);
 
             if ($request->hasFile('avatar') && !$request->hasFile('duong_dan_anh')) {
@@ -66,20 +65,23 @@ class UserApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật hồ sơ thành công',
-                'data' => $user->fresh()
+                'data' => $user->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu cập nhật không hợp lệ',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi cập nhật hồ sơ',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Đổi mật khẩu
-     */
     public function changePassword(Request $request)
     {
         try {
@@ -93,36 +95,39 @@ class UserApiController extends Controller
             if (!Hash::check($validated['current_password'], $user->mat_khau)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Mat khau hien tai khong dung'
+                    'message' => 'Mat khau hien tai khong dung',
                 ], 422);
             }
 
             $this->userService->updateUser($user, [
-                'mat_khau' => $validated['password']
+                'mat_khau' => $validated['password'],
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Đổi mật khẩu thành công'
+                'message' => 'Doi mat khau thanh cong',
             ]);
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi đổi mật khẩu',
-                'error' => $e->getMessage()
+                'message' => 'Du lieu doi mat khau khong hop le',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi doi mat khau',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Lấy danh sách người dùng (admin)
-     */
     public function index()
     {
         try {
             $users = $this->userService->getAllUsers(
-                \request('limit', 20),
-                \request('page', 1)
+                request('limit', 20),
+                request('page', 1)
             );
 
             return response()->json([
@@ -132,20 +137,18 @@ class UserApiController extends Controller
                     'current_page' => $users->currentPage(),
                     'per_page' => $users->perPage(),
                     'total' => $users->total(),
-                ]
+                    'last_page' => $users->lastPage(),
+                ],
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi lấy danh sách người dùng',
-                'error' => $e->getMessage()
+                'message' => 'Loi khi lay danh sach nguoi dung',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Tạo người dùng mới (admin)
-     */
     public function store(StoreNguoiDungRequest $request)
     {
         try {
@@ -153,21 +156,18 @@ class UserApiController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Tạo người dùng thành công',
-                'data' => $user
+                'message' => 'Tao nguoi dung thanh cong',
+                'data' => $user,
             ], 201);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi tạo người dùng',
-                'error' => $e->getMessage()
+                'message' => 'Loi khi tao nguoi dung',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Cập nhật người dùng (admin)
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -176,14 +176,14 @@ class UserApiController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Người dùng không tồn tại'
+                    'message' => 'Nguoi dung khong ton tai',
                 ], 404);
             }
 
             $validated = $request->validate([
                 'ho_ten' => 'sometimes|string|max:100',
                 'email' => 'sometimes|email|unique:nguoi_dung,email,' . $id . ',ma_sinh_vien',
-                'so_dien_thoai' => 'sometimes|string|max:15',
+                'so_dien_thoai' => 'nullable|string|max:15',
                 'vai_tro' => 'sometimes|in:admin,sinh_vien',
                 'trang_thai' => 'sometimes|in:hoat_dong,khong_hoat_dong,bi_khoa',
             ]);
@@ -192,21 +192,24 @@ class UserApiController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cập nhật người dùng thành công',
-                'data' => $user->fresh()
+                'message' => 'Cap nhat nguoi dung thanh cong',
+                'data' => $user->fresh(),
             ]);
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi cập nhật người dùng',
-                'error' => $e->getMessage()
+                'message' => 'Du lieu nguoi dung khong hop le',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi cap nhat nguoi dung',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Xóa người dùng (admin)
-     */
     public function destroy($id)
     {
         try {
@@ -215,7 +218,7 @@ class UserApiController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Người dùng không tồn tại'
+                    'message' => 'Nguoi dung khong ton tai',
                 ], 404);
             }
 
@@ -223,51 +226,28 @@ class UserApiController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Xóa người dùng thành công'
+                'message' => 'Xoa nguoi dung thanh cong',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi xóa người dùng',
-                'error' => $e->getMessage()
+                'message' => 'Loi khi xoa nguoi dung',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Khóa tài khoản (admin)
-     */
     public function lock($id)
     {
-        try {
-            $user = User::find($id);
-
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Người dùng không tồn tại'
-                ], 404);
-            }
-
-            $this->userService->lockUser($user);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Khóa tài khoản thành công'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Lỗi khi khóa tài khoản',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return $this->setLockState($id, true);
     }
 
-    /**
-     * Mở khóa tài khoản (admin)
-     */
     public function unlock($id)
+    {
+        return $this->setLockState($id, false);
+    }
+
+    private function setLockState($id, bool $locked)
     {
         try {
             $user = User::find($id);
@@ -275,42 +255,37 @@ class UserApiController extends Controller
             if (!$user) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Người dùng không tồn tại'
+                    'message' => 'Nguoi dung khong ton tai',
                 ], 404);
             }
 
-            $this->userService->unlockUser($user);
+            $locked ? $this->userService->lockUser($user) : $this->userService->unlockUser($user);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Mở khóa tài khoản thành công'
+                'message' => $locked ? 'Khoa tai khoan thanh cong' : 'Mo khoa tai khoan thanh cong',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi mở khóa tài khoản',
-                'error' => $e->getMessage()
+                'message' => 'Loi khi cap nhat trang thai tai khoan',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
 
-    /**
-     * Thống kê người dùng (admin)
-     */
     public function statistics()
     {
         try {
-            $stats = $this->userService->getUserStatistics();
-
             return response()->json([
                 'success' => true,
-                'data' => $stats
+                'data' => $this->userService->getUserStatistics(),
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi khi lấy thống kê',
-                'error' => $e->getMessage()
+                'message' => 'Loi khi thong ke nguoi dung',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

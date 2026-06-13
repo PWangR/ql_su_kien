@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api, { setUnauthorizedHandler } from '../services/api';
+import api, { BASE_URL, setUnauthorizedHandler } from '../services/api';
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -41,9 +41,14 @@ const useAuthStore = create((set) => ({
       set({ token, user, isLoading: false });
       return { success: true };
     } catch (error) {
+      const isNetworkError = !error.response;
       return {
         success: false,
-        message: error.response?.data?.message || 'Khong the ket noi toi may chu. Vui long kiem tra mang.',
+        message: error.response?.data?.message || (
+          isNetworkError
+            ? `Khong the ket noi toi may chu: ${BASE_URL}. Hay kiem tra Laravel dang chay va dien thoai cung mang Wi-Fi.`
+            : 'Khong the ket noi toi may chu. Vui long thu lai.'
+        ),
         errors: error.response?.data?.errors,
       };
     }

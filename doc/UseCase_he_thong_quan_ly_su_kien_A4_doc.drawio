@@ -1,0 +1,105 @@
+<mxfile host="app.diagrams.net" modified="2026-05-28T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="usecase-qlsk-a4" name="Use Case A4 doc">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="794" pageHeight="1123" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Sơ đồ Use Case hệ thống quản lý sự kiện" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="197" y="8" width="400" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="sys" value="Hệ thống quản lý sự kiện" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=16;fontStyle=1;align=center;verticalAlign=top;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="132" y="58" width="530" height="980" as="geometry"/>
+        </mxCell>
+        <mxCell id="admin" value="Quản trị viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="34" y="125" width="56" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="student" value="Sinh viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontFamily=Times New Roman;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="704" y="125" width="56" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="g1" value="Nhóm quản trị" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontFamily=Times New Roman;fontSize=13;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="190" y="104" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="g2" value="Dùng chung" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontFamily=Times New Roman;fontSize=13;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="337" y="104" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="g3" value="Nhóm sinh viên" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontFamily=Times New Roman;fontSize=13;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="484" y="104" width="120" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="adminHub" value="" style="ellipse;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="128" y="170" width="4" height="4" as="geometry"/>
+        </mxCell>
+        <mxCell id="studentHub" value="" style="ellipse;html=1;fillColor=#ffffff;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="662" y="170" width="4" height="4" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_admin_users" value="Quản lý tài khoản&lt;br&gt;người dùng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="136" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_types" value="Quản lý loại&lt;br&gt;sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="196" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_events" value="Quản lý sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="256" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_posts" value="Quản lý bài đăng&lt;br&gt;sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="316" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_regs" value="Quản lý đăng ký" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="376" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_checkin" value="Điểm danh&lt;br&gt;sinh viên" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="436" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_points" value="Quản lý điểm&lt;br&gt;rèn luyện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="496" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_notify" value="Gửi thông báo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="556" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_stats" value="Xem thống kê" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="616" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_export" value="Xuất báo cáo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="676" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_media" value="Quản lý thư viện&lt;br&gt;media" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="736" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_vote" value="Quản lý bầu cử&lt;br&gt;trực tuyến" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="796" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_config" value="Cấu hình email&lt;br&gt;và chatbot" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="856" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_admin_log" value="Xem nhật ký&lt;br&gt;hoạt động" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="172" y="916" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_login" value="Đăng nhập" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="321" y="136" width="152" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_profile" value="Cập nhật hồ sơ&lt;br&gt;cá nhân" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="321" y="196" width="152" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_password" value="Đổi mật khẩu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="321" y="256" width="152" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_register" value="Đăng ký&lt;br&gt;tài khoản" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="136" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_list" value="Xem danh sách&lt;br&gt;sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="196" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_filter" value="Tìm kiếm và lọc&lt;br&gt;sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="256" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_detail" value="Xem chi tiết&lt;br&gt;sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="316" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_reg_event" value="Đăng ký&lt;br&gt;sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="376" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_cancel" value="Hủy đăng ký&lt;br&gt;sự kiện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="436" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_qr" value="Điểm danh&lt;br&gt;bằng mã QR" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="496" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_history" value="Xem lịch sử&lt;br&gt;tham gia" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="556" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_points" value="Xem điểm&lt;br&gt;rèn luyện" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="616" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_notify" value="Nhận thông báo" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="676" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_vote" value="Tham gia bầu cử&lt;br&gt;trực tuyến" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="736" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="uc_student_chat" value="Sử dụng chatbot&lt;br&gt;tra cứu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontFamily=Times New Roman;fontSize=13;" vertex="1" parent="1"><mxGeometry x="466" y="796" width="156" height="48" as="geometry"/></mxCell>
+        <mxCell id="cap" value="Hình: Sơ đồ Use Case của hệ thống quản lý sự kiện" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="247" y="1060" width="300" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_admin_hub" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="admin" target="adminHub"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_hub" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="student" target="studentHub"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_login"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_profile" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_profile"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_password" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_password"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_users"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_types" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_types"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_events" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_events"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_posts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_posts"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_regs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_regs"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_checkin" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_checkin"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_points" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_points"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_notify" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_notify"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_stats" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_stats"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_export" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_export"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_media" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_media"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_vote" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_vote"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_config" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_config"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_admin_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="adminHub" target="uc_admin_log"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_register" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_register"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_list" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_list"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_filter" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_filter"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_detail" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_detail"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_reg_event" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_reg_event"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_cancel" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_cancel"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_qr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_qr"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_history" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_history"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_points" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_points"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_notify" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_notify"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_vote" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_vote"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="a_student_chat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=none;strokeColor=#000000;" edge="1" parent="1" source="studentHub" target="uc_student_chat"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="rel_detail_register" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;strokeColor=#000000;fontFamily=Times New Roman;fontSize=12;" edge="1" parent="1" source="uc_student_reg_event" target="uc_student_detail"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="rel_register_qr" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;strokeColor=#000000;fontFamily=Times New Roman;fontSize=12;" edge="1" parent="1" source="uc_student_qr" target="uc_student_reg_event"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="rel_posts_events" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;strokeColor=#000000;fontFamily=Times New Roman;fontSize=12;" edge="1" parent="1" source="uc_admin_posts" target="uc_admin_events"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="rel_export_stats" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;endArrow=open;strokeColor=#000000;fontFamily=Times New Roman;fontSize=12;" edge="1" parent="1" source="uc_admin_export" target="uc_admin_stats"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

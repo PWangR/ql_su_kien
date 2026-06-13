@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123">
+  <rect width="794" height="1123" fill="#ffffff"/>
+  <defs>
+    <style>
+      .box { fill:#ffffff; stroke:#111111; stroke-width:1.2; }
+      .title { font-family:"Times New Roman", serif; font-size:15px; font-weight:700; fill:#111111; }
+      .text { font-family:"Times New Roman", serif; font-size:13px; fill:#111111; }
+      .small { font-family:"Times New Roman", serif; font-size:12.5px; fill:#111111; }
+      .line { stroke:#111111; stroke-width:1.2; fill:none; marker-end:url(#arrow); }
+      .plain { stroke:#111111; stroke-width:1.2; fill:none; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <text x="397" y="24" text-anchor="middle" class="title">Sơ đồ phân rã chức năng BFD</text>
+
+  <rect x="287" y="40" width="220" height="52" class="box"/>
+  <text x="397" y="61" text-anchor="middle" class="title">Hệ thống quản lý</text>
+  <text x="397" y="79" text-anchor="middle" class="title">sự kiện</text>
+
+  <!-- Row 1 bus -->
+  <path d="M397 92 L397 120" class="plain"/>
+  <path d="M125 120 L665 120" class="plain"/>
+  <path d="M125 120 L125 145" class="line"/>
+  <path d="M305 120 L305 145" class="line"/>
+  <path d="M485 120 L485 145" class="line"/>
+  <path d="M665 120 L665 145" class="line"/>
+
+  <!-- Row 2 bus -->
+  <path d="M397 92 L397 430" class="plain"/>
+  <path d="M175 430 L619 430" class="plain"/>
+  <path d="M175 430 L175 460" class="line"/>
+  <path d="M397 430 L397 460" class="line"/>
+  <path d="M619 430 L619 460" class="line"/>
+
+  <!-- Row 1 headers -->
+  <rect x="45" y="145" width="160" height="48" class="box"/>
+  <text x="125" y="164" text-anchor="middle" class="title">Tài khoản</text>
+  <text x="125" y="181" text-anchor="middle" class="title">và xác thực</text>
+
+  <rect x="225" y="145" width="160" height="48" class="box"/>
+  <text x="305" y="174" text-anchor="middle" class="title">Sự kiện</text>
+
+  <rect x="405" y="145" width="160" height="48" class="box"/>
+  <text x="485" y="164" text-anchor="middle" class="title">Đăng ký</text>
+  <text x="485" y="181" text-anchor="middle" class="title">và điểm danh</text>
+
+  <rect x="585" y="145" width="160" height="48" class="box"/>
+  <text x="665" y="164" text-anchor="middle" class="title">Điểm</text>
+  <text x="665" y="181" text-anchor="middle" class="title">rèn luyện</text>
+
+  <!-- Row 1 details -->
+  <path d="M125 193 L125 210" class="line"/>
+  <rect x="45" y="210" width="160" height="130" class="box"/>
+  <text x="57" y="233" class="text">- Đăng ký tài khoản</text>
+  <text x="57" y="255" class="text">- Đăng nhập, đăng xuất</text>
+  <text x="57" y="277" class="text">- Cập nhật hồ sơ</text>
+  <text x="57" y="299" class="text">- Đổi mật khẩu</text>
+  <text x="57" y="321" class="text">- Quản lý người dùng</text>
+
+  <path d="M305 193 L305 210" class="line"/>
+  <rect x="225" y="210" width="160" height="130" class="box"/>
+  <text x="237" y="233" class="text">- Quản lý loại sự kiện</text>
+  <text x="237" y="255" class="text">- Tạo, sửa, xóa sự kiện</text>
+  <text x="237" y="277" class="text">- Quản lý bài đăng</text>
+  <text x="237" y="299" class="text">- Tìm kiếm, lọc</text>
+  <text x="237" y="321" class="text">- Xem chi tiết sự kiện</text>
+
+  <path d="M485 193 L485 210" class="line"/>
+  <rect x="405" y="210" width="160" height="130" class="box"/>
+  <text x="417" y="233" class="text">- Đăng ký sự kiện</text>
+  <text x="417" y="255" class="text">- Hủy đăng ký</text>
+  <text x="417" y="277" class="text">- Quản lý danh sách</text>
+  <text x="417" y="299" class="text">- Điểm danh QR</text>
+  <text x="417" y="321" class="text">- Điểm danh 2 bước</text>
+
+  <path d="M665 193 L665 210" class="line"/>
+  <rect x="585" y="210" width="160" height="130" class="box"/>
+  <text x="597" y="233" class="text">- Cộng điểm</text>
+  <text x="597" y="255" class="text">- Điều chỉnh điểm</text>
+  <text x="597" y="277" class="text">- Lịch sử điểm</text>
+  <text x="597" y="299" class="text">- Thống kê điểm</text>
+
+  <!-- Row 2 headers -->
+  <rect x="95" y="460" width="160" height="48" class="box"/>
+  <text x="175" y="489" text-anchor="middle" class="title">Thông báo</text>
+
+  <rect x="317" y="460" width="160" height="48" class="box"/>
+  <text x="397" y="479" text-anchor="middle" class="title">Báo cáo</text>
+  <text x="397" y="496" text-anchor="middle" class="title">thống kê</text>
+
+  <rect x="539" y="460" width="160" height="48" class="box"/>
+  <text x="619" y="479" text-anchor="middle" class="title">Chức năng</text>
+  <text x="619" y="496" text-anchor="middle" class="title">mở rộng</text>
+
+  <!-- Row 2 details -->
+  <path d="M175 508 L175 525" class="line"/>
+  <rect x="95" y="525" width="160" height="120" class="box"/>
+  <text x="107" y="548" class="text">- Gửi thông báo</text>
+  <text x="107" y="570" class="text">- Xem thông báo</text>
+  <text x="107" y="592" class="text">- Đánh dấu đã đọc</text>
+  <text x="107" y="614" class="text">- Xóa thông báo</text>
+
+  <path d="M397 508 L397 525" class="line"/>
+  <rect x="317" y="525" width="160" height="120" class="box"/>
+  <text x="329" y="548" class="text">- Thống kê tổng quan</text>
+  <text x="329" y="570" class="text">- Thống kê sự kiện</text>
+  <text x="329" y="592" class="text">- Thống kê đăng ký</text>
+  <text x="329" y="614" class="text">- Xuất báo cáo Excel</text>
+
+  <path d="M619 508 L619 525" class="line"/>
+  <rect x="539" y="525" width="160" height="120" class="box"/>
+  <text x="551" y="548" class="text">- Quản lý media</text>
+  <text x="551" y="570" class="text">- Bầu cử trực tuyến</text>
+  <text x="551" y="592" class="text">- Chatbot tra cứu</text>
+  <text x="551" y="614" class="text">- Cấu hình hệ thống</text>
+
+  <text x="397" y="700" text-anchor="middle" class="small">Hình: Sơ đồ BFD của hệ thống quản lý sự kiện</text>
+</svg>

@@ -1,17 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
+  ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
-  SafeAreaView,
-  StatusBar
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
 import Colors from '../constants/Colors';
@@ -28,9 +28,9 @@ const ChatbotScreen = ({ navigation }) => {
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const flatListRef = useRef();
+  const flatListRef = useRef(null);
 
-  const handleSend = async () => {
+  const handleSend = useCallback(async () => {
     if (!input.trim() || loading) return;
 
     const userMessage = {
@@ -66,10 +66,11 @@ const ChatbotScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [input, loading]);
 
-  const renderMessage = ({ item }) => {
+  const renderMessage = useCallback(({ item }) => {
     const isAi = item.sender === 'ai';
+
     return (
       <View style={[styles.messageWrapper, isAi ? styles.aiWrapper : styles.userWrapper]}>
         {isAi && (
@@ -77,18 +78,20 @@ const ChatbotScreen = ({ navigation }) => {
             <MaterialIcons name="auto-awesome" size={16} color={Colors.white} />
           </View>
         )}
-        <View style={[
-          styles.messageBubble, 
-          isAi ? styles.aiBubble : styles.userBubble,
-          item.isError && styles.errorBubble
-        ]}>
+        <View
+          style={[
+            styles.messageBubble,
+            isAi ? styles.aiBubble : styles.userBubble,
+            item.isError && styles.errorBubble,
+          ]}
+        >
           <Text style={[Typography.body, isAi ? styles.aiText : styles.userText]}>
             {item.text}
           </Text>
         </View>
       </View>
     );
-  };
+  }, []);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -99,10 +102,10 @@ const ChatbotScreen = ({ navigation }) => {
   }, [messages]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={10}>
           <MaterialIcons name="close" size={24} color={Colors.text} />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
@@ -144,8 +147,8 @@ const ChatbotScreen = ({ navigation }) => {
             onChangeText={setInput}
             multiline
           />
-          <TouchableOpacity 
-            style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]} 
+          <TouchableOpacity
+            style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]}
             onPress={handleSend}
             disabled={!input.trim() || loading}
           >
@@ -159,14 +162,14 @@ const ChatbotScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8FAFC' },
-  header: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 16, 
-    backgroundColor: Colors.white, 
-    borderBottomWidth: 1, 
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
     borderBottomColor: Colors.border,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   headerTitleContainer: { alignItems: 'center' },
   statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
@@ -176,18 +179,45 @@ const styles = StyleSheet.create({
   messageWrapper: { marginBottom: 16, maxWidth: '80%' },
   aiWrapper: { alignSelf: 'flex-start', flexDirection: 'row', gap: 8 },
   userWrapper: { alignSelf: 'flex-end' },
-  aiAvatar: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#4F46E5', justifyContent: 'center', alignItems: 'center' },
+  aiAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#4F46E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   messageBubble: { padding: 12, borderRadius: 12 },
-  aiBubble: { backgroundColor: Colors.white, borderTopLeftRadius: 0, borderWidth: 1, borderColor: Colors.border },
+  aiBubble: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: 0,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
   userBubble: { backgroundColor: '#4F46E5', borderTopRightRadius: 0 },
   aiText: { color: Colors.text },
   userText: { color: Colors.white },
   errorBubble: { backgroundColor: Colors.dangerBg, borderColor: Colors.danger },
   loadingBox: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, marginBottom: 16 },
   inputArea: { padding: 16, backgroundColor: Colors.white, borderTopWidth: 1, borderTopColor: Colors.border },
-  inputBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 24, paddingLeft: 16, paddingRight: 4, paddingVertical: 4 },
+  inputBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 24,
+    paddingLeft: 16,
+    paddingRight: 4,
+    paddingVertical: 4,
+  },
   input: { flex: 1, maxHeight: 100, fontSize: 15, paddingVertical: 8 },
-  sendBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#4F46E5', justifyContent: 'center', alignItems: 'center' },
+  sendBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#4F46E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   sendBtnDisabled: { backgroundColor: Colors.border },
 });
 

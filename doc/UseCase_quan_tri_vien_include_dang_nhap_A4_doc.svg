@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123">
+  <rect width="794" height="1123" fill="#ffffff"/>
+  <defs>
+    <style>
+      .boundary { fill:#ffffff; stroke:#111111; stroke-width:1.2; }
+      .ellipse { fill:#ffffff; stroke:#111111; stroke-width:1.15; }
+      .line { stroke:#111111; stroke-width:1.1; fill:none; }
+      .dash { stroke:#111111; stroke-width:1; fill:none; stroke-dasharray:5 4; }
+      .dashArrow { stroke:#111111; stroke-width:1; fill:none; stroke-dasharray:5 4; marker-end:url(#arrow); }
+      .title { font-family:"Times New Roman", serif; font-size:16px; font-weight:700; fill:#111111; }
+      .label { font-family:"Times New Roman", serif; font-size:13px; fill:#111111; }
+      .small { font-family:"Times New Roman", serif; font-size:12px; fill:#111111; }
+      .actorText { font-family:"Times New Roman", serif; font-size:13px; font-weight:700; fill:#111111; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <text x="397" y="34" text-anchor="middle" class="title">Sơ đồ Use Case - Quản trị viên</text>
+
+  <rect x="122" y="68" width="625" height="900" class="boundary"/>
+  <text x="435" y="96" text-anchor="middle" class="title">Hệ thống quản lý sự kiện</text>
+
+  <!-- Actor -->
+  <circle cx="58" cy="205" r="14" fill="#ffffff" stroke="#111111" stroke-width="1.2"/>
+  <path d="M58 219 L58 267 M32 236 L84 236 M58 267 L36 307 M58 267 L80 307" class="line"/>
+  <text x="58" y="332" text-anchor="middle" class="actorText">Quản trị viên</text>
+
+  <!-- Solid association spine -->
+  <path d="M88 236 L122 236" class="line"/>
+  <path d="M122 150 L122 850" class="line"/>
+
+  <!-- Login use case -->
+  <ellipse cx="655" cy="500" rx="78" ry="28" class="ellipse"/>
+  <text x="655" y="504" text-anchor="middle" class="label">Đăng nhập</text>
+
+  <!-- Include bus -->
+  <path d="M525 150 L525 850" class="dash"/>
+  <path d="M525 500 L577 500" class="dashArrow"/>
+  <text x="545" y="486" class="small">&lt;&lt;include&gt;&gt;</text>
+
+  <!-- Use cases -->
+  <ellipse cx="320" cy="150" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="146" text-anchor="middle" class="label">Quản lý tài khoản</text>
+  <text x="320" y="161" text-anchor="middle" class="label">người dùng</text>
+
+  <ellipse cx="320" cy="200" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="196" text-anchor="middle" class="label">Quản lý loại</text>
+  <text x="320" y="211" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="320" cy="250" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="254" text-anchor="middle" class="label">Quản lý sự kiện</text>
+
+  <ellipse cx="320" cy="300" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="296" text-anchor="middle" class="label">Quản lý bài đăng</text>
+  <text x="320" y="311" text-anchor="middle" class="label">sự kiện</text>
+
+  <ellipse cx="320" cy="350" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="354" text-anchor="middle" class="label">Quản lý đăng ký</text>
+
+  <ellipse cx="320" cy="400" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="396" text-anchor="middle" class="label">Điểm danh</text>
+  <text x="320" y="411" text-anchor="middle" class="label">sinh viên</text>
+
+  <ellipse cx="320" cy="450" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="446" text-anchor="middle" class="label">Quản lý điểm</text>
+  <text x="320" y="461" text-anchor="middle" class="label">rèn luyện</text>
+
+  <ellipse cx="320" cy="500" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="504" text-anchor="middle" class="label">Gửi thông báo</text>
+
+  <ellipse cx="320" cy="550" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="554" text-anchor="middle" class="label">Xem thống kê</text>
+
+  <ellipse cx="320" cy="600" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="604" text-anchor="middle" class="label">Xuất báo cáo</text>
+
+  <ellipse cx="320" cy="650" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="646" text-anchor="middle" class="label">Quản lý thư viện</text>
+  <text x="320" y="661" text-anchor="middle" class="label">media</text>
+
+  <ellipse cx="320" cy="700" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="696" text-anchor="middle" class="label">Quản lý bầu cử</text>
+  <text x="320" y="711" text-anchor="middle" class="label">trực tuyến</text>
+
+  <ellipse cx="320" cy="750" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="754" text-anchor="middle" class="label">Cấu hình email</text>
+
+  <ellipse cx="320" cy="800" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="804" text-anchor="middle" class="label">Cấu hình chatbot</text>
+
+  <ellipse cx="320" cy="850" rx="125" ry="25" class="ellipse"/>
+  <text x="320" y="846" text-anchor="middle" class="label">Xem nhật ký</text>
+  <text x="320" y="861" text-anchor="middle" class="label">hoạt động</text>
+
+  <!-- Association branches -->
+  <path d="M122 236 L560 236 L560 500 L577 500" class="line"/>
+  <path d="M122 150 L195 150" class="line"/>
+  <path d="M122 200 L195 200" class="line"/>
+  <path d="M122 250 L195 250" class="line"/>
+  <path d="M122 300 L195 300" class="line"/>
+  <path d="M122 350 L195 350" class="line"/>
+  <path d="M122 400 L195 400" class="line"/>
+  <path d="M122 450 L195 450" class="line"/>
+  <path d="M122 500 L195 500" class="line"/>
+  <path d="M122 550 L195 550" class="line"/>
+  <path d="M122 600 L195 600" class="line"/>
+  <path d="M122 650 L195 650" class="line"/>
+  <path d="M122 700 L195 700" class="line"/>
+  <path d="M122 750 L195 750" class="line"/>
+  <path d="M122 800 L195 800" class="line"/>
+  <path d="M122 850 L195 850" class="line"/>
+
+  <!-- Include branches -->
+  <path d="M445 150 L525 150" class="dash"/>
+  <path d="M445 200 L525 200" class="dash"/>
+  <path d="M445 250 L525 250" class="dash"/>
+  <path d="M445 300 L525 300" class="dash"/>
+  <path d="M445 350 L525 350" class="dash"/>
+  <path d="M445 400 L525 400" class="dash"/>
+  <path d="M445 450 L525 450" class="dash"/>
+  <path d="M445 500 L525 500" class="dash"/>
+  <path d="M445 550 L525 550" class="dash"/>
+  <path d="M445 600 L525 600" class="dash"/>
+  <path d="M445 650 L525 650" class="dash"/>
+  <path d="M445 700 L525 700" class="dash"/>
+  <path d="M445 750 L525 750" class="dash"/>
+  <path d="M445 800 L525 800" class="dash"/>
+  <path d="M445 850 L525 850" class="dash"/>
+
+  <text x="397" y="1015" text-anchor="middle" class="small">Hình: Sơ đồ Use Case của tác nhân Quản trị viên</text>
+</svg>

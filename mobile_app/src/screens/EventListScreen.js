@@ -10,6 +10,7 @@ import {
   SectionList,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import api from '../services/api';
 import useFilterStore from '../store/filterStore';
@@ -206,7 +207,7 @@ const EventListScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <FlatList
         data={events}
         renderItem={renderEvent}
@@ -258,7 +259,7 @@ const EventListScreen = ({ navigation }) => {
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 

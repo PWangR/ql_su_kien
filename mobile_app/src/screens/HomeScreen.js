@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -6,19 +6,21 @@ import {
   FlatList, 
   TouchableOpacity, 
   ActivityIndicator, 
-  Image, 
   Dimensions, 
   ScrollView,
   RefreshControl,
-  StatusBar
+  StatusBar,
+  Platform
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import api, { BASE_URL } from '../services/api';
+import api from '../services/api';
 import useAuthStore from '../store/authStore';
 import useQueueStore from '../store/queueStore';
 import Colors from '../constants/Colors';
 import Typography from '../constants/Typography';
 import EventCard from '../components/EventCard';
+import RemoteImage from '../components/RemoteImage';
 
 const { width } = Dimensions.get('window');
 
@@ -78,6 +80,22 @@ const HomeScreen = ({ navigation }) => {
     fetchHomeData();
   }, []);
 
+  const handleEventPress = useCallback((event) => {
+    navigation.navigate('EventDetail', { eventId: event.ma_su_kien, event });
+  }, [navigation]);
+
+  const renderLatestEvent = useCallback(
+    ({ item }) => (
+      <View style={styles.latestItem}>
+        <EventCard
+          event={item}
+          onPress={() => handleEventPress(item)}
+        />
+      </View>
+    ),
+    [handleEventPress]
+  );
+
   const renderHero = () => (
     <View style={styles.heroSection}>
       <View style={styles.heroBadge}>
@@ -136,20 +154,16 @@ const HomeScreen = ({ navigation }) => {
               <TouchableOpacity 
                 key={`${item.ma_su_kien}-${idx}`}
                 style={styles.slide}
-                onPress={() => navigation.navigate('EventDetail', { eventId: item.ma_su_kien, event: item })}
+                onPress={() => handleEventPress(item)}
                 activeOpacity={0.9}
               >
-                {item.anh_su_kien && item.anh_su_kien.trim() ? (
-                  <Image 
-                    source={{ uri: `${BASE_URL}/storage/${item.anh_su_kien}` }}
-                    style={styles.slideImage}
-                    onError={(e) => console.error(`Carousel image ${idx} failed:`, e)}
-                  />
-                ) : (
-                  <View style={[styles.slideImage, { backgroundColor: '#111', justifyContent: 'center', alignItems: 'center' }]}>
-                    <MaterialIcons name="event" size={48} color="rgba(255,255,255,0.2)" />
-                  </View>
-                )}
+                <RemoteImage
+                  path={item.anh_su_kien}
+                  style={styles.slideImage}
+                  fallbackIcon="event"
+                  iconColor="rgba(255,255,255,0.2)"
+                  fallbackStyle={styles.slidePlaceholder}
+                />
                 <View style={styles.slideOverlay}>
                   <Text style={[Typography.h3, styles.slideTitle]} numberOfLines={2}>
                     {item.ten_su_kien}
@@ -211,12 +225,27 @@ const HomeScreen = ({ navigation }) => {
     </View>
   );
 
-  const filteredLatest = activeCategory 
-    ? latest.filter(ev => ev.ma_loai_su_kien === activeCategory)
-    : latest;
+  const filteredLatest = useMemo(
+    () => (
+      activeCategory
+        ? latest.filter(ev => ev.ma_loai_su_kien === activeCategory)
+        : latest
+    ),
+    [activeCategory, latest]
+  );
+
+  const listHeader = useMemo(
+    () => (
+      <>
+        {renderHero()}
+        {renderCategoryFilter()}
+      </>
+    ),
+    [loopedFeatured, featured, currentSlide, categories, activeCategory, isAdmin]
+  );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
       
       {loading && !refreshing ? (
@@ -227,20 +256,8 @@ const HomeScreen = ({ navigation }) => {
         <FlatList
           data={filteredLatest}
           keyExtractor={(item) => item.ma_su_kien.toString()}
-          ListHeaderComponent={
-            <>
-              {renderHero()}
-              {renderCategoryFilter()}
-            </>
-          }
-          renderItem={({ item }) => (
-            <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
-              <EventCard 
-                event={item} 
-                onPress={() => navigation.navigate('EventDetail', { eventId: item.ma_su_kien, event: item })} 
-              />
-            </View>
-          )}
+          ListHeaderComponent={listHeader}
+          renderItem={renderLatestEvent}
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
@@ -251,6 +268,11 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.emptyText}>Chưa có sự kiện nào trong mục này.</Text>
             </View>
           }
+          removeClippedSubviews={Platform.OS === 'android'}
+          initialNumToRender={5}
+          maxToRenderPerBatch={6}
+          windowSize={7}
+          updateCellsBatchingPeriod={60}
         />
       )}
 
@@ -275,7 +297,7 @@ const HomeScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -368,6 +390,9 @@ const styles = StyleSheet.create({
     height: '100%',
     opacity: 0.6,
   },
+  slidePlaceholder: {
+    backgroundColor: '#111',
+  },
   slideOverlay: {
     position: 'absolute',
     bottom: 0,
@@ -424,6 +449,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 40,
+  },
+  latestItem: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
   },
   loadingFull: {
     flex: 1,

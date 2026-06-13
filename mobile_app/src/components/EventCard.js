@@ -1,9 +1,9 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
 import Typography from '../constants/Typography';
-import { BASE_URL } from '../services/api';
+import RemoteImage from './RemoteImage';
 
 const EventCard = memo(({ event, onPress }) => {
   const getStatusConfig = (status) => {
@@ -16,7 +16,6 @@ const EventCard = memo(({ event, onPress }) => {
   };
 
   const statusConfig = getStatusConfig(event.trang_thai_thuc_te);
-  const imageUrl = event.anh_su_kien ? `${BASE_URL}/storage/${event.anh_su_kien}` : null;
 
   const formatDateTime = (dateString) => {
     if (!dateString) return '';
@@ -33,13 +32,13 @@ const EventCard = memo(({ event, onPress }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
       <View style={styles.imageContainer}>
-        {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
-        ) : (
-          <View style={[styles.image, styles.placeholderImage]}>
-            <MaterialIcons name="calendar-today" size={40} color={Colors.border} />
-          </View>
-        )}
+        <RemoteImage
+          path={event.anh_su_kien}
+          style={styles.image}
+          fallbackIcon="calendar-today"
+          iconColor={Colors.border}
+          fallbackStyle={styles.placeholderImage}
+        />
         <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor, borderColor: statusConfig.color }]}>
           <Text style={[styles.statusText, { color: statusConfig.color }]}>{statusConfig.label}</Text>
         </View>
