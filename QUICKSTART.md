@@ -50,7 +50,6 @@ docker-compose exec app php artisan migrate --force
 | [SETUP.md](SETUP.md)                                   | Hướng dẫn cài đặt chi tiết (12 sections) |
 | [README_NEW.md](README_NEW.md)                         | README dự án (features, API)             |
 | [IMPROVEMENTS.md](IMPROVEMENTS.md)                     | Chi tiết công việc hoàn thành            |
-| [COMPLETED_IMPROVEMENTS.md](COMPLETED_IMPROVEMENTS.md) | Tóm tắt toàn bộ                          |
 
 ---
 
@@ -169,7 +168,6 @@ Documentation:
 ✅ SETUP.md
 ✅ README_NEW.md
 ✅ IMPROVEMENTS.md
-✅ COMPLETED_IMPROVEMENTS.md
 ```
 
 ---

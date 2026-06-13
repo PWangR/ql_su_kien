@@ -287,7 +287,6 @@ Trạng thái tham gia:
 
 File chính:
 
-- `app/Services/QrCheckinService.php`
 - `app/Services/RegistrationService.php`
 - `app/Models/ChiTietDiemDanh.php`
 - `app/Http/Controllers/Admin/DiemDanhController.php`
@@ -1126,9 +1125,8 @@ Frontend web có script `npm run build` và `npm run dev`; `package.json` cũng 
 
 | File/thư mục | Nội dung |
 | --- | --- |
-| `DỰ_ÁN_QL_SỰ_KIỆN.md` | Tài liệu tổng hợp cũ, hiện bị lỗi mã hóa khi đọc trong terminal. |
 | `QUICKSTART.md` | Hướng dẫn chạy nhanh, cũng có dấu hiệu lỗi mã hóa. |
-| `IMPROVEMENTS.md`, `COMPLETED_IMPROVEMENTS.md` | Ghi chú cải tiến. |
+| `IMPROVEMENTS.md` | Ghi chú cải tiến. |
 | `MIGRATION_GUIDE_EVENT_WORKFLOW.md` | Hướng dẫn migration workflow sự kiện. |
 | `TEST_MANUAL_GUIDE.md` | Test thủ công. |
 | `doc/` | Tài liệu thiết kế CSDL, workflow, chương 4, drawio, hình minh họa. |
@@ -1186,13 +1184,11 @@ Frontend web có script `npm run build` và `npm run dev`; `package.json` cũng 
 
 ## 18. Lưu ý kỹ thuật và điểm cần chú ý
 
-- `README.md` hiện vẫn là README mặc định của Laravel, chưa phản ánh dự án thực tế.
 - Một số tài liệu cũ bị lỗi mã hóa tiếng Việt khi đọc qua terminal; tài liệu này được viết lại sạch hơn.
 - `Dockerfile` đang chạy `php artisan migrate --force` trong bước build image. Thông thường migration nên chạy khi deploy/runtime để tránh build phụ thuộc database.
 - Workspace hiện tại không có `.env.example`, nhưng `Dockerfile` và nhiều hướng dẫn cũ có bước `cp .env.example .env`; cần bổ sung file mẫu hoặc cập nhật quy trình setup.
 - `CreateDemoEventSeeder` có chỗ đặt `ma_nguoi_tao` là `1`, trong khi khóa chính người dùng hiện là chuỗi `ma_sinh_vien`; cần kiểm tra trước khi dùng seeder này.
 - `StoreMediaRequest` còn rule `la_cong_khai`, nhưng migration mới đã drop cột `la_cong_khai` khỏi `thu_vien_da_phuong_tien`.
-- Có một số file lạ/rỗng ở root như `%%f`, `origin)`, `assertStatus(200)`; nên cân nhắc dọn nếu không còn dùng.
 - `git` không có trong PATH của phiên rà soát này, nên tài liệu dựa trên file hiện có trong workspace, không dựa trên lịch sử commit.
 - Không nên commit `.env`, password SMTP, Gemini API key hoặc SQL dump có dữ liệu thật nếu dự án đưa lên repository công khai.
 
@@ -1210,7 +1206,7 @@ Frontend web có script `npm run build` và `npm run dev`; `package.json` cũng 
 | Logic sự kiện | `app/Services/EventService.php` |
 | Logic đăng ký/điểm danh | `app/Services/RegistrationService.php` |
 | Logic điểm | `app/Services/PointService.php` |
-| Logic QR | `app/Services/QrCheckinService.php` |
+| Sinh ảnh QR | `app/Http/Controllers/Api/QrCodeApiController.php` |
 | Logic thông báo | `app/Services/NotificationService.php` |
 | Logic chatbot | `app/Services/GeminiChatbotService.php` |
 | Model dữ liệu | `app/Models/` |

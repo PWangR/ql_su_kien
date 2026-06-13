@@ -24,7 +24,9 @@
     <!-- ════════════ SIDEBAR ════════════ -->
     <aside class="sidebar" id="sidebar">
         <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-            <div class="sidebar-brand-seal"><i class="bi bi-mortarboard-fill"></i></div>
+            <div class="sidebar-brand-seal">
+                <img src="{{ asset('images/infotech-ntu-logo2.png') }}" alt="Logo Khoa Công nghệ thông tin">
+            </div>
             <div>
                 <div class="sidebar-brand-text">Admin Panel</div>
                 <span class="sidebar-brand-sub">Quản Lý Sự Kiện</span>
@@ -104,10 +106,10 @@
             <div class="sidebar-user">
                 <div class="sidebar-user-avatar">
                     @if(auth()->user()->duong_dan_anh)
-                        <img src="{{ asset('storage/' . auth()->user()->duong_dan_anh) }}" alt="avatar"
-                            style="width:100%;height:100%;object-fit:cover;">
+                    <img src="{{ asset('storage/' . auth()->user()->duong_dan_anh) }}" alt="avatar"
+                        style="width:100%;height:100%;object-fit:cover;">
                     @else
-                        {{ mb_substr(auth()->user()->ho_ten, 0, 1) }}
+                    {{ mb_substr(auth()->user()->ho_ten, 0, 1) }}
                     @endif
                 </div>
                 <div style="flex:1;overflow:hidden;">
@@ -143,14 +145,14 @@
     <div class="admin-content">
         <div class="content-inner">
             @if(session('success'))
-                <div class="alert alert-success">
-                    <i class="bi bi-check-circle"></i> {{ session('success') }}
-                </div>
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i> {{ session('success') }}
+            </div>
             @endif
             @if(session('error'))
-                <div class="alert alert-error">
-                    <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
-                </div>
+            <div class="alert alert-error">
+                <i class="bi bi-exclamation-circle"></i> {{ session('error') }}
+            </div>
             @endif
 
             @yield('content')

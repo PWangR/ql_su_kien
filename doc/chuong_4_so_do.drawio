@@ -334,7 +334,7 @@
         <mxCell id="p2" value="Application Layer&#xa;Controller&#xa;Request&#xa;Middleware&#xa;Policy&#xa;Command" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef9ea;strokeColor=#2d7d46;fontSize=16;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
           <mxGeometry x="180" y="290" width="700" height="130" as="geometry"/>
         </mxCell>
-        <mxCell id="p3" value="Domain / Business Layer&#xa;EventService&#xa;RegistrationService&#xa;NotificationService&#xa;PointService&#xa;QrCheckinService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e8;strokeColor=#b26b00;fontSize=16;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
+        <mxCell id="p3" value="Domain / Business Layer&#xa;EventService&#xa;RegistrationService&#xa;NotificationService&#xa;PointService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff7e8;strokeColor=#b26b00;fontSize=16;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">
           <mxGeometry x="180" y="490" width="700" height="150" as="geometry"/>
         </mxCell>
         <mxCell id="p4" value="Data Layer&#xa;Eloquent Model&#xa;MySQL&#xa;Migration / Seeder&#xa;Storage public" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f7ecff;strokeColor=#7f56d9;fontSize=16;fontStyle=1;fontFamily=Times New Roman;" vertex="1" parent="1">

@@ -273,7 +273,7 @@ Từ góc nhìn triển khai thực tế, hệ thống được tổ chức theo
    Bao gồm các controller, form request, middleware, policy và command. Lớp này tiếp nhận request, xác thực dữ liệu đầu vào, điều phối service và quyết định response.
 
 3. **Domain/Business Layer**
-   Bao gồm các lớp service như `EventService`, `RegistrationService`, `NotificationService`, `PointService`, `QrCheckinService`. Đây là nơi tập trung quy tắc nghiệp vụ quan trọng như chống đăng ký trùng, kiểm tra điều kiện điểm danh, cộng điểm sau hai lần check-in hoặc gửi thông báo hàng loạt.
+   Bao gồm các lớp service như `EventService`, `RegistrationService`, `NotificationService` và `PointService`. Đây là nơi tập trung quy tắc nghiệp vụ quan trọng như chống đăng ký trùng, kiểm tra điều kiện điểm danh, cộng điểm sau hai lần check-in hoặc gửi thông báo hàng loạt.
 
 4. **Data Layer**
    Bao gồm Eloquent model, migration, seeder, MySQL và hệ thống lưu trữ file trên disk `public`.
