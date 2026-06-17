@@ -24,7 +24,7 @@ const ChangePasswordScreen = ({ navigation }) => {
 
   const save = async () => {
     if (!form.current_password || !form.password || !form.password_confirmation) {
-      Alert.alert('Thong bao', 'Vui long nhap day du thong tin.');
+      Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin.');
       return;
     }
 
@@ -32,13 +32,13 @@ const ChangePasswordScreen = ({ navigation }) => {
     try {
       const response = await api.post('/user/change-password', form);
       if (response.data.success) {
-        Alert.alert('Thanh cong', 'Da doi mat khau.', [
+        Alert.alert('Thành công', 'Đã đổi mật khẩu.', [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
       }
     } catch (error) {
       const firstError = error.response?.data?.errors ? Object.values(error.response.data.errors)?.[0]?.[0] : null;
-      Alert.alert('Khong thanh cong', firstError || error.response?.data?.message || 'Khong the doi mat khau.');
+      Alert.alert('Không thành công', firstError || error.response?.data?.message || 'Không thể đổi mật khẩu.');
     } finally {
       setLoading(false);
     }
@@ -47,13 +47,13 @@ const ChangePasswordScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Doi mat khau</Text>
-        <TextInput style={styles.input} placeholder="Mat khau hien tai" secureTextEntry value={form.current_password} onChangeText={(v) => updateField('current_password', v)} />
-        <TextInput style={styles.input} placeholder="Mat khau moi" secureTextEntry value={form.password} onChangeText={(v) => updateField('password', v)} />
-        <TextInput style={styles.input} placeholder="Nhap lai mat khau moi" secureTextEntry value={form.password_confirmation} onChangeText={(v) => updateField('password_confirmation', v)} />
+        <Text style={styles.title}>Đổi mật khẩu</Text>
+        <TextInput style={styles.input} placeholder="Mật khẩu hiện tại" secureTextEntry value={form.current_password} onChangeText={(v) => updateField('current_password', v)} />
+        <TextInput style={styles.input} placeholder="Mật khẩu mới" secureTextEntry value={form.password} onChangeText={(v) => updateField('password', v)} />
+        <TextInput style={styles.input} placeholder="Nhập lại mật khẩu mới" secureTextEntry value={form.password_confirmation} onChangeText={(v) => updateField('password_confirmation', v)} />
 
         <TouchableOpacity style={styles.button} onPress={save} disabled={loading}>
-          {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.buttonText}>Cap nhat mat khau</Text>}
+          {loading ? <ActivityIndicator color={Colors.white} /> : <Text style={styles.buttonText}>Cập nhật mật khẩu</Text>}
         </TouchableOpacity>
       </View>
     </SafeAreaView>

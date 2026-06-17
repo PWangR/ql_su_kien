@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 import useAuthStore from '../store/authStore';
 import Colors from '../constants/Colors';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
 
@@ -32,13 +34,13 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.title}>QL_SU_KIEN</Text>
           <Text style={styles.subtitle}>Cổng thông tin sự kiện sinh viên</Text>
         </View>
-        
+
         <View style={styles.form}>
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Tài khoản (Email)</Text>
             <TextInput
               style={styles.input}
-              placeholder="nhập email của bạn..."
+              placeholder="Nhập email của bạn..."
               placeholderTextColor={Colors.textMuted}
               value={email}
               onChangeText={setEmail}
@@ -46,21 +48,35 @@ const LoginScreen = ({ navigation }) => {
               keyboardType="email-address"
             />
           </View>
-          
+
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Mật khẩu</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="nhập mật khẩu..."
-              placeholderTextColor={Colors.textMuted}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+            <View style={styles.passwordInputWrapper}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Nhập mật khẩu..."
+                placeholderTextColor={Colors.textMuted}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                style={styles.passwordToggle}
+                onPress={() => setShowPassword((current) => !current)}
+                accessibilityRole="button"
+                accessibilityLabel={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              >
+                <MaterialIcons
+                  name={showPassword ? 'visibility-off' : 'visibility'}
+                  size={22}
+                  color={Colors.textMuted}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-          
-          <TouchableOpacity 
-            style={[styles.button, loading && styles.buttonDisabled]} 
+
+          <TouchableOpacity
+            style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
             disabled={loading}
             activeOpacity={0.8}
@@ -68,7 +84,7 @@ const LoginScreen = ({ navigation }) => {
             {loading ? (
               <ActivityIndicator color={Colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Đăng Nhập</Text>
+              <Text style={styles.buttonText}>Đăng nhập</Text>
             )}
           </TouchableOpacity>
 
@@ -76,18 +92,18 @@ const LoginScreen = ({ navigation }) => {
             style={styles.linkButton}
             onPress={() => navigation.navigate('ForgotPassword')}
           >
-            <Text style={styles.linkText}>Quen mat khau / gui lai email xac thuc</Text>
+            <Text style={styles.linkText}>Quên mật khẩu / gửi lại email xác thực</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.registerButton}
             onPress={() => navigation.navigate('Register')}
           >
-            <Text style={styles.registerText}>Tao tai khoan sinh vien</Text>
+            <Text style={styles.registerText}>Tạo tài khoản sinh viên</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.footer}>© 2024 Đại Học Nha Trang</Text>
+        <Text style={styles.footer}>© 2024 Đại học Nha Trang</Text>
       </View>
     </SafeAreaView>
   );
@@ -138,6 +154,28 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     color: Colors.text,
     fontSize: 15,
+  },
+  passwordInputWrapper: {
+    backgroundColor: Colors.background,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  passwordInput: {
+    flex: 1,
+    color: Colors.text,
+    fontSize: 15,
+    paddingLeft: 16,
+    paddingRight: 8,
+    paddingVertical: 14,
+  },
+  passwordToggle: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   button: {
     backgroundColor: Colors.primary,

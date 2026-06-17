@@ -122,11 +122,11 @@ const AppNavigator = () => {
               component={MainTabNavigator}
               options={{ headerShown: false }}
             />
-            {/* Các màn hình chi tiết (không nằm trong tab) */}
+            {/* Các màn hình chi tiết không nằm trong tab */}
             <Stack.Screen
               name="EventDetail"
               component={EventDetailScreen}
-              options={{ 
+              options={{
                 title: 'Chi tiết sự kiện',
                 headerBackTitle: 'Quay lại'
               }}
@@ -134,7 +134,7 @@ const AppNavigator = () => {
             <Stack.Screen
               name="BauCuDetail"
               component={BauCuDetailScreen}
-              options={{ 
+              options={{
                 title: 'Chi tiết bầu cử',
                 headerBackTitle: 'Quay lại'
               }}
@@ -142,15 +142,15 @@ const AppNavigator = () => {
             <Stack.Screen
               name="QRScanner"
               component={QRScannerScreen}
-              options={{ 
-                title: 'Quét QR Điểm Danh',
+              options={{
+                title: 'Quét QR điểm danh',
                 headerBackTitle: 'Quay lại'
               }}
             />
             <Stack.Screen
               name="ParticipationHistory"
               component={ParticipationHistoryScreen}
-              options={{ 
+              options={{
                 title: 'Lịch sử tham gia',
                 headerBackTitle: 'Quay lại'
               }}
@@ -178,7 +178,7 @@ const AppNavigator = () => {
             <Stack.Screen
               name="Chatbot"
               component={ChatbotScreen}
-              options={{ 
+              options={{
                 headerShown: false
               }}
             />
@@ -188,6 +188,5 @@ const AppNavigator = () => {
     </NavigationContainer>
   );
 };
-
 
 export default AppNavigator;

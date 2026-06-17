@@ -46,8 +46,8 @@ const useAuthStore = create((set) => ({
         success: false,
         message: error.response?.data?.message || (
           isNetworkError
-            ? `Khong the ket noi toi may chu: ${BASE_URL}. Hay kiem tra Laravel dang chay va dien thoai cung mang Wi-Fi.`
-            : 'Khong the ket noi toi may chu. Vui long thu lai.'
+            ? `Không thể kết nối tới máy chủ: ${BASE_URL}. Hãy kiểm tra Laravel đang chạy và điện thoại cùng mạng Wi-Fi.`
+            : 'Không thể kết nối tới máy chủ. Vui lòng thử lại.'
         ),
         errors: error.response?.data?.errors,
       };
@@ -59,12 +59,12 @@ const useAuthStore = create((set) => ({
       const response = await api.post('/register', payload);
       return {
         success: response.data.success,
-        message: response.data.message || 'Dang ky thanh cong. Vui long kiem tra email.',
+        message: response.data.message || 'Đăng ký thành công. Vui lòng kiểm tra email.',
       };
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Khong the dang ky tai khoan.',
+        message: error.response?.data?.message || 'Không thể đăng ký tài khoản.',
         errors: error.response?.data?.errors,
       };
     }
@@ -75,12 +75,12 @@ const useAuthStore = create((set) => ({
       const response = await api.post('/forgot-password', { email });
       return {
         success: response.data.success,
-        message: response.data.message || 'Da gui email dat lai mat khau.',
+        message: response.data.message || 'Đã gửi email đặt lại mật khẩu.',
       };
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Khong the gui email dat lai mat khau.',
+        message: error.response?.data?.message || 'Không thể gửi email đặt lại mật khẩu.',
         errors: error.response?.data?.errors,
       };
     }
@@ -91,12 +91,12 @@ const useAuthStore = create((set) => ({
       const response = await api.post('/email/resend', { email });
       return {
         success: response.data.success,
-        message: response.data.message || 'Da gui lai email xac thuc.',
+        message: response.data.message || 'Đã gửi lại email xác thực.',
       };
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Khong the gui lai email xac thuc.',
+        message: error.response?.data?.message || 'Không thể gửi lại email xác thực.',
       };
     }
   },
