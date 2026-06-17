@@ -1,66 +1,66 @@
-# QL Su Kien
+# QL Sự Kiện
 
-He thong quan ly su kien danh cho moi truong sinh vien, gom website quan tri - nguoi dung bang Laravel va ung dung mobile bang Expo/React Native.
+Hệ thống quản lý sự kiện dành cho môi trường sinh viên, gồm website quản trị - người dùng bằng Laravel và ứng dụng mobile bằng Expo/React Native.
 
-Du an ho tro cac luong chinh: quan ly su kien, dang ky tham gia, diem danh QR, tinh diem ren luyen/tham gia, gui thong bao, quan ly bau cu, bao cao, quan ly nguoi dung, thu vien media va chatbot cau hinh qua Gemini.
+Dự án hỗ trợ các luồng chính: quản lý sự kiện, đăng ký tham gia, điểm danh QR, tính điểm rèn luyện/tham gia, gửi thông báo, quản lý bầu cử, báo cáo, quản lý người dùng, thư viện media và chatbot cấu hình qua Gemini.
 
-## Muc luc
+## Mục Lục
 
-- [Tong quan chuc nang](#tong-quan-chuc-nang)
-- [Cong nghe su dung](#cong-nghe-su-dung)
-- [Cau truc thu muc](#cau-truc-thu-muc)
-- [Yeu cau moi truong](#yeu-cau-moi-truong)
-- [Cai dat nhanh bang Docker](#cai-dat-nhanh-bang-docker)
-- [Cai dat local bang Laragon hoac PHP thu cong](#cai-dat-local-bang-laragon-hoac-php-thu-cong)
-- [Chay ung dung mobile Expo](#chay-ung-dung-mobile-expo)
+- [Tổng quan chức năng](#tổng-quan-chức-năng)
+- [Công nghệ sử dụng](#công-nghệ-sử-dụng)
+- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
+- [Yêu cầu môi trường](#yêu-cầu-môi-trường)
+- [Cài đặt nhanh bằng Docker](#cài-đặt-nhanh-bằng-docker)
+- [Cài đặt local bằng Laragon hoặc PHP thủ công](#cài-đặt-local-bằng-laragon-hoặc-php-thủ-công)
+- [Chạy ứng dụng mobile Expo](#chạy-ứng-dụng-mobile-expo)
 - [Build Android APK/AAB](#build-android-apkaab)
-- [Lenh thuong dung](#lenh-thuong-dung)
-- [Kiem thu](#kiem-thu)
-- [Luu y trien khai](#luu-y-trien-khai)
+- [Lệnh thường dùng](#lệnh-thường-dùng)
+- [Kiểm thử](#kiểm-thử)
+- [Lưu ý triển khai](#lưu-ý-triển-khai)
 
-## Tong quan chuc nang
+## Tổng Quan Chức Năng
 
 ### Website Laravel
 
-- Dang nhap, dang ky, quen mat khau, xac thuc email.
-- Trang nguoi dung: xem su kien, dang ky/huy dang ky, lich su tham gia, thong bao, ho so ca nhan.
-- Diem danh QR cho sinh vien va man hinh quet diem danh.
-- Trang quan tri:
+- Đăng nhập, đăng ký, quên mật khẩu, xác thực email.
+- Trang người dùng: xem sự kiện, đăng ký/hủy đăng ký, lịch sử tham gia, thông báo, hồ sơ cá nhân.
+- Điểm danh QR cho sinh viên và màn hình quét điểm danh.
+- Trang quản trị:
   - dashboard;
-  - quan ly su kien, loai su kien, mau bai dang;
-  - quan ly nguoi dung;
-  - quan ly thong bao va lich gui thong bao;
-  - quan ly media, the anh, upload hinh anh;
-  - thong ke, bao cao va export Excel;
-  - cau hinh SMTP;
-  - cau hinh Gemini chatbot;
-  - log hoat dong;
-  - quan ly bau cu, ung cu vien, cu tri va ket qua bau cu.
-- API Laravel Sanctum phuc vu mobile app.
-- Scheduler Laravel tu dong cap nhat trang thai su kien, gui thong bao den han va don log cu.
+  - quản lý sự kiện, loại sự kiện, mẫu bài đăng;
+  - quản lý người dùng;
+  - quản lý thông báo và lịch gửi thông báo;
+  - quản lý media, thẻ ảnh, upload hình ảnh;
+  - thống kê, báo cáo và export Excel;
+  - cấu hình SMTP;
+  - cấu hình Gemini chatbot;
+  - log hoạt động;
+  - quản lý bầu cử, ứng cử viên, cử tri và kết quả bầu cử.
+- API Laravel Sanctum phục vụ mobile app.
+- Scheduler Laravel tự động cập nhật trạng thái sự kiện, gửi thông báo đến hạn và dọn log cũ.
 
-### Ung dung mobile Expo
+### Ứng Dụng Mobile Expo
 
-Ung dung nam trong thu muc `mobile_app`, dung chung backend Laravel qua API `/api`.
+Ứng dụng nằm trong thư mục `mobile_app`, dùng chung backend Laravel qua API `/api`.
 
-- Dang nhap/dang ky/quen mat khau.
-- Xem danh sach va chi tiet su kien.
-- Dang ky hoac huy dang ky su kien.
-- Quet QR diem danh bang camera.
-- Xem diem, lich su tham gia, thong bao.
-- Bau cu va xem ket qua.
-- Cap nhat ho so, doi mat khau.
+- Đăng nhập/đăng ký/quên mật khẩu.
+- Xem danh sách và chi tiết sự kiện.
+- Đăng ký hoặc hủy đăng ký sự kiện.
+- Quét QR điểm danh bằng camera.
+- Xem điểm, lịch sử tham gia, thông báo.
+- Bầu cử và xem kết quả.
+- Cập nhật hồ sơ, đổi mật khẩu.
 - Chatbot.
 
-## Cong nghe su dung
+## Công Nghệ Sử Dụng
 
-### Backend va website
+### Backend Và Website
 
 - PHP `^8.1`
 - Laravel `^10.10`
 - Laravel Sanctum `^3.3`
 - MySQL 8
-- Redis 7 trong cau hinh Docker
+- Redis 7 trong cấu hình Docker
 - Vite 5
 - Tailwind CSS
 - Chart.js
@@ -82,90 +82,90 @@ Ung dung nam trong thu muc `mobile_app`, dung chung backend Laravel qua API `/ap
 
 ### Docker
 
-`docker-compose.yml` khai bao cac service:
+`docker-compose.yml` khai báo các service:
 
-- `nginx`: web server, mac dinh `http://localhost:8080`
-- `app`: PHP-FPM chay Laravel
-- `scheduler`: chay `php artisan schedule:work`
-- `node`: Vite dev server, mac dinh `http://localhost:5173`
+- `nginx`: web server, mặc định `http://localhost:8080`
+- `app`: PHP-FPM chạy Laravel
+- `scheduler`: chạy `php artisan schedule:work`
+- `node`: Vite dev server, mặc định `http://localhost:5173`
 - `db`: MySQL 8, map ra host port `3307`
 - `redis`: Redis, map ra host port `6380`
 
-## Cau truc thu muc
+## Cấu Trúc Thư Mục
 
 ```text
 .
 |-- app/                  # Models, Controllers, Services, Policies, Commands
 |-- bootstrap/            # Bootstrap Laravel
-|-- config/               # Cau hinh Laravel
+|-- config/               # Cấu hình Laravel
 |-- database/             # Migrations, factories, seeders
-|-- docker/               # Cau hinh nginx va entrypoint container
-|-- doc/                  # Tai lieu, so do, hinh minh hoa
-|-- mobile_app/           # Ung dung Expo/React Native
+|-- docker/               # Cấu hình nginx và entrypoint container
+|-- doc/                  # Tài liệu, sơ đồ, hình minh họa
+|-- mobile_app/           # Ứng dụng Expo/React Native
 |-- public/               # Public web root, asset build, storage link
 |-- resources/            # Blade views, CSS, JS
 |-- routes/               # web.php, api.php, console.php
 |-- storage/              # Logs, cache, uploaded files
-|-- tests/                # Unit va Feature tests
+|-- tests/                # Unit và Feature tests
 |-- docker-compose.yml
 |-- Dockerfile
 |-- composer.json
 |-- package.json
-`-- ql_su_kien.sql        # File SQL mau/import thu cong neu can
+`-- ql_su_kien.sql        # File SQL mẫu/import thủ công nếu cần
 ```
 
-## Yeu cau moi truong
+## Yêu Cầu Môi Trường
 
-Chon mot trong hai cach chay backend:
+Chọn một trong hai cách chạy backend:
 
-### Cach 1: Docker
+### Cách 1: Docker
 
 - Docker Desktop
 - Docker Compose
 
-### Cach 2: Local/Laragon
+### Cách 2: Local/Laragon
 
-- PHP 8.1 tro len
+- PHP 8.1 trở lên
 - Composer 2
-- Node.js 18 tro len
-- MySQL 8 hoac MariaDB tuong thich
-- Laragon neu chay theo domain local `ql_su_kien.test`
+- Node.js 18 trở lên
+- MySQL 8 hoặc MariaDB tương thích
+- Laragon nếu chạy theo domain local `ql_su_kien.test`
 
 ### Mobile
 
-- Node.js 18 tro len
+- Node.js 18 trở lên
 - npm
-- Expo CLI/EAS CLI co the chay qua `npx`
-- Expo Go tren dien thoai hoac Android Emulator
+- Expo CLI/EAS CLI có thể chạy qua `npx`
+- Expo Go trên điện thoại hoặc Android Emulator
 
-## Cai dat nhanh bang Docker
+## Cài Đặt Nhanh Bằng Docker
 
-Day la cach de chay du an dong nhat nhat tren Windows.
+Đây là cách để chạy dự án đồng nhất nhất trên Windows.
 
-### Cach nhanh bang script
+### Cách nhanh bằng script
 
-1. Mo Docker Desktop.
-2. Chay file:
+1. Mở Docker Desktop.
+2. Chạy file:
 
 ```bat
 start-docker.bat
 ```
 
-Script se:
+Script sẽ:
 
-- tao `.env` tu `.env.docker.example` neu chua co;
-- build va khoi dong container;
-- chay `composer install`;
-- chay migration;
-- tao storage link.
+- tạo `.env` từ `.env.docker.example` nếu chưa có;
+- build và khởi động container;
+- chạy `composer install`;
+- chạy migration;
+- tạo storage link.
 
-Sau khi xong, truy cap:
+Sau khi xong, truy cập:
 
 ```text
 http://localhost:8080
 ```
 
-### Lenh Docker thu cong
+### Lệnh Docker thủ công
 
 ```bash
 docker compose up -d --build
@@ -176,46 +176,46 @@ docker compose exec app php artisan db:seed
 docker compose exec app php artisan storage:link --force
 ```
 
-Neu muon import du lieu tu file SQL co san:
+Nếu muốn import dữ liệu từ file SQL có sẵn:
 
 ```bat
 import-docker-db.bat
 ```
 
-Kiem tra database Docker:
+Kiểm tra database Docker:
 
 ```bat
 check-docker-db.bat
 ```
 
-Dung container:
+Dừng container:
 
 ```bat
 stop-docker.bat
 ```
 
-Hoac:
+Hoặc:
 
 ```bash
 docker compose down
 ```
 
-Xoa ca database volume de lam lai tu dau:
+Xóa cả database volume để làm lại từ đầu:
 
 ```bash
 docker compose down -v
 ```
 
-### Cong mac dinh Docker
+### Cổng mặc định Docker
 
-| Dich vu | URL/port |
+| Dịch vụ | URL/port |
 | --- | --- |
 | Laravel web | `http://localhost:8080` |
 | Vite dev server | `http://localhost:5173` |
-| MySQL tren host | `localhost:3307` |
-| Redis tren host | `localhost:6380` |
+| MySQL trên host | `localhost:3307` |
+| Redis trên host | `localhost:6380` |
 
-Co the doi port bang cac bien trong `.env`:
+Có thể đổi port bằng các biến trong `.env`:
 
 ```dotenv
 APP_PORT=8081
@@ -224,24 +224,24 @@ DB_FORWARD_PORT=3308
 REDIS_FORWARD_PORT=6381
 ```
 
-## Cai dat local bang Laragon hoac PHP thu cong
+## Cài Đặt Local Bằng Laragon Hoặc PHP Thủ Công
 
-### 1. Cai dependencies
+### 1. Cài dependencies
 
 ```bash
 composer install
 npm install
 ```
 
-### 2. Tao file moi truong
+### 2. Tạo file môi trường
 
-Repo hien co `.env.docker.example`. Neu chua co `.env`, co the copy file nay roi sua lai thong tin database cho moi truong local:
+Repo hiện có `.env.docker.example`. Nếu chưa có `.env`, có thể copy file này rồi sửa lại thông tin database cho môi trường local:
 
 ```bash
 copy .env.docker.example .env
 ```
 
-Voi Laragon/MySQL local, cac bien thuong can chinh:
+Với Laragon/MySQL local, các biến thường cần chỉnh:
 
 ```dotenv
 APP_NAME="QL Su Kien"
@@ -260,15 +260,15 @@ FILESYSTEM_DISK=public
 QUEUE_CONNECTION=sync
 ```
 
-Tao app key:
+Tạo app key:
 
 ```bash
 php artisan key:generate
 ```
 
-### 3. Tao database
+### 3. Tạo database
 
-Tao database ten `ql_su_kien` trong MySQL, sau do chay:
+Tạo database tên `ql_su_kien` trong MySQL, sau đó chạy:
 
 ```bash
 php artisan migrate
@@ -276,106 +276,106 @@ php artisan db:seed
 php artisan storage:link
 ```
 
-Neu muon dung file SQL mau:
+Nếu muốn dùng file SQL mẫu:
 
 ```bash
 mysql -u root -p ql_su_kien < ql_su_kien.sql
 ```
 
-### 4. Build asset va chay web
+### 4. Build asset và chạy web
 
-Moi truong dev:
+Môi trường dev:
 
 ```bash
 npm run dev
 php artisan serve
 ```
 
-Mac dinh `php artisan serve` chay tai:
+Mặc định `php artisan serve` chạy tại:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-Voi Laragon, co the chay script:
+Với Laragon, có thể chạy script:
 
 ```bat
 start-laragon.bat
 ```
 
-Script nay clear cache Laravel, build asset va huong dan mo:
+Script này clear cache Laravel, build asset và hướng dẫn mở:
 
 ```text
 http://ql_su_kien.test
 ```
 
-## Tai khoan mac dinh
+## Tài Khoản Mặc Định
 
-Seeder mac dinh trong `DatabaseSeeder` tao:
+Seeder mặc định trong `DatabaseSeeder` tạo:
 
-| Vai tro | Email | Mat khau |
+| Vai trò | Email | Mật khẩu |
 | --- | --- | --- |
 | Admin | `admin@local.test` | `12345678` |
-| Sinh vien | `sv@local.test` | `12345678` |
+| Sinh viên | `sv@local.test` | `12345678` |
 
-Repo cung co seeder demo rieng `CreateDemoUsers` tao:
+Repo cũng có seeder demo riêng `CreateDemoUsers` tạo:
 
-| Vai tro | Email | Mat khau |
+| Vai trò | Email | Mật khẩu |
 | --- | --- | --- |
 | Admin demo | `admin@example.com` | `password` |
-| Sinh vien demo | `student@example.com` | `password` |
+| Sinh viên demo | `student@example.com` | `password` |
 
-Chay seeder demo neu can:
+Chạy seeder demo nếu cần:
 
 ```bash
 php artisan db:seed --class=CreateDemoUsers
 ```
 
-## Chay ung dung mobile Expo
+## Chạy Ứng Dụng Mobile Expo
 
-Mobile app nam trong:
+Mobile app nằm trong:
 
 ```text
 mobile_app/
 ```
 
-Ung dung goi API qua bien:
+Ứng dụng gọi API qua biến:
 
 ```text
 EXPO_PUBLIC_API_URL
 ```
 
-Trong code, `mobile_app/src/services/api.js` se tu noi them `/api`, vi vay gia tri bien moi truong chi can la domain backend, khong them `/api`.
+Trong code, `mobile_app/src/services/api.js` sẽ tự nối thêm `/api`, vì vậy giá trị biến môi trường chỉ cần là domain backend, không thêm `/api`.
 
-Dung dung:
+Dùng đúng:
 
 ```text
 http://localhost:8080
 ```
 
-Khong dung:
+Không dùng:
 
 ```text
 http://localhost:8080/api
 ```
 
-### Cach nhanh bang script
+### Cách nhanh bằng script
 
-Chay backend truoc:
+Chạy backend trước:
 
 ```bat
 start-docker.bat
 ```
 
-Sau do chay mobile:
+Sau đó chạy mobile:
 
 ```bat
 start-mobile.bat
 ```
 
-Script se vao `mobile_app`, cai dependencies neu can, gan `EXPO_PUBLIC_API_URL` theo che do va mo Expo.
+Script sẽ vào `mobile_app`, cài dependencies nếu cần, gán `EXPO_PUBLIC_API_URL` theo chế độ và mở Expo.
 
-Co the chay truc tiep:
+Có thể chạy trực tiếp:
 
 ```bat
 start-mobile.bat phone
@@ -386,41 +386,41 @@ start-mobile.bat laravel
 start-mobile.bat manual
 ```
 
-### Chay thu cong
+### Chạy thủ công
 
 ```bash
 cd mobile_app
 npm install
 ```
 
-Neu chay web/mobile tren cung may voi Docker:
+Nếu chạy web/mobile trên cùng máy với Docker:
 
 ```bash
 set EXPO_PUBLIC_API_URL=http://localhost:8080
 npm start
 ```
 
-Neu chay Android Emulator:
+Nếu chạy Android Emulator:
 
 ```bash
 set EXPO_PUBLIC_API_URL=http://10.0.2.2:8080
 npm run android
 ```
 
-Neu chay dien thoai that qua Expo Go, dien thoai khong dung duoc `localhost` cua may tinh. Hay dung IP LAN cua may tinh:
+Nếu chạy điện thoại thật qua Expo Go, điện thoại không dùng được `localhost` của máy tính. Hãy dùng IP LAN của máy tính:
 
 ```bash
 set EXPO_PUBLIC_API_URL=http://192.168.1.10:8080
 npm run phone
 ```
 
-Neu backend chay bang `php artisan serve`, nen mo bang:
+Nếu backend chạy bằng `php artisan serve`, nên mở bằng:
 
 ```bash
 php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-Sau do dung:
+Sau đó dùng:
 
 ```text
 http://IP_MAY_TINH:8000
@@ -428,41 +428,41 @@ http://IP_MAY_TINH:8000
 
 ## Build Android APK/AAB
 
-### Build APK noi bo
+### Build APK nội bộ
 
-Dung script o thu muc goc:
+Dùng script ở thư mục gốc:
 
 ```bat
 build-mobile-apk.bat
 ```
 
-Hoac trong `mobile_app`:
+Hoặc trong `mobile_app`:
 
 ```bash
 npm run build:android:apk
 ```
 
-APK dung profile `preview` trong `mobile_app/eas.json`.
+APK dùng profile `preview` trong `mobile_app/eas.json`.
 
 ### Build AAB production
 
-Dung script o thu muc goc:
+Dùng script ở thư mục gốc:
 
 ```bat
 build-mobile-aab.bat
 ```
 
-Hoac trong `mobile_app`:
+Hoặc trong `mobile_app`:
 
 ```bash
 npm run build:android:aab
 ```
 
-AAB dung profile `production` trong `mobile_app/eas.json`.
+AAB dùng profile `production` trong `mobile_app/eas.json`.
 
-Luu y: `EXPO_PUBLIC_API_URL` duoc dong goi vao app tai thoi diem build. Khi doi domain backend, can build lai APK/AAB.
+Lưu ý: `EXPO_PUBLIC_API_URL` được đóng gói vào app tại thời điểm build. Khi đổi domain backend, cần build lại APK/AAB.
 
-## Lenh thuong dung
+## Lệnh Thường Dùng
 
 ### Laravel
 
@@ -512,15 +512,15 @@ npm run build:android:apk
 npm run build:android:aab
 ```
 
-## Kiem thu
+## Kiểm Thử
 
-Chay toan bo test Laravel:
+Chạy toàn bộ test Laravel:
 
 ```bash
 php artisan test
 ```
 
-Chay test theo nhom/file:
+Chạy test theo nhóm/file:
 
 ```bash
 php artisan test tests/Unit
@@ -528,82 +528,82 @@ php artisan test tests/Feature
 php artisan test tests/Feature/Api/EventApiTest.php
 ```
 
-Frontend root co script:
+Frontend root có script:
 
 ```bash
 npm test
 ```
 
-Tuy nhien can kiem tra lai cau hinh Jest truoc khi dua vao CI/CD vi repo hien chi khai bao script trong `package.json`.
+Tuy nhiên cần kiểm tra lại cấu hình Jest trước khi đưa vào CI/CD vì repo hiện chỉ khai báo script trong `package.json`.
 
-## API chinh
+## API Chính
 
-Tat ca route mobile/API nam duoi prefix:
+Tất cả route mobile/API nằm dưới prefix:
 
 ```text
 /api
 ```
 
-Mot so endpoint chinh:
+Một số endpoint chính:
 
-| Nhom | Endpoint |
+| Nhóm | Endpoint |
 | --- | --- |
 | Auth | `POST /api/login`, `POST /api/register`, `POST /api/logout` |
-| Su kien | `GET /api/events`, `GET /api/events/{id}`, `GET /api/events/search/{keyword}` |
-| Dang ky | `POST /api/registrations/{eventId}`, `DELETE /api/registrations/{eventId}` |
-| Diem danh QR | `POST /api/registrations/app-scan`, `POST /api/registrations/app-scan-batch` |
-| Thong bao | `GET /api/notifications`, `POST /api/notifications/{id}/read` |
-| Diem | `GET /api/points/total`, `GET /api/points/history`, `GET /api/points/leaderboard` |
-| Bau cu | `GET /api/voting`, `POST /api/voting/{id}/vote`, `GET /api/voting/{id}/results` |
+| Sự kiện | `GET /api/events`, `GET /api/events/{id}`, `GET /api/events/search/{keyword}` |
+| Đăng ký | `POST /api/registrations/{eventId}`, `DELETE /api/registrations/{eventId}` |
+| Điểm danh QR | `POST /api/registrations/app-scan`, `POST /api/registrations/app-scan-batch` |
+| Thông báo | `GET /api/notifications`, `POST /api/notifications/{id}/read` |
+| Điểm | `GET /api/points/total`, `GET /api/points/history`, `GET /api/points/leaderboard` |
+| Bầu cử | `GET /api/voting`, `POST /api/voting/{id}/vote`, `GET /api/voting/{id}/results` |
 | Chatbot | `POST /api/chatbot/ask` |
 | Admin API | `POST /api/admin/events`, `GET /api/admin/users`, `GET /api/admin/statistics/dashboard` |
 
 ## Scheduler
 
-`app/Console/Kernel.php` dang len lich:
+`app/Console/Kernel.php` đang lên lịch:
 
-- `app:sync-event-status` moi phut;
-- `notifications:send-due` moi phut;
-- `logs:prune --days=30` luc 02:00 moi ngay.
+- `app:sync-event-status` mỗi phút;
+- `notifications:send-due` mỗi phút;
+- `logs:prune --days=30` lúc 02:00 mỗi ngày.
 
-Khi chay Docker, service `scheduler` da chay:
+Khi chạy Docker, service `scheduler` đã chạy:
 
 ```bash
 php artisan schedule:work
 ```
 
-Neu deploy khong dung Docker, can tao cron tren server:
+Nếu deploy không dùng Docker, cần tạo cron trên server:
 
 ```cron
 * * * * * cd /path/to/ql_su_kien && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-## Luu y trien khai
+## Lưu Ý Triển Khai
 
-- Build asset production bang `npm run build`.
-- Dat `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://domain-cua-ban`.
-- Cau hinh MySQL production rieng, khong dung mat khau mac dinh.
-- Chay `php artisan migrate --force` tren server.
-- Chay `php artisan storage:link` va dam bao `storage/`, `bootstrap/cache/` co quyen ghi.
-- Cau hinh scheduler/cron de thong bao va trang thai su kien hoat dong dung.
-- Cau hinh SMTP trong admin hoac `.env` neu can gui email that.
-- Neu build mobile production, cap nhat `EXPO_PUBLIC_API_URL` thanh domain HTTPS backend roi build lai app.
-- Docker compose hien tai phu hop local/dev. Truoc khi dua len production can harden lai `.env`, port public, volume, backup database, HTTPS va cache config.
+- Build asset production bằng `npm run build`.
+- Đặt `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://domain-cua-ban`.
+- Cấu hình MySQL production riêng, không dùng mật khẩu mặc định.
+- Chạy `php artisan migrate --force` trên server.
+- Chạy `php artisan storage:link` và đảm bảo `storage/`, `bootstrap/cache/` có quyền ghi.
+- Cấu hình scheduler/cron để thông báo và trạng thái sự kiện hoạt động đúng.
+- Cấu hình SMTP trong admin hoặc `.env` nếu cần gửi email thật.
+- Nếu build mobile production, cập nhật `EXPO_PUBLIC_API_URL` thành domain HTTPS backend rồi build lại app.
+- Docker compose hiện tại phù hợp local/dev. Trước khi đưa lên production cần harden lại `.env`, port public, volume, backup database, HTTPS và cache config.
 
-## Tai lieu lien quan trong repo
+## Tài Liệu Liên Quan Trong Repo
 
-- `DOCKER_GUIDE.md`: huong dan chay Docker.
-- `MOBILE_RUN_GUIDE.md`: huong dan chay mobile app.
-- `BUILD_MOBILE_APP_GUIDE.md`: huong dan build mobile.
-- `TAI_LIEU_TONG_QUAN_DU_AN.md`: tai lieu tong quan du an.
-- `TEST_MANUAL_GUIDE.md`: huong dan test thu cong.
-- `mobile_app/API_DOCUMENTATION.md`: tai lieu API cho mobile.
-- `doc/`: so do, use case, ERD va tai lieu phan tich thiet ke.
+- `DOCKER_GUIDE.md`: hướng dẫn chạy Docker.
+- `MOBILE_RUN_GUIDE.md`: hướng dẫn chạy mobile app.
+- `BUILD_MOBILE_APP_GUIDE.md`: hướng dẫn build mobile.
+- `TAI_LIEU_TONG_QUAN_DU_AN.md`: tài liệu tổng quan dự án.
+- `TEST_MANUAL_GUIDE.md`: hướng dẫn test thủ công.
+- `mobile_app/API_DOCUMENTATION.md`: tài liệu API cho mobile.
+- `doc/`: sơ đồ, use case, ERD và tài liệu phân tích thiết kế.
 
-## Ghi chu phat trien
+## Ghi Chú Phát Triển
 
-- User model dung bang `nguoi_dung`, khoa chinh `ma_sinh_vien`, mat khau luu trong cot `mat_khau`.
-- API xac thuc bang Laravel Sanctum.
-- Upload public dung disk `public`, URL dua vao `APP_URL/storage`.
-- Mobile app tu dong them `/api` vao `EXPO_PUBLIC_API_URL`.
-- Khi sua luong dang ky/diem danh/thong bao, nen chay lai cac test trong `tests/Feature/Api` va `tests/Unit/Services`.
+- User model dùng bảng `nguoi_dung`, khóa chính `ma_sinh_vien`, mật khẩu lưu trong cột `mat_khau`.
+- API xác thực bằng Laravel Sanctum.
+- Upload public dùng disk `public`, URL dựa vào `APP_URL/storage`.
+- Mobile app tự động thêm `/api` vào `EXPO_PUBLIC_API_URL`.
+- Khi sửa luồng đăng ký/điểm danh/thông báo, nên chạy lại các test trong `tests/Feature/Api` và `tests/Unit/Services`.
